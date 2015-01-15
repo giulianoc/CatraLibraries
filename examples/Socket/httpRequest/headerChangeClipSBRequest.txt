@@ -1,0 +1,6 @@
+POST /SB HTTP/1.1
+Host: 10.214.96.171:6666
+Content-Type: text/xml; charset="utf-8"
+SoapAction: "http://SB/ChangeClipRequest"
+Content-Length: @BODYLENGTH@
+

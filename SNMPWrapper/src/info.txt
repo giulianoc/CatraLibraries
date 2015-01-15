@@ -1,0 +1,10 @@
+
+To receive traps on the standard output run:
+
+1. in /etc/snmp/snmptrapd.conf be sure you have
+	disableAuthorization yes
+
+2. Run the manager (i.e. on testdev2) to receive traps on the standard output:
+snmptrapd -f -Lo
+
+

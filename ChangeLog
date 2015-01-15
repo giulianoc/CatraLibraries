@@ -1,0 +1,1511 @@
+2015-01-15  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* New CatraLibraries using CMake and configured using GIT
+
+2012-06-05  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Released CatraLibraries_0072
+
+2012-06-05  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* HttpPostThread.cpp. Fixed a bug
+
+2012-06-01  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Released CatraLibraries_0071
+
+2012-06-01  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* HttpPostThread. Added Cookie and Useragent management
+
+2012-06-01  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* FileIO. Added the replaceUnsafeFileNameChars method
+
+2012-06-01  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Buffer. Manager also the -96 char in the removeCTRLCharacters API
+
+2012-06-01  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Buffer. writeBufferOnFile now manage binaries files in case of Windows
+
+2012-05-21  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Released CatraLibraries_0070
+
+2012-05-21  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Buffer. writeBufferOnFile now accept also the execution permission
+
+2012-05-21  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* WebTools. HttpGetThread: the returned body is now read in chunk
+		and not any more in only one read
+
+2012-05-16  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Released CatraLibraries_0069
+
+2012-05-16  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Encrypt. Windows, managed the scenario where the String to be encripted is empty
+
+2012-05-16  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Tracer. Managed @CURRENTDIR@ inside the TraceDirectory
+
+2012-05-04  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Released CatraLibraries_0068
+
+2012-05-04  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Buffer. Added removeChar, truncateStartingFrom
+
+2012-04-19  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Released CatraLibraries_0067
+
+2012-04-18  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* HttpGetThread. Fix in chunkRead
+
+2012-04-18  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Buffer. Fix in setChar
+
+2012-04-18  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* LoadBalancer. Public and Private port is now added
+
+2012-04-07  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* WebTools. SaveHttpGetThread is now supported.
+
+2012-04-05  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Released CatraLibraries_0066
+
+2012-04-05  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Buffer. Added the removeCTRLCharacters method
+
+2012-04-03  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Released CatraLibraries_0065
+
+2012-04-03  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* WebTools. Added the SaveHttpGetThread class
+
+2012-03-31  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Buffer: setBuffer can be done also if it is not initialized
+
+2012-03-31  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* HttpGetThread: added the management of 'Location' for the redirection
+
+2012-03-31  Giuliano Catrambone  <giuliano@catrasoft>
+
+	* Scheduler. Times.cpp: fixed a bug in the sscanf API
+
+2012-02-10  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0064
+
+2012-02-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* CMProcessor. The EventCreationDateTime is added to the RECEIVEDREQUEST message
+
+2012-02-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* CMSocketsPool. The CONNECTIONREADYTOREAD event is sent after a new check (poll/select) is done)
+
+2012-02-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* ConnectionManagementService. Reduced the minimal of CheckUnusedPeriod and MaxTTL
+
+2012-02-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* ConnectionManagement. Session: added the connectionInformation::UTCLastRead
+
+2012-02-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* ClientSocket. Added the reinit method
+
+2012-02-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the ClientSocketsPool class
+
+2012-02-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Socket. Added the Identifier for every Socket
+
+2012-02-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* HttpGetThread. Added the virtual chunkRead method
+
+2012-02-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* HttpPostHeader could work using an internal ClientSocket or an external one
+
+2012-02-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility::readHttpHeaderAndBody. Added the readChunk function.
+
+2012-01-20  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Encrypt/Decrypt: little optimization
+
+2011-12-29  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0063
+
+2011-12-29  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* ConnectionManager. Service script generated in /usr/local instead of /.
+		Look the info in the service name section of the configuration file
+
+2011-11-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0062
+
+2011-11-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Socket. Fixed few bugs on Windows OS (setSockOpt)
+
+2011-11-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* DateTime. Added isLeapYear and getLastDayOfMonth
+
+2011-11-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Added FileIO::getWorkingDirectory
+
+2011-11-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Windows: changed .vcproj. RuntimeLibrary="2", TreatWChar_tAsBuiltInType="false"
+
+2011-11-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0061
+
+2011-11-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* ConnectionsManager. Added an error message when an event takes
+		more than a configurable number of milli seconds
+
+2011-11-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Event. Added the const char *pTypeIdentifier parameter
+
+2011-11-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* MyFTP. Fixed several issues (multiple ftp put using the same MyFTP instance)
+
+2011-11-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Times. Fixed the Daylight Saving Time issue. (VOS 4246 from 3AT)
+
+2011-11-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* ClientSocket. Added the getClientSocketStatus
+
+2011-11-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Buffer. Added the setChar method
+
+2011-11-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* HttpGetThread. Manage the user agent too.
+
+2011-11-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtiltity. Manage a Buffer_t parameter for the decodeURL method
+
+2011-11-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility. Added SetCookie parameter in readHttpHeaderAndBody
+
+2011-10-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* LoadBalancer. Improved the algorithm.
+
+2011-10-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Socket. Managed the scenario (error) when the machine is down.
+
+2011-09-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Some changes in the Telnet class
+
+2011-09-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. added the FileIO::appendLongLong method
+
+2011-07-29  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0060
+
+2011-07-29  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. Added the UserAgent management
+
+2011-07-13  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0059
+
+2011-07-13  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* reviewed the parameters of the sprintf API
+
+2011-07-13  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* SNMP: changed the OID from 18265 to 18285
+
+2011-07-13  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* HTTP: Added 'Connection: close' where it was necessary
+
+2011-07-12  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0058
+
+2011-07-12  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* SNMP: Disabled it by default
+
+2011-07-12  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. Added the management of the cookie
+
+2011-04-21  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0057
+
+2011-04-21  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* SocketImpl. ReceivingTimeout is now set correctly in the log message. (VOG from H3G IT)
+
+2011-04-21  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility. Optimized the buffer used by the HTTP GET
+
+2011-04-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0056
+
+2011-03-28  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility::decodeURL. Managed the '+'/' ' character
+
+2011-03-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* ConnectionsManager. CMProcessor.cpp. The header timeout error does not return any more an error.
+
+2011-03-08  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. createDirectory was extended to support the recursive parameter.
+		createLink was extended to support the recursive creation of the directory
+		if necessary
+
+2011-02-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. Added moveLink
+
+2011-02-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. Added bInCaseOfLinkHasItToBeRead param. to getFileSizeInBytes
+
+2011-02-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. Added movedirectory
+
+2011-02-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. Added getDirectorySizeInBytes, 
+
+2011-02-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added WebUtility::addURLParameter for unsigned long long
+
+2011-01-27  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0055
+
+2011-01-27  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Windows support
+
+2010-12-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0054
+
+2010-12-21  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Windows support
+
+2010-11-04  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0053
+
+2010-11-04  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Scheduler. Fixed the management if the time change from DST to NoDST (from 3am to 2am).
+
+2010-10-13  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0052
+
+2010-10-08  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* sscanf parameters fixed for the 64 bits release
+
+2010-09-10  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0051
+
+2010-09-10  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added more info in a socket error
+
+2010-06-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0050
+
+2010-06-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Socket. Managed the EINPROGRESS errno returned by the connect system call.
+
+2010-05-27  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0049
+
+2010-05-27  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* LoadBalancer. Added the PingSocketTimeoutInSeconds cfg parameter
+
+2010-05-04  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0048
+
+2010-05-04  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* LoadBalancer. The check on the socket is not hang the thread for long time
+		if the machine is down (used one second of timeout)
+
+2010-04-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0047
+
+2010-04-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Scheduler. Fixed an issue during the Daylight Saving Time.
+
+2010-04-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* DateTime::convertFromLocalDateTimeToLocalInSecs. Added the 'lDaylightSavingTime' parameter
+
+2010-03-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0046
+
+2010-03-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility. getURLParameterValue manage now also encrypted values.
+
+2010-03-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0045
+
+2010-03-14  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Added the DateTime::convertFromUTCInSecondsToBreakDownUTC method 
+
+2010-02-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0044
+
+2010-02-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* DateTime. Added a new DateTime::convertFromLocalToUTC method
+
+2010-02-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility::parseHTTPHeader manages also RTSP header
+
+2010-02-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0043
+
+2010-02-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileReader. Fixed two internal issues
+
+2010-02-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Buffer. Added the setBuffer for integer
+
+2010-02-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* HttpPostThread.cpp. Added the (unsigned long) operator
+
+2010-01-26  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0042
+
+2010-01-26  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* ConnectionsManager library. Make configurable the TimeoutToAcceptNewConnection
+
+2010-01-22  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer. Added the possibility to specify the date time inside the Trace file name
+		using some placeholders.
+
+2010-01-14  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_0041
+
+2010-01-08  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Scheduler. Fixed an issue in the scheduler making a wrong behavior
+		during the daylight saving time. (VOS 123589)
+
+2009-12-10  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_40
+
+2009-12-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* EventsSet. In getAndRemoveFirstEvent fixed a bug that could cause: 1. crash, 2. lower performance
+
+2009-12-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* my_hash_map. Added the unsiged long hasher
+
+2009-12-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. getFileSystemInfo now return unsigned long long instead of just unsigned long
+
+2009-11-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_39
+
+2009-11-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* ConfigurationFile::init. Made optional the lock of the cfg file.
+
+2009-11-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* ConnectionManager. ConnectionServiceManager::onStartProcessor added the ConfigurationFile as parameter
+
+2009-11-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools::FileIO. isFileExisting implementation changed
+
+2009-11-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* tracer. Added more info to an error.
+
+2009-11-03  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_38
+
+2009-10-26  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* SocketImpl. Managed the EINTR error for the recvfrom API
+
+2009-10-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Improved the performance of FileIO::copyFile
+
+2009-10-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. Added 'operator unsigned long for the HttpGetThread
+
+2009-10-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. Added WebUtility::addURLParameter for long long
+
+2009-10-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* PosixThread. Little enhancement for setPriority
+
+2009-10-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_37
+
+2009-10-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* CMSocketsPool. Increased the sockets pool size from (1024 * 3) to (1024 * 10)
+
+2009-10-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Errors. Some messages changed
+
+2009-10-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO:: openDirectory. Manage a link to the directory too.
+
+2009-08-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_36
+
+2009-08-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. In HTTPGetThread, added the _bHttpURI protected field
+
+2009-08-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. Added WebUtility::addURLParameter for unsigned long
+
+2009-07-28  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_35
+
+2009-07-20  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* For the Sockets: MaxSendAndReceiveBuffer increased from 8*1024 to 15*1024
+
+2009-07-03  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* LoadBalancer. Added the possibility to have Private and Public Host
+
+2009-07-03  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Added the flag FILE_OFFSET_BITS=64 into the Makefile.am
+
+2009-06-15  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_34
+
+2009-06-15  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* few changes to support the last g++ release
+
+2009-06-12  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* ConnectionManager. Changed to LDBG5 the Network too slow message
+
+2009-06-12  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. FileReader::readLine, removed the EndLineChar parameter
+
+2009-05-13  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_33
+
+2009-05-13  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Added more information in the setgid and setuid error message
+
+2009-05-08  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. The getFileSystemInBytes works now fine also in case of a link
+
+2009-05-08  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer. Fixed a bug causing the crash of the executable when the file system is full.
+
+2009-03-31  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_32
+
+2009-03-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* HttpGetThread. Set the ClientSocket as non blocking, ...
+
+2009-03-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Begin of support for SUN Solaris
+
+2009-03-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* LoadBalancer. Now it can support more then one LD in one cfg file
+
+2009-02-26  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_31
+
+2009-02-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Added the Buffer::strip method
+
+2009-02-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* VC2008 compilation. Some changes from char* to const char *
+
+2009-02-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Windows project updated to use VC 2008
+
+2009-01-30  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Examples. Added the traceServer Socket example
+
+2008-12-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_30
+
+2008-12-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the URL to the PARSEURL error
+
+2008-12-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer: Fixed VOS 12-2928, ServiceBrokerFramework process dies when log partition is 100% full
+
+2008-11-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_29
+
+2008-11-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility::decodeURL. Fixed a bug
+
+2008-11-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer. The tracer maintains always a link to the last trace file
+
+2008-10-27  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer. Now the tracer did not write any log if in the file system
+		there are less than 5 time the max size of the trace file
+
+2008-10-27  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Scheduler:Times. Fix a bug happened during the daylight saving time.
+
+2008-10-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_28
+
+2008-10-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility.cpp. The getURLParameterValue now call decodeURL on the value.
+
+2008-10-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility.cpp. Added the decodeURL method
+
+2008-08-28  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility.cpp. Just added one comment
+
+2008-07-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_27
+
+2008-07-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility. In getRemoteAddress and getLocalAddress added the buffer length
+		as security check
+
+2008-07-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility. Added SrcIP, DestIP, DestPort to some Web errors
+
+2008-07-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Added FileIO::getDirectoryUsage method
+
+2008-07-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* LoadBalancer. The ModuleNameNotFound error is logged as a warning
+		and not any more as an error
+
+2008-07-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_26
+
+2008-07-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileReader. Fixed several errors in seekBySearch
+
+2008-07-13  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the FileReader:: seekBySearch method
+
+2008-07-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_25
+
+2008-07-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer. Added the two parameters to the TOOLS_FILEIO_COPYFILE_FAILED error
+
+2008-07-06  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. Implemented getFileSystemInfo also for Windows
+
+2008-07-06  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer. The file system available size is verified every time a new file is created.
+
+2008-06-28  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer. Bug fix. The last trace file, when the Tracer object is 'finish', was not
+		compressed (if necessary) and not copied (if necessary)
+
+2008-06-27  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_24
+
+2008-06-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer. Extended the library in order to copy the trace file as soon as it is closed.
+
+2008-06-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. The copyFile method now accept also a directory as pDestPath (before only PathName)
+
+2008-06-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. Added the gzip method
+
+2008-06-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_23
+
+2008-06-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. Added the getFileSystemInfo method
+
+2008-06-19  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_22
+
+2008-06-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* MyFTP library. Added a getSleep of 2 seconds after the data are transferred and
+		before to close the socket. That because otherwise, in some cases,
+		not all the data were received by the FTP Server.
+
+2008-06-15  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the getHostName example
+
+2008-06-15  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added #include <stdlib.h> in few files to compile the libraries with the last C++ OS lib
+
+2008-05-27  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_21
+
+2008-05-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Socket. The CONNECT_FAILED error was extended to include
+		the Remote IP address and the remote port.
+
+2008-05-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Socket library. If LocalIPAddress is NULL or "", the default local IP address
+		will be used
+
+2008-05-06  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_20
+
+2008-04-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. Added the HttpPostThread class
+
+2008-04-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the LoadBalancer library
+
+2008-02-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_19
+
+2008-02-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileReader. A bit changed the implementation of readChars & readBytes
+
+2008-02-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* SocketImpl. Added connect receiving sockaddr as input
+
+2008-02-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Socket. Added ClientSocket::init receiving sockaddr as input
+
+2008-02-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the MyFTP class and the relative example
+
+2008-02-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the LoadBalancer class and the relative example
+
+2008-02-03  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_18
+
+2008-02-03  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility. Fixed a bug in parseHttpHeader.
+
+2008-01-28  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_17
+
+2008-01-21  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Service. Use of a configurable ServiceDebug file based
+		on the name of the service instead of a fixed one's.
+
+2008-01-21  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. FileIO::createLink. Added the bReplaceItIfExist parameter
+
+2008-01-08  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_16
+
+2008-01-08  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. Added the appendUnsignedLong method
+
+2007-12-21  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Socket. Changed the HOSTNAME length from 256 to 128.
+
+2007-12-21  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. Added the WebUtility::addURLParmeter method.
+
+2007-12-21  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Added the FileIO:: getFileSizeInBytes and FileIO:: createLink
+		methods.
+
+2007-12-21  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* PThread. The _erThreadReturn is initialized when the thread will finish.
+		It is not necessary to set it inside the run method.
+
+2007-12-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. In copyFile method, the default value for ulBufferSizeToBeUsed
+		is now 1024 * 10 (before it was 1024 * 1.
+
+2007-11-30  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO, added the isDirectoryExisting method
+
+2007-11-30  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO::exist was renamed in FileIO::isFileExisting
+
+2007-11-26  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_15
+
+2007-11-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. In Service the _bServiceName is now protected (before it was private).
+
+2007-10-22  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_14
+
+2007-10-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer. Optimized the Tracer::fill method replacing many loops with the memcpy API
+
+2007-09-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_13
+
+2007-09-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Changed the date time format for the Service debug log
+
+2007-07-02  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_12
+
+2007-07-02  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Re-written the Windows version of Entrypt::encrypt and Entrypt::decrypt methods API.
+
+2007-06-20  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_11
+
+2007-06-20  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the WebTools getURLParameterValue example
+
+2007-06-20  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. Now WebUtility:getURLParameterValue can also read a URL parameter without any value
+
+2007-06-20  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer. Changed a bit the format of the date & time
+
+2007-04-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_10
+
+2007-04-14  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added a comment in SocketImpl.h
+
+2007-03-15  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_9
+
+2007-03-15  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added flush to the getConfigurationItemValue example
+
+2007-03-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_8
+
+2007-03-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added to the FILEIO_REMOVEFILE error the filename information.
+
+2007-03-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Add the setBuffer (unsigned long) method to the Buffer class.
+
+2007-02-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. Add the run (Buffer_p, Buffer_p) method used when HttpGetThread didn't start
+	as a thread but just calling the run method.
+
+2007-02-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_7
+
+2007-02-16  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. The WEBTOOLS_MAXHTTPRESPONSELENGTH constant was increased to 30K
+
+2007-02-12  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. The WEBTOOLS_MAXHTTPRESPONSELENGTH constant was increased to 10K
+
+2007-01-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_6
+
+2007-01-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added IP and Port to the CLIENTSOCKET_INIT_ERROR
+
+2007-01-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_5
+
+2007-01-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In HttpGetThread moved the run method from protected to public
+		in order to be called also without creating a new thread.
+
+2007-01-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Rewrite the SocketImpl::getMACAddress method for Windows
+
+2007-01-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Add the PThread run error
+
+2006-12-21  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_4
+
+2006-12-21  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools, Datetime, changed name from convertFromUTCDateTimeToUTCInSecs to convertFromLocalDateTimeToLocalInSecs
+
+2006-12-19  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Examples. ConfigurationFile. Added appendConfigurationItemValue and removeConfigurationSection
+
+2006-12-19  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Configuration. Fix some bugs in ConfigurationItem::write
+
+2006-12-19  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Configuration. Add Config::removeCfgSection
+
+2006-11-30  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_3
+
+2006-11-27  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Encript. Fixed a bug.
+
+2006-11-27  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In SocketImpl::readLine it is possible to choice if checking to read
+		before reading
+
+2006-11-26  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Fixed a bug inside the Hasher of my_hash_map because GENERIC_intHASH cannot be called with a negative value.
+
+2006-11-13  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2_0_0_2
+
+2006-11-13  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Thread. Added a WinThread class just for the Windows proprietary threads
+
+2006-11-12  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Process class is not ProcessUtility class to avoid conflicts with the Windows Process.h file
+
+2006-11-11  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility. Added the name of the parameter into the GETURLPARAMETERT error.
+
+2006-11-10  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebUtility::getURLParameter. fixed a bug
+
+2006-10-29  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Fixed a memory leak bug
+
+2006-10-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 2.0.0.1
+
+2006-10-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Added the new class called Process and the new method setUserAndGroupID
+
+2006-10-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* SocketImpl. Managed the EAGAIN recvfrom errors got when the socket is NON BLOCKING and expires his default timeout
+
+2006-10-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the Release configuration for the Windows projects
+
+2006-10-22  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Added the example to compare directories
+
+2006-10-22  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* the httpRequest example now is a binary that will be exported in binary installation path
+
+2006-10-22  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Socket. Added the Status for the ClientSocket and the ServerSocket classes
+
+2006-10-19  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries_2_0_0_0
+
+2006-10-19  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. In WebUtility::readHttpHeaderAndBody it is possible to choice if checking to read
+		before reading
+
+2006-10-19  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Socket. Added SocketImpl::setReceivingTimeout and setSendingTimeout
+
+2006-10-19  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* EventsSet. Added the EventsSet::addDestination method
+
+2006-10-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries 1.13
+
+2006-10-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* HttpGetThread. Added the response time as private parameter.
+
+2006-10-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Buffer. Changed the default buffer block to 2.
+
+2006-10-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* SocketsPool. The sockets pool is now measured in millisecs. Removed the sleep when the queue is empty.
+
+2006-10-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* PosixThread. Added the bToBeDetached parameter to the start method to avoid memory leak when the the detached thread finishes too fast.
+
+2006-10-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* EventsSet. Added the 'bConditionVariable' parameter in init. Differents other changes.
+
+2006-10-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* EventsSet. The destination is now a property of the Event.
+
+2006-10-13  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries v1.12
+
+2006-10-12  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* PosixThread::getSleep. The windows implementation is using
+		the condition variable to wait the sleep time
+
+2006-10-12  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* EventsSet: the getAndRemoveFirstEvent, in case there is no events,
+		will check if the really time expired before to return
+
+2006-10-12  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* EventsSet: Use of Buffer instead of char* as key for the hash map
+
+2006-10-05  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries v1.11
+
+2006-10-05  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer. Fixed a bug in case of compression enabled
+
+2006-10-05  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* EventsSet: used the broadcast method of the condition variable instead of signal
+
+2006-10-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries v1.10
+
+2006-10-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer. When the Tracer remove the file, it tries to remove both: zipped and unzipped file.
+
+2006-10-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* EventsSet. Added the number of allocated events for the
+EVSET_EVENTSSET_REACHEDMAXIMUMEVENTSTOALLOCATE error
+
+2006-09-28  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* EventsSet. Add the possibility to return the 
+		EVSET_EVENTSSET_REACHEDMAXIMUMEVENTSTOALLOCATE
+		error if we want to have a cap on the allocation of a specific event
+		inside the allocateMoreFreeUserEvents method.
+
+2006-09-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released CatraLibraries v1.9
+
+2006-09-21  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In SocketsPool:: init was added the _bAllowDeletionSocketFromUpdateMethod
+		parameter. The reason is that if inside updateSocketStatus will not be
+		used the deleteSocket method, the algorithm can be more efficient
+		because a loop could be completely skipped.
+
+2006-09-20  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* SocketsPool. Removed the bDeleteSocket flag from the updateSocketStatus
+		method because inside the update method, the derived class can directly
+		remove the socket from the pool.
+
+2006-09-19  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* ServerSocket. Adding the Receiving timeout
+
+2006-09-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer. Enabled the GZIP flag (define) compression inside the makefile.
+
+2006-09-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. Deleted the Sending timeouts from the HttpServer class.
+
+2006-09-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Deleted the Receiving and Sending timeouts from the ServerSocket class
+
+2006-09-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released the CatraLibraries v1.8
+
+2006-09-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Scheduler. TimesPointerNumber is now unsigned long instead of long.
+
+2006-09-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* The traceFileClosed method is called every time a trace file is closed
+
+2006-09-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. Added the pllBytesWritten parameter to writeBytes
+
+2006-09-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. Added the pllBytesRead parameter to readBytes
+
+2006-09-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* FileIO. getFileTime now returns a time_t
+
+2006-09-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the example for the copyFile method
+
+2006-09-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Added the FileIO:: copyFile method
+
+2006-09-05  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Released the 1.7 version
+
+2006-09-05  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* SocketsPool: Added the possibility to remove the socket from the pool through
+		the bSocketToBeRemoved parameter of the updateSocketStatus method
+
+2006-07-08  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In Tools library added FileIO:: appendBuffer with variable arguments
+
+2006-07-02  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In WebTools examples, move example_WebTools_httpGetServer.vcproj in example_WebTools_httpServer.vcproj
+
+2006-06-29  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In WebTools, added the getURLParameterValue method
+
+2006-06-27  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In Tools added Convert:: stringToBase16 and Convert:: base16ToString
+
+2006-06-15  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Moved the WebTools::httpGetServer example in httpServer.
+
+2006-06-15  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. HttpGetServer moved in HttpServer.
+	HttpGetThread::readHttpResponse moved in WebUtility::readHttpHeaderAndBody.
+
+2006-05-03  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools library. Added the DateTime::addSeconds static method
+
+2006-05-03  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools library. The SocketsPool could be also used as a thread.
+	In that way, himself could call the checkSocketsStatus method on your behalf
+
+2006-03-20  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* The SocketsPool::checkSocketsStatus now accepts unsigned long instead of just long
+
+2006-03-20  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* With this change, the SocketsPool could be used as a thread in order to call
+		automatically the checkSocketsStatus method.
+
+2006-03-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In SocketsPool class
+		added the SetBySocketPort to make more efficient the findServerSocket method,
+		Changed the name of lSocketIdentifier in lSocketType
+		Added many comments to the header file
+
+2006-03-18  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the IPAddressBufferLength to the WebUtility::parseURL method
+
+2006-03-12  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* CatraLibraries 1.5 released
+
+2006-03-11  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Many APIs in Socket library now manager the EINTR error due to a interruption by a signal
+
+2006-03-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In EventsSet fixed some bugs and added the EventsSet::deleteAllocatedEvents method
+
+2006-02-19  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In Error library, Use of a PreAllocatedUserData in case
+		of a low amount of data to save
+
+2006-01-29  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In Tools Tracer, added the milliseconds in the logged row
+
+2006-01-29  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In Tools, Service class: added the launchUnixDaemon method, 
+
+2006-01-28  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In Tools, Buffer class added a init method receiving 'unsigned long' type and
+		the substitute method receiving a unsigned long' type as parameter.
+
+2006-01-28  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In SocketsPool.h deleted the CatraLibrarieas_OSConfig.h and changed
+		from struct pollfd * to void* two private variable.
+
+2006-01-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the getConfigurationItemValue example for the ConfigurationFile library
+
+2006-01-15  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the HttpGetServer class and the relative example
+
+2005-12-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the Network and System classes in Tools
+
+2005-12-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the FileIO:: lockFile and unLockFile
+
+2005-12-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the DateTime:: convertFromUTCDateTimeToUTCInSecs method
+
+2005-12-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* in Buffer added method to manage thew WCHAR windows type
+
+2005-11-28  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the HttpGetThread:: readHttpResponse static method in order that could be called also to retrieve a RTSP response
+
+2005-11-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* The PosixThread::join method now receives the errJoin argument
+
+2005-11-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* The SocketImpl::readLines method is removed
+
+2005-11-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* the SocketImpl::isReadyFor* now receives unsigned long arguments
+
+2005-11-25  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the writing and reading check in read and write method of the SocketImpl class
+
+2005-11-14  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In PosixThread aggiunti gli stati PTHREADLIB_START_AND_JOINED e PTHREADLIB_INITIALIZEDAGAINAFTERRUNNING
+
+2005-11-14  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Aggiunto lo stato nella classe Tracer
+
+2005-11-14  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Aggiunto l'esempio per la lib Tools di dateTime
+
+2005-11-14  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Revisione codice per WebTools::HTTPGetThread
+
+2005-11-14  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Aggiunti timeouts nel Client e Server socket
+
+2005-11-14  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Added the DateTime::convertFromUTCDateTimeToUTCInSecs method
+
+2005-11-07  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In SocketImpl::readLines, changed the timeout for the internal loop waiting for the lines from 1 microseconds to 1 seconds
+
+2005-10-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Added the getHostName method in System class
+
+2005-10-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer. Added the FUNCTION_TRACER macro to trace the enter and finish of a method
+
+2005-10-24  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* EventsSet. The management of the free events is reorganized in order to make
+		easier the customization of the EventsSet class
+
+2005-10-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* WebTools. In HTTPGetThread reviewed the parameters for the init method
+
+2005-10-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tools. Optimized Buffer: the finish method does not delete the memory and
+		reuse the memory already allocated in case the buffer is reinitialized.
+
+2005-10-23  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* Tracer, moved the cache of 'cache not active' from 'performTrace' to 'addTrace'
+
+2005-10-17  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* different processes can also use the same configuration file
+	(that means the same trace files). In that case, the access to
+	pBaseTraceFileName is managed through a lock on the file.
+
+2005-10-10  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In ErrMsgBase.cpp, the buildMessage method manages 'null pointer parameter'. The '\n' in the message is replaced by ', Msg: '.
+
+2005-10-10  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+	* In Tracer.cpp the server (socket) is disabled in case the relative port is -1
+
+2005-05-10  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+ * Now FileIO::createDirectory returns also errno in case of error
+
+2005-05-09  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+ * Added the assert.h header in Convert.cpp
+
+2005-05-01  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+ * In Tracer.cpp: added more comments. Fixed a potential bug.
+
+2005-04-29  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+ * Added the MaxItemValueLength to ConfigurationItem::getItemValue in order
+ to do a check on the length when the item value is copied.
+
+2005-04-27  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+ * The tracerClient binary is now installed
+
+2005-04-26  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+ * Few changes in order to have the catralibraries on HPUX platforms
+
+2005-03-20  Giuliano Catrambone  <giuliano.catrambone@catrasoftware.it>
+
+ * Added the WebTools library
+
+

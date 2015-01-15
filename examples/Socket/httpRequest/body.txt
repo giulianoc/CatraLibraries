@@ -1,0 +1,2 @@
+<?xml version="1.0" standalone="no"?> <aaa> <bbb><![CDATA[2006073011542438801208380701]]></bbb> </aaa>
+

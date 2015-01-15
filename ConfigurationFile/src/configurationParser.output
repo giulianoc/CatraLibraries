@@ -1,0 +1,319 @@
+Terminals unused in grammar
+
+   SECTIONCOMMENT_BEGIN
+   ITEMCOMMENT_BEGIN
+
+
+Grammar
+
+    0 $accept: configuration $end
+
+    1 configuration: sections
+
+    2 sections: /* empty */
+    3         | sections section
+
+    4 section: sectionComments SECTION_BEGIN STRING SECTION_END sectionDate items
+
+    5 sectionDate: /* empty */
+    6            | SECTION_DATE_BEGIN SECTIONDATE SECTION_DATE_END
+
+    7 items: /* empty */
+    8      | items item
+
+    9 item: itemComments STRING '=' value
+
+   10 value: STRING
+   11      | ITEMSLIST_BEGIN ITEMSLIST_END
+   12      | ITEMSLIST_BEGIN STRING valuesList ITEMSLIST_END
+
+   13 valuesList: /* empty */
+   14           | valuesList ',' STRING
+
+   15 sectionComments: /* empty */
+   16                | sectionComments SECTIONCOMMENT
+
+   17 itemComments: /* empty */
+   18             | itemComments ITEMCOMMENT
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+',' (44) 14
+'=' (61) 9
+error (256)
+STRING (258) 4 9 10 12 14
+ITEMCOMMENT (259) 18
+SECTIONCOMMENT (260) 16
+SECTIONDATE (261) 6
+SECTION_BEGIN (262) 4
+SECTION_END (263) 4
+ITEMSLIST_BEGIN (264) 11 12
+ITEMSLIST_END (265) 11 12
+SECTIONCOMMENT_BEGIN (266)
+ITEMCOMMENT_BEGIN (267)
+SECTION_DATE_BEGIN (268) 6
+SECTION_DATE_END (269) 6
+
+
+Nonterminals, with rules where they appear
+
+$accept (17)
+    on left: 0
+configuration (18)
+    on left: 1, on right: 0
+sections (19)
+    on left: 2 3, on right: 1 3
+section (20)
+    on left: 4, on right: 3
+sectionDate (21)
+    on left: 5 6, on right: 4
+items (22)
+    on left: 7 8, on right: 4 8
+item (23)
+    on left: 9, on right: 8
+value (24)
+    on left: 10 11 12, on right: 9
+valuesList (25)
+    on left: 13 14, on right: 12 14
+sectionComments (26)
+    on left: 15 16, on right: 4 16
+itemComments (27)
+    on left: 17 18, on right: 9 18
+
+
+state 0
+
+    0 $accept: . configuration $end
+
+    $default  reduce using rule 2 (sections)
+
+    configuration  go to state 1
+    sections       go to state 2
+
+
+state 1
+
+    0 $accept: configuration . $end
+
+    $end  shift, and go to state 3
+
+
+state 2
+
+    1 configuration: sections .
+    3 sections: sections . section
+
+    $end      reduce using rule 1 (configuration)
+    $default  reduce using rule 15 (sectionComments)
+
+    section          go to state 4
+    sectionComments  go to state 5
+
+
+state 3
+
+    0 $accept: configuration $end .
+
+    $default  accept
+
+
+state 4
+
+    3 sections: sections section .
+
+    $default  reduce using rule 3 (sections)
+
+
+state 5
+
+    4 section: sectionComments . SECTION_BEGIN STRING SECTION_END sectionDate items
+   16 sectionComments: sectionComments . SECTIONCOMMENT
+
+    SECTIONCOMMENT  shift, and go to state 6
+    SECTION_BEGIN   shift, and go to state 7
+
+
+state 6
+
+   16 sectionComments: sectionComments SECTIONCOMMENT .
+
+    $default  reduce using rule 16 (sectionComments)
+
+
+state 7
+
+    4 section: sectionComments SECTION_BEGIN . STRING SECTION_END sectionDate items
+
+    STRING  shift, and go to state 8
+
+
+state 8
+
+    4 section: sectionComments SECTION_BEGIN STRING . SECTION_END sectionDate items
+
+    SECTION_END  shift, and go to state 9
+
+
+state 9
+
+    4 section: sectionComments SECTION_BEGIN STRING SECTION_END . sectionDate items
+
+    SECTION_DATE_BEGIN  shift, and go to state 10
+
+    $default  reduce using rule 5 (sectionDate)
+
+    sectionDate  go to state 11
+
+
+state 10
+
+    6 sectionDate: SECTION_DATE_BEGIN . SECTIONDATE SECTION_DATE_END
+
+    SECTIONDATE  shift, and go to state 12
+
+
+state 11
+
+    4 section: sectionComments SECTION_BEGIN STRING SECTION_END sectionDate . items
+
+    $default  reduce using rule 7 (items)
+
+    items  go to state 13
+
+
+state 12
+
+    6 sectionDate: SECTION_DATE_BEGIN SECTIONDATE . SECTION_DATE_END
+
+    SECTION_DATE_END  shift, and go to state 14
+
+
+state 13
+
+    4 section: sectionComments SECTION_BEGIN STRING SECTION_END sectionDate items .
+    8 items: items . item
+
+    STRING       reduce using rule 17 (itemComments)
+    ITEMCOMMENT  reduce using rule 17 (itemComments)
+    $default     reduce using rule 4 (section)
+
+    item          go to state 15
+    itemComments  go to state 16
+
+
+state 14
+
+    6 sectionDate: SECTION_DATE_BEGIN SECTIONDATE SECTION_DATE_END .
+
+    $default  reduce using rule 6 (sectionDate)
+
+
+state 15
+
+    8 items: items item .
+
+    $default  reduce using rule 8 (items)
+
+
+state 16
+
+    9 item: itemComments . STRING '=' value
+   18 itemComments: itemComments . ITEMCOMMENT
+
+    STRING       shift, and go to state 17
+    ITEMCOMMENT  shift, and go to state 18
+
+
+state 17
+
+    9 item: itemComments STRING . '=' value
+
+    '='  shift, and go to state 19
+
+
+state 18
+
+   18 itemComments: itemComments ITEMCOMMENT .
+
+    $default  reduce using rule 18 (itemComments)
+
+
+state 19
+
+    9 item: itemComments STRING '=' . value
+
+    STRING           shift, and go to state 20
+    ITEMSLIST_BEGIN  shift, and go to state 21
+
+    value  go to state 22
+
+
+state 20
+
+   10 value: STRING .
+
+    $default  reduce using rule 10 (value)
+
+
+state 21
+
+   11 value: ITEMSLIST_BEGIN . ITEMSLIST_END
+   12      | ITEMSLIST_BEGIN . STRING valuesList ITEMSLIST_END
+
+    STRING         shift, and go to state 23
+    ITEMSLIST_END  shift, and go to state 24
+
+
+state 22
+
+    9 item: itemComments STRING '=' value .
+
+    $default  reduce using rule 9 (item)
+
+
+state 23
+
+   12 value: ITEMSLIST_BEGIN STRING . valuesList ITEMSLIST_END
+
+    $default  reduce using rule 13 (valuesList)
+
+    valuesList  go to state 25
+
+
+state 24
+
+   11 value: ITEMSLIST_BEGIN ITEMSLIST_END .
+
+    $default  reduce using rule 11 (value)
+
+
+state 25
+
+   12 value: ITEMSLIST_BEGIN STRING valuesList . ITEMSLIST_END
+   14 valuesList: valuesList . ',' STRING
+
+    ITEMSLIST_END  shift, and go to state 26
+    ','            shift, and go to state 27
+
+
+state 26
+
+   12 value: ITEMSLIST_BEGIN STRING valuesList ITEMSLIST_END .
+
+    $default  reduce using rule 12 (value)
+
+
+state 27
+
+   14 valuesList: valuesList ',' . STRING
+
+    STRING  shift, and go to state 28
+
+
+state 28
+
+   14 valuesList: valuesList ',' STRING .
+
+    $default  reduce using rule 14 (valuesList)

@@ -1,0 +1,6 @@
+POST /XenonStreamer HTTP/1.1
+Host: 192.168.2.3:10000
+Content-Type: text/xml; charset="utf-8"
+SoapAction: "http://XenonStreamer/TerminationSessionRequest"
+Content-Length: @BODYLENGTH@
+

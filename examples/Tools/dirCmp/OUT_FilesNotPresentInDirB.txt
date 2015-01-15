@@ -1,0 +1,2 @@
+/mydisk/7/DevelopmentWorkingArea/Perforce/branches/Durian/XDM3/catralibraries-0063/Socket/src/ClientSocketsPool.cpp
+/mydisk/7/DevelopmentWorkingArea/Perforce/branches/Durian/XDM3/catralibraries-0063/Socket/src/ClientSocketsPool.h

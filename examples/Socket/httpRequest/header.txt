@@ -1,0 +1,5 @@
+POST /ServiceBrokerCommunications/streamingFinished HTTP/1.1
+Host: 194.185.82.188:8080
+Content-Type: text/xml; charset="utf-8"
+Content-Length: @BODYLENGTH@
+

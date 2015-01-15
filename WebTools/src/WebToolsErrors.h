@@ -1,0 +1,105 @@
+/*
+ Copyright (C) Giuliano Catrambone (giuliano.catrambone@catrasoftware.it)
+
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either 
+ version 2 of the License, or (at your option) any later 
+ version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+ Commercial use other than under the terms of the GNU General Public
+ License is allowed only after express negotiation of conditions
+ with the authors.
+*/
+
+
+#ifndef WebToolsErrors_h
+	#define WebToolsErrors_h
+
+	#include "Error.h"
+	#include <iostream>
+
+
+	//
+	// Defined errors:
+	//   
+   
+	enum WebToolsErrorsCodes {
+
+		// HttpServer
+		WEBTOOLS_HTTPSERVER_INIT_FAILED,
+		WEBTOOLS_HTTPSERVER_FINISH_FAILED,
+		WEBTOOLS_HTTPSERVER_GETSHUTDOWN_FAILED,
+		WEBTOOLS_HTTPSERVER_SETSHUTDOWN_FAILED,
+		WEBTOOLS_HTTPSERVER_WRONGHTTPHEADER,
+
+		// HttpGetThread
+		WEBTOOLS_HTTPGETTHREAD_INIT_FAILED,
+		WEBTOOLS_HTTPGETTHREAD_FINISH_FAILED,
+		WEBTOOLS_HTTPGETTHREAD_GETHTTPRESPONSE_FAILED,
+		WEBTOOLS_HTTPGETTHREAD_CLOSINGHTTPGET_FAILED,
+		WEBTOOLS_HTTPGETTHREAD_TIMEOUTEXPIRED,
+		WEBTOOLS_HTTPGETTHREAD_HEADERTIMEOUTEXPIRED,
+		WEBTOOLS_HTTPGETTHREAD_BODYTIMEOUTEXPIRED,
+		WEBTOOLS_HTTPGETTHREAD_CONTENTLENGTHTOOLONG,
+
+		// HttpPostThread
+		WEBTOOLS_HTTPPOSTTHREAD_INIT_FAILED,
+		WEBTOOLS_HTTPPOSTTHREAD_FINISH_FAILED,
+		WEBTOOLS_HTTPPOSTTHREAD_GETHTTPRESPONSE_FAILED,
+		WEBTOOLS_HTTPPOSTTHREAD_CLOSINGHTTPPOST_FAILED,
+		WEBTOOLS_HTTPPOSTTHREAD_TIMEOUTEXPIRED,
+		WEBTOOLS_HTTPPOSTTHREAD_HEADERTIMEOUTEXPIRED,
+		WEBTOOLS_HTTPPOSTTHREAD_BODYTIMEOUTEXPIRED,
+		WEBTOOLS_HTTPPOSTTHREAD_CONTENTLENGTHTOOLONG,
+
+		// SaveHttpGetThread
+		WEBTOOLS_SAVEHTTPGETTHREAD_INIT_FAILED,
+		WEBTOOLS_SAVEHTTPGETTHREAD_FINISH_FAILED,
+		WEBTOOLS_SAVEHTTPGETTHREAD_UNKNOWNCONTENTTYPE,
+
+		// WebUtility
+		WEBTOOLS_WEBUTILITY_PARSEURL_FAILED,
+		WEBTOOLS_WEBUTILITY_GETURLPARAMETERVALUE_FAILED,
+		WEBTOOLS_WEBUTILITY_READHTTPHEADERANDBODY_FAILED,
+		WEBTOOLS_WEBUTILITY_PARSEHTTPHEADER_FAILED,
+		WEBTOOLS_WEBUTILITY_GETHTTPHEADERVALUE_FAILED,
+		WEBTOOLS_WEBUTILITY_HEADERNAMENOTFOUND,
+		WEBTOOLS_WEBUTILITY_ENCODEURL_FAILED,
+		WEBTOOLS_WEBUTILITY_CHUNKREADFAILED,
+		WEBTOOLS_WEBUTILITY_ADDURLPARAMETER_FAILED,
+		WEBTOOLS_WEBUTILITY_DECODEURL_FAILED,
+		WEBTOOLS_WEBUTILITY_BUFFERTOOSHORT,
+		WEBTOOLS_WEBUTILITY_WRONGFORMATFORURLTOBEDECODED,
+
+		// common
+		WEBTOOLS_NEW_FAILED,
+		WEBTOOLS_ACTIVATION_WRONG,
+
+
+		// Insert here other errors...
+
+		WEBTOOLS_MAX_ERRORS
+
+	} ;
+
+	#ifdef WIN32
+		// warning C4267: 'argument' : conversion from 'size_t' to 'long', possible loss of data
+
+		#pragma warning (disable : 4267)
+	#endif
+
+	// declaration of class error
+	dclCustomErrorClass (WebToolsErrors, WEBTOOLS_MAX_ERRORS)
+   
+#endif
+

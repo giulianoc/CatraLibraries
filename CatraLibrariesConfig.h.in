@@ -1,0 +1,7 @@
+
+// the configured options and settings for Tutorial
+#define CatraLibraries_VERSION_MAJOR @CatraLibraries_VERSION_MAJOR@
+#define CatraLibraries_VERSION_MINOR @CatraLibraries_VERSION_MINOR@
+
+#cmakedefine HAVE_POLL
+

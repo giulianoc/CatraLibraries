@@ -1,0 +1,38 @@
+
+      The entries in a crontab file are lines of six fields each.  The
+      fields are separated by spaces or tabs.  The lines have the following
+      format:
+
+           minute  hour  monthday  month  weekday  command
+
+      The first five are integer patterns that specify when the sixth field,
+      command, should be executed.  They can have the following ranges of
+      values:
+
+           minute         The minute of the hour, 0-59
+
+           hour           The hour of the day, 0-23
+
+           monthday       The day of the month, 1-31
+
+           month          The month of the year, 1-12
+
+           weekday        The day of the week, 0-6, 0=Sunday
+
+      Each pattern can be either an asterisk (*), meaning all legal values,
+      or a list of elements separated by commas.  An element is either a
+      number in the ranges shown above, or two numbers in the range
+      separated by a hyphen (meaning an inclusive range).  Note that the
+      specification of days can be made in two fields: monthday and weekday.
+      If both are specified in an entry, they are cumulative.  For example,
+
+           0   0   1,15   *   1   command
+
+      runs command at midnight on the first and fifteenth of each month, as
+      well as every Monday.  To specify days in only one field, set the
+      other field to asterisk (*).  For example,
+
+           0   0   *   *   1   command
+
+      runs command only on Mondays.
+
