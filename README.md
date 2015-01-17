@@ -6,9 +6,11 @@ CatraLibraries
 
 
 CatraLibraries is a general-purpose C++ framework.
-It is platform independent (Unix, Windows, ...) and provides classes to manage
-POSIX threads, Sockets, Tracer, Scheduler, EventsSet, Configuration files,
-Database access (Oracle, Sybase), Reports (HTML), ...
+It is platform independent (Unix, MAC, Windows, ...) and provides classes to manage POSIX threads, Sockets, Sockets Connection Manager, Tracer, Scheduler,
+EventsSet, Configuration files, HTTP Cache Manager, Software Load Balancer,
+FTP, Tools (Buffers/Strings, DateTime, FileIO, FileReader, CPU Usage, Networks,
+Processes, Services, ...), WebTools (HTTP GET, HTTP POST, HTTP Server, ...),
+Database access (Oracle, Sybase), , ...
 
 CatraLibraries is free software.   For copyright  information please  see the
 file COPYING, which contains the GNU Public Library License.
