@@ -1,7 +1,23 @@
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
+### Above combination will ignore all files without extension ###
+
 CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
 install_manifest.txt
+nbproject
+
+ConfigurationFile/src/configurationParser.cc
+ConfigurationFile/src/configurationParser.hh
+ConfigurationFile/src/configurationScanner.cc
 
 *.sln
 *.ncb
