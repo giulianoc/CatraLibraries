@@ -28,6 +28,8 @@ project(
 	CatraLibraries
 )
 
+SET(CMAKE_CXX_FLAGS "-std=c++14")
+
 set(CatraLibraries_VERSION_MAJOR 1)
 set(CatraLibraries_VERSION_MINOR 0)
 
@@ -62,6 +64,7 @@ add_subdirectory(Configuration/src)
 add_subdirectory(ConfigurationFile/src)
 add_subdirectory(ConnectionsManager/src)
 add_subdirectory(EventsSet/src)
+add_subdirectory(MultiEventsSet/src)
 add_subdirectory(MyFTP/src)
 add_subdirectory(SNMPWrapper/src)
 add_subdirectory(Tracer/src)
@@ -82,6 +85,8 @@ add_subdirectory(examples/ErrMsg/checkErrors)
 add_subdirectory(examples/ErrMsg/messages)
 
 add_subdirectory(examples/EventsSet/printerSpooler)
+
+add_subdirectory(examples/MultiEventsSet/producerConsumer)
 
 add_subdirectory(examples/LoadBalancer/loadBalancer)
 
