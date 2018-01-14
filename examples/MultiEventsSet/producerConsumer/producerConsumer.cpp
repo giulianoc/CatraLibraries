@@ -23,7 +23,14 @@
 
 #include <iostream>
 #include <thread>
+#include <chrono>
 #include <memory>
+#include <vector>
+
+#include "stdlib.h"
+#include "stdio.h"
+#include "string.h"
+
 #include "MultiEventsSet.h"
 
 using namespace std;
@@ -48,17 +55,20 @@ public:
         this->dataId = dataId;
     }
 
-    friend ostream& operator << (ostream& os, GetDataEvent &gde)
+    friend ostream& operator << (ostream& os, GetDataEvent &event)
     {
+        time_t tExpirationTimePoint = chrono::system_clock::to_time_t(event.getExpirationTimePoint());
+        time_t tStartProcessingTime = chrono::system_clock::to_time_t(event.getStartProcessingTime());
+
         cout
             << "Event. "
-            << "identifier: " << gde.getIdentifier()
-            << ", type identifier: " << gde.getTypeIdentifier()
-            << ", source: " << gde.getSource()
-            << ", destination: " << gde.getDestination()
-            // << ", expiration time point: " << event._expirationTimePoint
-            // << ", start processing time: " << event._startProcessingTime
-            << ", dataId: " << gde.dataId 
+            << "type identifier: " << event.getEventKey().first
+            << ", identifier: " << event.getEventKey().second
+            << ", source: " << event.getSource()
+            << ", destination: " << event.getDestination()
+            << ", expiration time point: " << ctime(&tExpirationTimePoint)
+            << ", start processing time: " << ctime(&tStartProcessingTime)
+            << ", dataId: " << event.dataId 
             << endl;
         
         return os;
@@ -68,16 +78,19 @@ public:
 class EndEvent: public Event {
 private:
 
-    friend ostream& operator << (ostream& os, EndEvent &gde)
+    friend ostream& operator << (ostream& os, EndEvent &event)
     {
+        time_t tExpirationTimePoint = chrono::system_clock::to_time_t(event.getExpirationTimePoint());
+        time_t tStartProcessingTime = chrono::system_clock::to_time_t(event.getStartProcessingTime());
+
         cout
             << "Event. "
-            << "identifier: " << gde.getIdentifier()
-            << ", type identifier: " << gde.getTypeIdentifier()
-            << ", source: " << gde.getSource()
-            << ", destination: " << gde.getDestination()
-            // << ", expiration time point: " << event._expirationTimePoint
-            // << ", start processing time: " << event._startProcessingTime
+            << "type identifier: " << event.getEventKey().first
+            << ", identifier: " << event.getEventKey().second
+            << ", source: " << event.getSource()
+            << ", destination: " << event.getDestination()
+            << ", expiration time point: " << ctime(&tExpirationTimePoint)
+            << ", start processing time: " << ctime(&tStartProcessingTime)
             << endl;
         
         return os;
@@ -90,45 +103,53 @@ public:
     void operator ()(MultiEventsSet& multiEventsSet) 
     {
         bool blocking = true;
-        chrono::milliseconds milliSecondsToBlock(100);
+        chrono::milliseconds milliSecondsToBlock(1000);
         
         cout << "consumer thread started" << endl;
 
         bool endEvent = false;
         while(!endEvent)
         {
+            // cout << "Calling getAndRemoveFirstEvent" << endl;
             shared_ptr<Event> event = multiEventsSet.getAndRemoveFirstEvent(DESTINATION, blocking, milliSecondsToBlock);
-            switch(event->getTypeIdentifier())
+            if (event == nullptr)
+            {
+                cout << "No event found or event not yet expired" << endl;
+                
+                continue;
+            }
+            
+            // cout << "event->getTypeIdentifier(): " << event->getTypeIdentifier() << endl;
+            switch(event->getEventKey().first)
             {
                 case GETDATAEVENT_TYPE:
-                {
-                    cout << "getAndRemoveFirstEvent: GETDATAEVENT_TYPE" << endl;
-                    
+                {                    
                     shared_ptr<GetDataEvent>    getDataEvent = dynamic_pointer_cast<GetDataEvent>(event);
-                    multiEventsSet.getEventsFactory().releaseEvent<GetDataEvent>(getDataEvent);
+                    cout << "getAndRemoveFirstEvent: GETDATAEVENT_TYPE (" << event->getEventKey().first << ", " << event->getEventKey().second << "): " << getDataEvent->getDataId() << endl << endl;
+                    multiEventsSet.getEventsFactory()->releaseEvent<GetDataEvent>(getDataEvent);
                 }
                 break;
                 case ENDEVENT_TYPE:
                 {
-                    cout << "getAndRemoveFirstEvent: ENDEVENT_TYPE" << endl;
+                    cout << "getAndRemoveFirstEvent: ENDEVENT_TYPE (" << event->getEventKey().first << ", " << event->getEventKey().second << ")" << endl << endl;
                     endEvent = true;
                     
                     shared_ptr<EndEvent>    endEvent = dynamic_pointer_cast<EndEvent>(event);
-                    multiEventsSet.getEventsFactory().releaseEvent<EndEvent>(endEvent);
+                    multiEventsSet.getEventsFactory()->releaseEvent<EndEvent>(endEvent);
                 }
                 break;
                 case EVENT_TYPE:
                 {
-                    cout << "getAndRemoveFirstEvent: EVENT_TYPE" << endl;
+                    cout << "getAndRemoveFirstEvent: EVENT_TYPE (" << event->getEventKey().first << ", " << event->getEventKey().second << ")" << endl << endl;
                     
-                    multiEventsSet.getEventsFactory().releaseEvent<Event>(event);
+                    multiEventsSet.getEventsFactory()->releaseEvent<Event>(event);
 
                 }
                 break;
                 default:
-                    throw invalid_argument("Event type identifier not managed");
+                    throw invalid_argument(string("Event type identifier not managed")
+                            + to_string(event->getEventKey().first));
             }
-            
         }
 
         cout << "consumer thread terminated" << endl;
@@ -142,130 +163,120 @@ public:
     {
         cout << "producer thread started" << endl;
 
-        for (long counter = 0; counter < 1; counter++)
+        for (long counter = 0; counter < 200; counter++)
         {
             switch(counter % 2)
             {
                 case GETDATAEVENT_TYPE:
                 {
                    shared_ptr<GetDataEvent>    getDataEvent =
-                            multiEventsSet.getEventsFactory().getFreeEvent<GetDataEvent>(GETDATAEVENT_TYPE);
+                            multiEventsSet.getEventsFactory()->getFreeEvent<GetDataEvent>(GETDATAEVENT_TYPE);
                     
                     getDataEvent->setDestination(DESTINATION);
-                    getDataEvent->setExpirationTimePoint(chrono::system_clock::now());
+                    getDataEvent->setExpirationTimePoint(chrono::system_clock::now() + chrono::minutes(1));
                     getDataEvent->setSource(SOURCE);
                     getDataEvent->setDataId(counter);
                     
                     shared_ptr<Event>    event = dynamic_pointer_cast<Event>(getDataEvent);
+                    cout << "addEvent: GETDATAEVENT_TYPE (" << event->getEventKey().first << ", " << event->getEventKey().second << ")" << endl;
                     multiEventsSet.addEvent(event);
-
-                    cout << "addEvent: GETDATAEVENT_TYPE" << endl;
                 }
                 break;
                 case EVENT_TYPE:
                 {
-                    shared_ptr<Event>    event =
-                            multiEventsSet.getEventsFactory().getFreeEvent<Event>(EVENT_TYPE);
+                    shared_ptr<Event>    event = multiEventsSet.getEventsFactory()->getFreeEvent<Event>(EVENT_TYPE);
                     
                     event->setDestination(DESTINATION);
-                    event->setExpirationTimePoint(chrono::system_clock::now());
+                    event->setExpirationTimePoint(chrono::system_clock::now() + chrono::minutes(1));
                     event->setSource(SOURCE);
                     
-                    multiEventsSet.addEvent(event);
-                    
-                    cout << "addEvent: EVENT_TYPE" << endl;
+                    cout << "addEvent: EVENT_TYPE (" << event->getEventKey().first << ", " << event->getEventKey().second << ")" << endl;
+                    multiEventsSet.addEvent(event);                    
                 }
                 break;
             }
+        
+            // this_thread::sleep_for(chrono::milliseconds(100));
         }
+        
+        this_thread::sleep_for(chrono::seconds(1));
         
         {
             shared_ptr<EndEvent>    endEvent =
-                    multiEventsSet.getEventsFactory().getFreeEvent<EndEvent>(ENDEVENT_TYPE);
+                    multiEventsSet.getEventsFactory()->getFreeEvent<EndEvent>(ENDEVENT_TYPE);
 
             endEvent->setDestination(DESTINATION);
-            endEvent->setExpirationTimePoint(chrono::system_clock::now());
+            endEvent->setExpirationTimePoint(chrono::system_clock::now() + chrono::minutes(1));
             endEvent->setSource(SOURCE);
 
             shared_ptr<Event>    event = dynamic_pointer_cast<Event>(endEvent);
             multiEventsSet.addEvent(event);
 
-            cout << "addEvent: ENDEVENT_TYPE" << endl;
+            cout << "addEvent: ENDEVENT_TYPE (" << event->getEventKey().first << ", " << event->getEventKey().second << ")" << endl;
         }
 
         cout << "producer thread terminated" << endl;
     }
 };
 
-// Fare il producer e assicurarci che lo stesso evento esce e rientra!!!
-// setEventKey/setStartProcessingTime deve essere chiamato solo da EventsSet
+int parseLine(char* line){
+    // This assumes that a digit will be found and the line ends in " Kb".
+    int i = strlen(line);
+    const char* p = line;
+    while (*p <'0' || *p > '9') p++;
+    line[i-3] = '\0';
+    i = atoi(p);
+    return i;
+}
+
+pair<long,long> getMemoryInfo(){ //Note: this value is in KB!
+    FILE* file = fopen("/proc/self/status", "r");
+    char line[128];
+    int virtualMemoryCurrentlyUsedByCurrentProcess = -1;
+    int physicalMemoryCurrentlyUsedByCurrentProcess = -1;
+
+    while (fgets(line, 128, file) != NULL){
+        if (strncmp(line, "VmSize:", 7) == 0){
+            virtualMemoryCurrentlyUsedByCurrentProcess = parseLine(line);
+        }
+        else if (strncmp(line, "VmRSS:", 6) == 0){
+            physicalMemoryCurrentlyUsedByCurrentProcess = parseLine(line);
+        }
+        
+        if (virtualMemoryCurrentlyUsedByCurrentProcess != -1 && physicalMemoryCurrentlyUsedByCurrentProcess != -1)
+            break;
+    }
+    fclose(file);
+
+    return make_pair(virtualMemoryCurrentlyUsedByCurrentProcess, physicalMemoryCurrentlyUsedByCurrentProcess);
+}
+
 
 int main ()
-{      
-    MultiEventsSet multiEventsSet;
-    Consumer consumer;
-    Producer producer;
-
-    thread consumerThread(consumer, ref(multiEventsSet));
-    thread producerThread(producer, ref(multiEventsSet));
-    producerThread.join();
-    consumerThread.join();
-
-    /*
-    for (long counter = 0; counter < 1000000000; counter++)
+{
+    vector<pair<long,long>> results;
+    
+    for (int counter = 0; counter < 1000000; counter++)
     {
-        cout << "counter: " << counter << endl;
+        MultiEventsSet multiEventsSet;
+        Consumer consumer;
+        Producer producer;
+
+        multiEventsSet.addDestination(DESTINATION);
+
+        thread consumerThread(consumer, ref(multiEventsSet));
+        thread producerThread(producer, ref(multiEventsSet));
+        producerThread.join();
+        consumerThread.join();
         
+        cout << endl << endl;
+        results.push_back(getMemoryInfo());
 
-        long eventTypeIdentifier_1            = 1;
-        {
-            long blockEventsNumber_1              = 5;
-            long maxEventsNumberToBeAllocated_1   = 10;
-            eventsFactory.addEventType(eventTypeIdentifier_1, blockEventsNumber_1, maxEventsNumberToBeAllocated_1);
+        for (pair<long,long> result: results)
+            cout << "VirtualMemory: " << result.first << "KB, PhysicalMemory: " << result.second << "KB" << endl;
 
-            // cout << "addEventType Event type 1: " << endl;
-            // cout << eventsFactory << endl;
-        } 
-
-        long eventTypeIdentifier_2            = 2;
-        {
-            long blockEventsNumber_2              = 2;
-            long maxEventsNumberToBeAllocated_2   = 20;
-            eventsFactory.addEventType(eventTypeIdentifier_2, blockEventsNumber_2, maxEventsNumberToBeAllocated_2);
-
-            // cout << "addEventType Event type 2: " << endl;
-            // cout << eventsFactory << endl;
-        }
-
-        {
-            shared_ptr<Event> event = eventsFactory.getFreeEvent<Event>(eventTypeIdentifier_1);
-
-            // cout << "getFreeEvent. event.use_count: " << event.use_count() << endl;
-            // cout << eventsFactory << endl;
-
-            eventsFactory.releaseEvent(eventTypeIdentifier_1, event);
-
-            // cout << "releaseEvent. event.use_count: " << event.use_count() << endl;
-            // cout << eventsFactory << endl;
-        }
-
-        // cout << "-------------------" << endl;
-
-        {
-            shared_ptr<GetDataEvent> event = eventsFactory.getFreeEvent<GetDataEvent>(eventTypeIdentifier_2);
-
-            // cout << "getDataEvent: " << *event << endl;
-
-            // cout << "getFreeEvent. event.use_count: " << event.use_count() << endl;
-            // cout << eventsFactory << endl;
-
-            eventsFactory.releaseEvent<GetDataEvent>(eventTypeIdentifier_2, event);
-
-            // cout << "releaseEvent. event.use_count: " << event.use_count() << endl;
-            // cout << eventsFactory << endl;
-        }
+        this_thread::sleep_for(chrono::seconds(10));
     }
-    */
 
 
     return 0;

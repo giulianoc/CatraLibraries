@@ -32,4 +32,5 @@ include_directories ("${PROJECT_SOURCE_DIR}/MultiEventsSet/src")
 add_executable(producerConsumer ${SOURCES} ${HEADERS})
 
 target_link_libraries (producerConsumer MultiEventsSet)
+target_link_libraries (producerConsumer pthread)
 

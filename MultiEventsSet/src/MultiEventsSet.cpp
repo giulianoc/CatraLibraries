@@ -21,15 +21,12 @@
  with the authors.
 */
 
-#ifdef WIN32
-    #include <winsock2.h>
-#endif
 #include "MultiEventsSet.h"
 #include <chrono>
 
 MultiEventsSet:: MultiEventsSet (void)
 {
-
+    _eventsFactory = make_shared<EventsFactory>();
 }
 
 MultiEventsSet:: ~MultiEventsSet (void)
@@ -37,17 +34,19 @@ MultiEventsSet:: ~MultiEventsSet (void)
 
 }
 
-void MultiEventsSet:: addEvent (shared_ptr<Event> event)
+void MultiEventsSet:: addEvent (shared_ptr<Event>& event)
 {
     string destination =      event->getDestination();
     chrono::system_clock::time_point expirationTimePoint = event->getExpirationTimePoint();
 
-    unique_lock<mutex> locker(_evSetMutex);
+    lock_guard<mutex> locker(_evSetMutex);
 
     MultiEventsSetHashMap::iterator itDestinations	= _esmMultiEventsSetHashMap.find(destination);
     if (itDestinations == _esmMultiEventsSetHashMap.end ())
     {
-        addDestination(destination);
+        // 2018-01-14: commented because it would require a recursive mutex and,
+        //  wait_for method below requires a 'normal' mutex
+        // addDestination(destination);
 
         itDestinations	= _esmMultiEventsSetHashMap.find(destination);
         if (itDestinations == _esmMultiEventsSetHashMap.end ())
@@ -71,7 +70,7 @@ void MultiEventsSet:: addEvent (shared_ptr<Event> event)
     (destinationEvents->_eventsMultiMap).insert (make_pair(expirationTimePoint, event));
 
     if (headEvent == nullptr)
-    {
+    {        
         // Every destination has his own condition variable.
         // When an event is added it is sufficient that just one
         // thread waiting the event for that 'destination' is waken up.
@@ -81,7 +80,7 @@ void MultiEventsSet:: addEvent (shared_ptr<Event> event)
     else
     {
         if (expirationTimePoint < expirationTimePointOfHeadEvent)
-        {
+        {        
             // Every destination has his own condition variable.
             // When an event is added it is sufficient that just one
             // thread waiting the event for that 'destination' is waken up.
@@ -134,7 +133,7 @@ void MultiEventsSet::deleteEvent (shared_ptr<Event>& event)
 
 }
 
-shared_ptr<Event>& MultiEventsSet:: getFirstEvent (
+shared_ptr<Event> MultiEventsSet:: getFirstEvent (
     string destination, bool blocking,
     chrono::milliseconds milliSecondsToBlock,
     bool &eventExpired)
@@ -146,7 +145,9 @@ shared_ptr<Event>& MultiEventsSet:: getFirstEvent (
             _esmMultiEventsSetHashMap.find (destination);
     if (itDestinations == _esmMultiEventsSetHashMap.end ())
     {
-        addDestination(destination);
+        // 2018-01-14: commented because it would require a recursive mutex and,
+        //  wait_for method below requires a 'normal' mutex
+        // addDestination(destination);
 
         itDestinations		= _esmMultiEventsSetHashMap.find (destination);
         if (itDestinations == _esmMultiEventsSetHashMap.end ())
@@ -168,10 +169,12 @@ shared_ptr<Event>& MultiEventsSet:: getFirstEvent (
                     ) == false)
             {
                 // time expired
-                throw invalid_argument(string("No events found (time expired)")
-                        + ", destination: " + destination
-                        + ", milliSecondsToBlock: " + to_string(milliSecondsToBlock.count())
-                        );
+                        
+                return nullptr;
+//                throw invalid_argument(string("No events found (time expired)")
+//                        + ", destination: " + destination
+//                        + ", milliSecondsToBlock: " + to_string(milliSecondsToBlock.count())
+//                        );
             }
             else
             {
@@ -188,21 +191,22 @@ shared_ptr<Event>& MultiEventsSet:: getFirstEvent (
         }
         else
         {
-            throw invalid_argument(string("No events found")
-                    + ", destination: " + destination
-                    );
+            return nullptr;
+//            throw invalid_argument(string("No events found")
+//                    + ", destination: " + destination
+//                    );
         }
     }
 
     EventsMultiMap:: iterator itEvents  = (destinationEvents->_eventsMultiMap).begin ();
-    shared_ptr<Event> &event		= itEvents -> second;
+    shared_ptr<Event> event		= itEvents -> second;
 
     chrono::system_clock::time_point expirationTimePoint    = event->getExpirationTimePoint();
     if (chrono::system_clock::now() < expirationTimePoint)
         eventExpired    = false;
     else
         eventExpired    = true;
-
+    
     return event;
 }
 
@@ -219,7 +223,9 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
             _esmMultiEventsSetHashMap.find (destination);
     if (itDestinations == _esmMultiEventsSetHashMap.end ())
     {
-        addDestination(destination);
+        // 2018-01-14: commented because it would require a recursive mutex and,
+        //  wait_for method below requires a 'normal' mutex
+        // addDestination(destination);
 
         itDestinations		= _esmMultiEventsSetHashMap.find (destination);
         if (itDestinations == _esmMultiEventsSetHashMap.end ())
@@ -240,10 +246,12 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
                     [&](){ return !(destinationEvents->_eventsMultiMap).empty(); }) == false)
             {
                 // time expired
-                throw invalid_argument(string("No events found (time expired)")
-                        + ", destination: " + destination
-                        + ", milliSecondsToBlock: " + to_string(milliSecondsToBlock.count())
-                        );
+                        
+                return nullptr;
+//                throw invalid_argument(string("No events found (time expired)")
+//                        + ", destination: " + destination
+//                        + ", milliSecondsToBlock: " + to_string(milliSecondsToBlock.count())
+//                        );
             }
             else
             {
@@ -260,9 +268,10 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
         }
         else
         {
-            throw invalid_argument(string("No events found")
-                    + ", destination: " + destination
-                    );
+            return nullptr;
+//            throw invalid_argument(string("No events found")
+//                    + ", destination: " + destination
+//                    );
         }
     }
 
@@ -280,12 +289,13 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
             itEvents  = (destinationEvents->_eventsMultiMap).begin();
             if (itEvents == (destinationEvents->_eventsMultiMap).end())
             {
-                throw invalid_argument(string("No events found")
-                        + ", destination: " + destination
-                        );
+                return nullptr;
+//                throw invalid_argument(string("No events found")
+//                        + ", destination: " + destination
+//                        );
             }
 
-            event		= itEvents -> second;
+            event		= itEvents->second;
             chrono::system_clock::time_point expirationTimePoint    = event->getExpirationTimePoint();
             chrono::system_clock::time_point now = chrono::system_clock::now();
 
@@ -300,7 +310,8 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
                     {
                         // blocking time expired
 
-                        throw invalid_argument(string("Event not expired yet"));
+                        return nullptr;
+//                        throw invalid_argument(string("Event not expired yet"));
                     }
 
                     if (expirationTimePoint - now <= remainingTimeInMilliSecs)
@@ -324,9 +335,10 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
                 }
                 else
                 {
-                    throw invalid_argument(string("Event not expired yet")
-                            + ", destination: " + destination
-                            );
+                    return nullptr;
+//                    throw invalid_argument(string("Event not expired yet")
+//                            + ", destination: " + destination
+//                            );
                 }
             }
             else
@@ -334,7 +346,7 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
         }
 
         (destinationEvents->_eventsMultiMap).erase(itEvents);
-        
+                
         return event;
     }
 }

@@ -30,6 +30,7 @@
 #include <unordered_map>
 #include <mutex>
 #include <iostream>
+#include <memory>
 #include "Event.h"
 
 using namespace std;
@@ -55,8 +56,8 @@ private:
     recursive_mutex     _mtEvents;
     EventsTypeHashMap   _ethmEvents;
 
-    const long          _defaultBlockEventsNumber = 5;
-    const long          _defaultMaxEventsNumberToBeAllocated = 1000;
+    const long          _defaultBlockEventsNumber = 50;
+    const long          _defaultMaxEventsNumberToBeAllocated = 10000;
 
 public:
     EventsFactory (void);
@@ -82,7 +83,7 @@ public:
         {
             addEventType(eventTypeIdentifier, _defaultBlockEventsNumber, _defaultMaxEventsNumberToBeAllocated);
 
-            EventsTypeHashMap::const_iterator itEventType = _ethmEvents.find(eventTypeIdentifier);
+            itEventType = _ethmEvents.find(eventTypeIdentifier);
             if (itEventType == _ethmEvents.end())
             {
                 throw invalid_argument(string("Error adding the Event Type identifier") 
@@ -91,7 +92,7 @@ public:
         }
 
         const shared_ptr<EventTypeInfo>& eventTypeInfo = itEventType->second;
-        deque<shared_ptr<Event>> &freeEvents = eventTypeInfo->_freeEvents;
+        deque<shared_ptr<Event>>& freeEvents = eventTypeInfo->_freeEvents;
 
         if (freeEvents.size() == 0)
         {
@@ -121,9 +122,12 @@ public:
 
             shared_ptr<T> event	= dynamic_pointer_cast<T>(freeEvents.front());
 
-            freeEvents.pop_front();
-            usedEvents.insert(make_pair(make_pair(event->getTypeIdentifier(),event->getIdentifier()), event));
+            event->setStartProcessingTime(chrono::system_clock::now());
 
+            freeEvents.pop_front();
+            usedEvents.insert(make_pair(make_pair(event->getEventKey().first,event->getEventKey().second), event));
+
+            
             return event;
         }
     }
@@ -133,11 +137,11 @@ public:
     {
         lock_guard<recursive_mutex> locker(_mtEvents);
 
-        EventsTypeHashMap::const_iterator itEventType = _ethmEvents.find(event->getTypeIdentifier());
+        EventsTypeHashMap::const_iterator itEventType = _ethmEvents.find(event->getEventKey().first);
         if (itEventType == _ethmEvents.end())
         {
             throw invalid_argument(string("Event Type was not found") 
-                    + ", eventTypeIdentifier: " + to_string(event->getTypeIdentifier()));
+                    + ", eventTypeIdentifier: " + to_string(event->getEventKey().first));
         }
 
         const shared_ptr<EventTypeInfo>& eventTypeInfo = itEventType->second;
@@ -145,12 +149,12 @@ public:
         deque<shared_ptr<Event>> &freeEvents = eventTypeInfo->_freeEvents;
         UsedEventsMap   &usedEvents  = eventTypeInfo->_usedEvents;
 
-        UsedEventsMap::const_iterator itEvent = usedEvents.find(make_pair(event->getTypeIdentifier(), event->getIdentifier()));
+        UsedEventsMap::const_iterator itEvent = usedEvents.find(make_pair(event->getEventKey().first, event->getEventKey().second));
         if (itEvent == usedEvents.end())
         {
             throw invalid_argument(string("Event was not found") 
-                    + ", event->getTypeIdentifier(): " + to_string(event->getTypeIdentifier())
-                    + ", event->getIdentifier(): " + to_string(event->getIdentifier())
+                    + ", event->getEventKey().first: " + to_string(event->getEventKey().first)
+                    + ", event->getEventKey().second: " + to_string(event->getEventKey().second)
                     );
         }
 

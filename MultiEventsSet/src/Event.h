@@ -91,14 +91,6 @@ public:
         this->_eventKey = eventKey;
     }
 
-    long getTypeIdentifier() {
-        _eventKey.first;
-    }
-
-    long getIdentifier() {
-        _eventKey.second;
-    }
-
     string getDestination() const {
         return _destination;
     }

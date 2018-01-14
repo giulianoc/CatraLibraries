@@ -30,6 +30,10 @@ project(
 
 SET(CMAKE_CXX_FLAGS "-std=c++14")
 
+set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE RelWithDebInfo)
+#set(CMAKE_BUILD_TYPE Release)
+
 set(CatraLibraries_VERSION_MAJOR 1)
 set(CatraLibraries_VERSION_MINOR 0)
 
