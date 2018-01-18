@@ -24,11 +24,15 @@ SET (SOURCES
 	Scheduler.cpp
 	SchedulerErrors.cpp
 	Times.cpp
+	Scheduler2.cpp
+	Times2.cpp
 )
 SET (HEADERS
 	SchedulerErrors.h
 	Scheduler.h
 	Times.h
+	Scheduler2.h
+	Times2.h
 )
 
 include_directories ("${PROJECT_SOURCE_DIR}/ErrMsg/src")
