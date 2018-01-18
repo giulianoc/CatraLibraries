@@ -1544,117 +1544,99 @@ bool Times2:: isStarted ()
         return false;
 }
 
-
-Error Times2:: isExpiredTime (Boolean_p pbIsExpired)
-
+bool Times2:: isExpiredTime ()
 {
-
-	#ifdef WIN32
-	#else
-		struct timeval	tvTimeval;
-	#endif
-	char				pDateTime [SCH_MAXDATELENGTH];
-	tm					tmDateTime;
-	unsigned long		ulMilliSecs;
+    #ifdef WIN32
+    #else
+        struct timeval	tvTimeval;
+    #endif
+    char		pDateTime [SCH_MAXDATELENGTH];
+    tm			tmDateTime;
+    unsigned long	ulMilliSecs;
+    bool                bIsExpired;
 
 
     lock_guard<mutex>   locker(_mtTimesMutex);
 
-	if (_schTimesStatus != SCHTIMES_STARTED)
-	{
-		Error err = SchedulerErrors (__FILE__, __LINE__,
-			SCH_OPERATION_NOTALLOWED, 1, _schTimesStatus);
+    if (DateTime:: get_tm_LocalTime (
+            &tmDateTime, &ulMilliSecs) != errNoError)
+    {
+//        Error err = ToolsErrors (__FILE__, __LINE__,
+//                TOOLS_DATETIME_GET_TM_LOCALTIME_FAILED);
+//
+//        return err;
+    }
 
-		return err;
-	}
+    // if (tmDateTime. tm_isdst == 1 && !_bNextDaylightSavingTime)	// this check is wrong because in case of milliseconds period, tmDateTime. tm_isdst == 1 could not mean 'moving from DST to No DST' but could mean 'moving from No DST and we just entered in DST from few millisecs'.
+    // So the correct check uses instead _bCurrentDaylightSavingTime
+    if (tmDateTime. tm_isdst == 1 && _bCurrentDaylightSavingTime &&
+            !_bNextDaylightSavingTime)
+    {
+        //  Scenario: 02:59:00 (DST) ... 03:00:00=02:00:00 (No DST) ...
+        //
+        // it means that the next time will change the daylight saving time
+        // but the current time has still to change it.
+        // In this case, we cannot compare _pNextExpirationDateTime
+        // with the current date time because they belong to different
+        // daylight saving time.
+        // ------------------------------
+        // 2010-11-04. Next statement is wrong:
+        // In this scenario, we have to force the update of
+        // _pNextExpirationDateTime in order to have both
+        // _bCurrentDaylightSavingTime and _bNextDaylightSavingTime belonging
+        // to the same daylight saving time.
+        // To have the update we have to set *pbIsExpired to true otherwise
+        // the Scheduler will not do any update.
+        // -------------------------
+        //
+        // 2010-11-04: To be sure we are moving from DST to NoDST
+        // (from 3am to 2am) we need all the above three conditions.
+        //
 
-	if (pbIsExpired == (Boolean_p) NULL)
-	{
-		Error err = SchedulerErrors (__FILE__, __LINE__,
-			SCH_ACTIVATION_WRONG);
+        bIsExpired	= false;
 
-		return err;
-	}
+        // In this scenario we are moving from 'DST' to
+        // 'No DST' that it means from 3am to 2am (October 25).
+        // For example, now is 2:59:10 and the period is 1 minute.
+        // 	So NextTime is 2:00:10. In this case NextTime will expires
+        // 	a lot of times between 2:59:10 and 2:59:59 and this is wrong.
+        //
+        // 	2010-11-04: For this reason, until the current time
+        // 	will not be NoDST, we have to wait (*pbIsExpired = false)
+        // 	because for sure the Times did not expire yet
+    }
+    else if (tmDateTime. tm_isdst == 0 && _bCurrentDaylightSavingTime &&
+            _bNextDaylightSavingTime)
+    {
+        // 2011-11-02:
+        //  Scenario: 02:59:00 (DST) ... 03:00:00=02:00:00 (No DST) ...
+        //  This condition (above if) means:
+        //  - the real time is in No DST (i.e.: 02:01:00 after 3am)
+        //  - but still _pCurrentExpirationDateTime and _pNextExpirationDateTime
+        //      are still in the DST, it means i.e. at 2:58:00
 
-	if (DateTime:: get_tm_LocalTime (
-		&tmDateTime, &ulMilliSecs) != errNoError)
-	{
-		Error err = ToolsErrors (__FILE__, __LINE__,
-			TOOLS_DATETIME_GET_TM_LOCALTIME_FAILED);
+        bIsExpired    = true;
+    }
+    else
+    {
+        // the format date is yyyy-mm-dd-hh24-mi-ss-milliss
+        sprintf (pDateTime, "%04lu-%02lu-%02lu %02lu:%02lu:%02lu:%04lu",
+            (unsigned long) (tmDateTime. tm_year + 1900),
+            (unsigned long) (tmDateTime. tm_mon + 1),
+            (unsigned long) (tmDateTime. tm_mday),
+            (unsigned long) (tmDateTime. tm_hour),
+            (unsigned long) (tmDateTime. tm_min),
+            (unsigned long) (tmDateTime. tm_sec),
+            ulMilliSecs);
 
-		return err;
-	}
-
-	// if (tmDateTime. tm_isdst == 1 && !_bNextDaylightSavingTime)	// this check is wrong because in case of milliseconds period, tmDateTime. tm_isdst == 1 could not mean 'moving from DST to No DST' but could mean 'moving from No DST and we just entered in DST from few millisecs'.
-	// So the correct check uses instead _bCurrentDaylightSavingTime
-	if (tmDateTime. tm_isdst == 1 && _bCurrentDaylightSavingTime &&
-		!_bNextDaylightSavingTime)
-	{
-		//  Scenario: 02:59:00 (DST) ... 03:00:00=02:00:00 (No DST) ...
-		//
-		// it means that the next time will change the daylight saving time
-		// but the current time has still to change it.
-		// In this case, we cannot compare _pNextExpirationDateTime
-		// with the current date time because they belong to different
-		// daylight saving time.
-		// ------------------------------
-		// 2010-11-04. Next statement is wrong:
-		// In this scenario, we have to force the update of
-		// _pNextExpirationDateTime in order to have both
-		// _bCurrentDaylightSavingTime and _bNextDaylightSavingTime belonging
-		// to the same daylight saving time.
-		// To have the update we have to set *pbIsExpired to true otherwise
-		// the Scheduler will not do any update.
-		// -------------------------
-		//
-		// 2010-11-04: To be sure we are moving from DST to NoDST
-		// (from 3am to 2am) we need all the above three conditions.
-		//
-
-		*pbIsExpired	= false;
-
-		// In this scenario we are moving from 'DST' to
-		// 'No DST' that it means from 3am to 2am (October 25).
-		// For example, now is 2:59:10 and the period is 1 minute.
-		// 	So NextTime is 2:00:10. In this case NextTime will expires
-		// 	a lot of times between 2:59:10 and 2:59:59 and this is wrong.
-		//
-		// 	2010-11-04: For this reason, until the current time
-		// 	will not be NoDST, we have to wait (*pbIsExpired = false)
-		// 	because for sure the Times did not expire yet
-	}
-	else if (tmDateTime. tm_isdst == 0 && _bCurrentDaylightSavingTime &&
-		_bNextDaylightSavingTime)
-	{
-		// 2011-11-02:
-		//  Scenario: 02:59:00 (DST) ... 03:00:00=02:00:00 (No DST) ...
-		//  This condition (above if) means:
-		//  - the real time is in No DST (i.e.: 02:01:00 after 3am)
-		//  - but still _pCurrentExpirationDateTime and _pNextExpirationDateTime
-		//      are still in the DST, it means i.e. at 2:58:00
-
-		*pbIsExpired    = true;
-	}
-	else
-	{
-		// the format date is yyyy-mm-dd-hh24-mi-ss-milliss
-		sprintf (pDateTime, "%04lu-%02lu-%02lu %02lu:%02lu:%02lu:%04lu",
-			(unsigned long) (tmDateTime. tm_year + 1900),
-			(unsigned long) (tmDateTime. tm_mon + 1),
-			(unsigned long) (tmDateTime. tm_mday),
-			(unsigned long) (tmDateTime. tm_hour),
-			(unsigned long) (tmDateTime. tm_min),
-			(unsigned long) (tmDateTime. tm_sec),
-			ulMilliSecs);
-
-		if (strcmp (_pNextExpirationDateTime, pDateTime) <= 0)
-			*pbIsExpired	= true;
-		else
-			*pbIsExpired	= false;
-	}
+        if (strcmp (_pNextExpirationDateTime, pDateTime) <= 0)
+            bIsExpired	= true;
+        else
+            bIsExpired	= false;
+    }
 
 
-	return errNoError;
+	return bIsExpired;
 }
 
 

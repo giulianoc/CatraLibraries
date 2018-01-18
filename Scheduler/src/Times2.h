@@ -242,7 +242,7 @@ public:
         almeno un timeout non gestito ancora dallo scheduler,
         false altrimenti.
     */
-    Error isExpiredTime (Boolean_p pbIsExpired);
+    bool isExpiredTime ();
 
     /**
         E' il metodo che deve essere ridefinito per indicare le

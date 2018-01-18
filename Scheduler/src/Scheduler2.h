@@ -170,7 +170,7 @@ public:
         Ritorna il numero di Times correntemente gestiti
         dallo scheduler.
     */
-    Error getTimesNumber (unsigned long *pulTimesNumber);
+    unsigned long getTimesNumber ();
 
     /**
         I Times gestiti dallo scheduler sono inseriti in un vettore
@@ -183,7 +183,7 @@ public:
     /**
         Ritorna lo stato dello scheduler.
     */
-    Error getSchedulerStatus (SchedulerStatus_p pssSchedulerStatus);
+    // SchedulerStatus_t getSchedulerStatus ();
 
 };
 

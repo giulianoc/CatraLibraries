@@ -154,7 +154,6 @@ Error Scheduler2:: handleTimes (void)
 {
 
     long			lTimesPointerIndex;
-    Boolean_t			bIsExpired;
     Boolean_t			bIsTimesDeactived;
     shared_ptr<Times2>		ptTimes;
 
@@ -169,15 +168,7 @@ Error Scheduler2:: handleTimes (void)
 
         if (ptTimes -> isStarted ())
         {
-            if (ptTimes -> isExpiredTime (&bIsExpired) != errNoError)
-            {
-                Error err = SchedulerErrors (__FILE__, __LINE__,
-                        SCH_TIMES_ISEXPIREDTIME_FAILED);
-
-                return err;
-            }
-
-            if (bIsExpired)
+            if (ptTimes -> isExpiredTime ())
             {
                 Error			errUpdateNextExpirationDateTime;
 
@@ -329,15 +320,11 @@ Error Scheduler2:: deactiveTimes (long lTimesPointerIndex)
 }
 
 
-Error Scheduler2:: getTimesNumber (unsigned long *pulTimesNumber)
-
+unsigned long Scheduler2:: getTimesNumber ()
 {
-
     lock_guard<recursive_mutex>     locker(_mtSchedulerMutex);
 
-    *pulTimesNumber		= _timesList.size();
-
-    return errNoError;
+    return _timesList.size();
 }
 
 
@@ -358,20 +345,14 @@ shared_ptr<Times2> Scheduler2:: getTimes (unsigned long ulTimesIndex)
     return _timesList[ulTimesIndex];
 }
 
-
-Error Scheduler2:: getSchedulerStatus (
-    SchedulerStatus_p pssSchedulerStatus)
-
+/*
+SchedulerStatus_t Scheduler2:: getSchedulerStatus ()
 {
-
     lock_guard<recursive_mutex>     locker(_mtSchedulerMutex);
 
-    *pssSchedulerStatus			= _schedulerStatus;
-
-
-    return errNoError;
+    return _schedulerStatus;
 }
-
+ */
 
 Error Scheduler2:: getTimesPointerIndex (shared_ptr<Times2> pTimes,
 	long *plTimesPointerIndex)
