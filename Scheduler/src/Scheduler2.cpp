@@ -87,6 +87,8 @@ void Scheduler2::operator()()
     {
         lock_guard<recursive_mutex>     locker(_mtSchedulerMutex);
 
+        _schedulerStatus        = SCHEDULER_STARTED;
+
         ssSchedulerStatus		= _schedulerStatus;
     }
 
@@ -124,6 +126,7 @@ void Scheduler2:: handleTimes (void)
 
         ptTimes					= _timesList[lTimesPointerIndex];
 
+        // cout << "lTimesPointerIndex: " << lTimesPointerIndex << endl;
         if (ptTimes -> isStarted ())
         {
             if (ptTimes -> isExpiredTime ())
@@ -173,11 +176,18 @@ Error Scheduler2:: activeTimes (shared_ptr<Times2> pTimes)
 
     lock_guard<recursive_mutex>     locker(_mtSchedulerMutex);
 
-    lTimesPointerIndex = getTimesPointerIndex (pTimes);
+    try
+    {
+        lTimesPointerIndex = getTimesPointerIndex (pTimes);
+    }
+    catch(const invalid_argument &ia)
+    {
+        // we should have this exception in the 'normal scenario'
+    }
 
     _timesList.push_back(pTimes);
 
-
+    
     return errNoError;
 }
 
