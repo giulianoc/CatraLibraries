@@ -34,5 +34,5 @@ add_compile_options(-D_REENTRANT)
 add_library (ErrMsg SHARED ${SOURCES} ${HEADERS})
 
 install (TARGETS ErrMsg DESTINATION lib)
-install (FILES ${HEADERS} DESTINATION include)
+install (FILES ${HEADERS} DESTINATION ${INSTALL_INCLUDE_DIRECTORY})
 

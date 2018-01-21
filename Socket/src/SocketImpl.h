@@ -28,23 +28,6 @@
 	#include "SocketErrors.h"
 	#include "vector"
 
-	#ifndef Boolean_t
-		typedef long	Boolean_t;
-	#endif
-
-	#ifndef Boolean_p
-		typedef long	*Boolean_p;
-	#endif
-
-	#ifndef false
-		#define false	0L
-	#endif
-
-	#ifndef true
-		#define true	1L
-	#endif
-
-
 	#define SCK_MAXIPADDRESSLENGTH			(15 + 1)
 	#define SCK_MAXHOSTNAMELENGTH			(128 + 1)
 	#define SCK_MAXADDRESSBUFFERSIZE		(1024 * 4)
@@ -333,10 +316,10 @@
 				riscontro al mittente. Inviare periodicamente tali pacchetti
 				su una connessione momentaneamente inutilizzata (su cui non si
 				sta ne trasmettendo ne ricevendo) permette di verificarne
-				la validità. Il rovescio della medaglia è ovviamente la
+				la validitï¿½. Il rovescio della medaglia ï¿½ ovviamente la
 				larghezza di banda sprecata per implementare tale meccanismo.
-				In caso di errore (ad es. nessuno dei keepalives trasmessi è
-				stato riscontrato) verrà notificato un evento FD_CLOSE
+				In caso di errore (ad es. nessuno dei keepalives trasmessi ï¿½
+				stato riscontrato) verrï¿½ notificato un evento FD_CLOSE
 				contenete l'errore (WSAECONNABORTED in questo caso) alla
 				procedura di finestra dell'applicazione.
 				Parameters:
@@ -347,9 +330,9 @@
 			/**
 				Enable TCP_NODELAY on connection-oriented sockets.
 				Questa opzione abilita o disabilita l'algoritmo di Nagle:
-				quando è disabilitata (il suo valore è false) tale algoritmo è
+				quando ï¿½ disabilitata (il suo valore ï¿½ false) tale algoritmo ï¿½
 				abilitato.
-				L'algoritmo di Nagle è usato per ridurre il traffico della rete
+				L'algoritmo di Nagle ï¿½ usato per ridurre il traffico della rete
 				senza ridurre le prestazioni. Opera evitando di trasmettere i
 				dati non appena questi si rendono disponibili ma aspettando di
 				riempire il pacchetto prima di spedirlo. Disabilitare tale
@@ -491,7 +474,7 @@
 				unsigned long ulAdditionalTimeoutInMicroSeconds);
 
 			/**
-				Eliminata perchè la readLines è una read.
+				Eliminata perchï¿½ la readLines ï¿½ una read.
 
 				Reads lines of data until there are lines in the
 				socket or the buffer is filled completely.

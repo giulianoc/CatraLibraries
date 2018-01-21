@@ -32,22 +32,6 @@
 	#endif
 	#include <iostream>
 
-	#ifndef Boolean_t
-		typedef long	Boolean_t;
-	#endif
-
-	#ifndef Boolean_p
-		typedef long	*Boolean_p;
-	#endif
-
-	#ifndef false
-		#define false	0L
-	#endif
-
-	#ifndef true
-		#define true	1L
-	#endif
-
 
 	#define TOOLS_DEFAULTBUFFERBLOCKNUMBERONOVERFLOW			2
 

@@ -78,14 +78,10 @@ void Scheduler2:: cancel (void)
     _schedulerStatus			= SCHEDULER_INITIALIZED;
 }
 
-
 void Scheduler2::operator()()
-
 {
 
     SchedulerStatus_t		ssSchedulerStatus;
-    // unsigned long		ulSecondsToWait;
-    // unsigned long		ulAdditionalMicroSeconds;
 
 
     {
@@ -94,48 +90,12 @@ void Scheduler2::operator()()
         ssSchedulerStatus		= _schedulerStatus;
     }
 
-//    ulSecondsToWait			= _ulThreadSleepInMilliSecs / 1000;
-//    ulAdditionalMicroSeconds	= (_ulThreadSleepInMilliSecs -
-//            (ulSecondsToWait * 1000)) * 1000;
-
     while (ssSchedulerStatus == SCHEDULER_STARTED ||
             ssSchedulerStatus == SCHEDULER_SUSPENDED)
     {
         if (ssSchedulerStatus == SCHEDULER_STARTED)
         {
-/*
-#ifdef WIN32
-__int64             ullNowLocalInMilliSecs1;
-__int64             ullNowLocalInMilliSecs2;
-#else
-unsigned long long  ullNowLocalInMilliSecs1;
-unsigned long long  ullNowLocalInMilliSecs2;
-#endif
-static long lHandleTimesElapsed = 0;
-DateTime:: nowLocalInMilliSecs (&ullNowLocalInMilliSecs1);
-*/
-            if (handleTimes () != errNoError)
-            {
-                throw invalid_argument(string("handleTimes failed"));
-            }
-/*
-DateTime:: nowLocalInMilliSecs (&ullNowLocalInMilliSecs2);
-// if ((long) (ullNowLocalInMilliSecs2 - ullNowLocalInMilliSecs1) >
-// 	lHandleTimesElapsed)
-{
-    lHandleTimesElapsed =
-            (long) (ullNowLocalInMilliSecs2 - ullNowLocalInMilliSecs1);
-char pBuffer [1024];
-sprintf (pBuffer,
-"SCHEDULER. max handleTimes elapsed (millisecs): %ld\n",
-    lHandleTimesElapsed);
-#ifdef WIN32
-FileIO:: appendBuffer ("C:\\times.txt", pBuffer, false);
-#else
-FileIO:: appendBuffer ("/tmp/times.txt", pBuffer, false);
-#endif
-}
-*/
+            handleTimes();
         }
 
         this_thread::sleep_for(_ulThreadSleepInMilliSecs * 1ms);
@@ -148,9 +108,7 @@ FileIO:: appendBuffer ("/tmp/times.txt", pBuffer, false);
     }
 }
 
-
-Error Scheduler2:: handleTimes (void)
-
+void Scheduler2:: handleTimes (void)
 {
 
     long			lTimesPointerIndex;
@@ -170,65 +128,33 @@ Error Scheduler2:: handleTimes (void)
         {
             if (ptTimes -> isExpiredTime ())
             {
-                Error			errUpdateNextExpirationDateTime;
-
-
-                if ((errUpdateNextExpirationDateTime =
-                    ptTimes -> updateNextExpirationDateTime ()) != errNoError)
+                bool lastTimeout;
+                
+                if (ptTimes -> updateNextExpirationDateTime (lastTimeout) != errNoError)
                 {
-                    if ((long) errUpdateNextExpirationDateTime ==
-                            SCH_REACHED_LASTTIMEOUT)
-                    {
-                        bIsTimesDeactived		= true;
-
-                        if (deactiveTimes (lTimesPointerIndex) != errNoError)
-                        {
-                                Error err = SchedulerErrors (__FILE__, __LINE__,
-                                        SCH_SCHEDULER_DEACTIVETIMES_FAILED);
-
-                                return err;
-                        }
-                    }
-                    else
-                    {
-                        Error err = SchedulerErrors (__FILE__, __LINE__,
-                                SCH_TIMES_UPDATENEXTEXPIRATIONDATETIME_FAILED);
-
-                        return err;
-                    }
+                    throw runtime_error(string("updateNextExpirationDateTime failed"));
                 }
 
-/*
-char aaa [1024];
-unsigned long long ullLocalExpirationLocalDateTimeInMilliSecs1;
-unsigned long long ullLocalExpirationLocalDateTimeInMilliSecs2;
-DateTime:: nowLocalInMilliSecs (&ullLocalExpirationLocalDateTimeInMilliSecs1);
-*/
-
-                if (ptTimes -> handleTimeOut () != errNoError)
+                if (lastTimeout)
                 {
-                    Error err = SchedulerErrors (__FILE__, __LINE__,
-                        SCH_TIMES_HANDLETIMEOUT_FAILED);
+                    bIsTimesDeactived		= true;
 
+                    deactiveTimes (lTimesPointerIndex);
+                }
+
+                try
+                {
+                    ptTimes -> handleTimeOut ();
+                }
+                catch(...)
+                {
                     if (bIsTimesDeactived == false)
                     {
                         bIsTimesDeactived		= true;
 
-                        if (deactiveTimes (lTimesPointerIndex) != errNoError)
-                        {
-                            Error err = SchedulerErrors (__FILE__, __LINE__,
-                                    SCH_SCHEDULER_DEACTIVETIMES_FAILED);
-
-                            return err;
-                        }
+                        deactiveTimes (lTimesPointerIndex);
                     }
                 }
-/*
-DateTime:: nowLocalInMilliSecs (&ullLocalExpirationLocalDateTimeInMilliSecs2);
-sprintf (aaa, "Index: %ld, %ld\n",
-lTimesPointerIndex, (long) (ullLocalExpirationLocalDateTimeInMilliSecs2 - ullLocalExpirationLocalDateTimeInMilliSecs1));
-FileIO:: appendBuffer ("/tmp/elapsed.txt", aaa, false);
-*/
             }
         }
 
@@ -236,13 +162,10 @@ FileIO:: appendBuffer ("/tmp/elapsed.txt", aaa, false);
             lTimesPointerIndex--;
     }
 
-
-    return errNoError;
 }
 
 
 Error Scheduler2:: activeTimes (shared_ptr<Times2> pTimes)
-
 {
 
     long		lTimesPointerIndex;
@@ -250,13 +173,7 @@ Error Scheduler2:: activeTimes (shared_ptr<Times2> pTimes)
 
     lock_guard<recursive_mutex>     locker(_mtSchedulerMutex);
 
-    if (getTimesPointerIndex (pTimes, &lTimesPointerIndex) == errNoError)
-    {
-        Error err = SchedulerErrors (__FILE__, __LINE__,
-                SCH_SCHEDULER_TIMESALREADYACTIVE);
-
-        return err;
-    }
+    lTimesPointerIndex = getTimesPointerIndex (pTimes);
 
     _timesList.push_back(pTimes);
 
@@ -266,7 +183,6 @@ Error Scheduler2:: activeTimes (shared_ptr<Times2> pTimes)
 
 
 Error Scheduler2:: deactiveTimes (shared_ptr<Times2> pTimes)
-
 {
 
     long					lTimesPointerIndex;
@@ -275,38 +191,25 @@ Error Scheduler2:: deactiveTimes (shared_ptr<Times2> pTimes)
     lock_guard<recursive_mutex>     locker(_mtSchedulerMutex);
 
 
-    if (getTimesPointerIndex (pTimes, &lTimesPointerIndex) != errNoError)
-    {
-        Error err = SchedulerErrors (__FILE__, __LINE__,
-                SCH_SCHEDULER_GETTIMESPOINTERINDEX_FAILED);
+    lTimesPointerIndex      = getTimesPointerIndex (pTimes);
 
-        return err;
-    }
-
-    if (deactiveTimes (lTimesPointerIndex) != errNoError)
-    {
-        Error err = SchedulerErrors (__FILE__, __LINE__,
-                SCH_SCHEDULER_DEACTIVETIMES_FAILED);
-
-        return err;
-    }
+    deactiveTimes (lTimesPointerIndex);
 
 
     return errNoError;
 }
 
 
-Error Scheduler2:: deactiveTimes (long lTimesPointerIndex)
-
+void Scheduler2:: deactiveTimes (long lTimesPointerIndex)
 {
 
     if (lTimesPointerIndex < 0 ||
             lTimesPointerIndex >= _timesList.size())
     {
-            Error err = SchedulerErrors (__FILE__, __LINE__,
-                    SCH_ACTIVATION_WRONG);
-
-            return err;
+        throw invalid_argument(string("Wrong parameter")
+                + ", lTimesPointerIndex: " + to_string(lTimesPointerIndex)
+                + ", _timesList.size: " + to_string(_timesList.size())
+                );
     }
 
     lock_guard<recursive_mutex>     locker(_mtSchedulerMutex);
@@ -314,9 +217,6 @@ Error Scheduler2:: deactiveTimes (long lTimesPointerIndex)
     vector<shared_ptr<Times2>>::iterator itTimes = _timesList.begin() + lTimesPointerIndex;
 
     _timesList.erase(itTimes);
-
-    
-    return errNoError;
 }
 
 
@@ -329,7 +229,6 @@ unsigned long Scheduler2:: getTimesNumber ()
 
 
 shared_ptr<Times2> Scheduler2:: getTimes (unsigned long ulTimesIndex)
-
 {
 
     lock_guard<recursive_mutex>     locker(_mtSchedulerMutex);
@@ -345,37 +244,24 @@ shared_ptr<Times2> Scheduler2:: getTimes (unsigned long ulTimesIndex)
     return _timesList[ulTimesIndex];
 }
 
-/*
-SchedulerStatus_t Scheduler2:: getSchedulerStatus ()
-{
-    lock_guard<recursive_mutex>     locker(_mtSchedulerMutex);
 
-    return _schedulerStatus;
-}
- */
-
-Error Scheduler2:: getTimesPointerIndex (shared_ptr<Times2> pTimes,
-	long *plTimesPointerIndex)
-
+long Scheduler2:: getTimesPointerIndex (shared_ptr<Times2> pTimes)
 {
 
-    for (*plTimesPointerIndex = 0;
-            *plTimesPointerIndex < _timesList.size();
-            (*plTimesPointerIndex)++)
+    long lTimesPointerIndex;
+    
+    for (lTimesPointerIndex = 0; lTimesPointerIndex < _timesList.size(); lTimesPointerIndex++)
     {
-        if (_timesList[*plTimesPointerIndex] == pTimes)
+        if (_timesList[lTimesPointerIndex] == pTimes)
             break;
     }
 	
-    if (*plTimesPointerIndex == _timesList.size())
+    if (lTimesPointerIndex == _timesList.size())
     {
-        Error err = SchedulerErrors (__FILE__, __LINE__,
-                SCH_TIMES_NOTFOUND);
-
-        return err;
+        throw invalid_argument(string("Wrong parameter, pTimes was not found")
+                );
     }
 
 
-    return errNoError;
+    return lTimesPointerIndex;
 }
-

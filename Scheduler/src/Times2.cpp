@@ -36,117 +36,40 @@
 
 
 
-Times2:: Times2 (void)
-
+Times2:: Times2 (unsigned long ulPeriodInMilliSeconds, string className)
 {
+    _ulPeriodInMilliSeconds		= ulPeriodInMilliSeconds;
+    _ttTimesType			= SCH_TYPE_PERIODIC;
 
-	_schTimesStatus		= SCHTIMES_BUILDED;
+    // _bCurrentDaylightSavingTime
+    strcpy (_pCurrentExpirationDateTime, "");
+    // _bNextDaylightSavingTime
+    strcpy (_pNextExpirationDateTime, "");
 
+    _className      = className;
+
+    _schTimesStatus		= SCHTIMES_INITIALIZED;
 }
 
-
-Times2:: ~Times2 (void)
-
-{
-
-}
-
-
-Times2:: Times2 (const Times2 &t)
-
-{
-
-	assert (1==0);
-
-	// to do
-
-	// *this = t;
-}
-
-
-Error Times2:: init (
-	unsigned long ulPeriodInMilliSeconds, const char *pClassName)
-
-{
-
-	if (_schTimesStatus != SCHTIMES_BUILDED)
-	{
-		Error err = SchedulerErrors (__FILE__, __LINE__,
-			SCH_OPERATION_NOTALLOWED, 1, _schTimesStatus);
-
-		return err;
-	}
-
-	_ulPeriodInMilliSeconds		= ulPeriodInMilliSeconds;
-	_ttTimesType				= SCH_TYPE_PERIODIC;
-
-	// _bCurrentDaylightSavingTime
-	strcpy (_pCurrentExpirationDateTime, "");
-	// _bNextDaylightSavingTime
-	strcpy (_pNextExpirationDateTime, "");
-
-	if (pClassName != (const char *) NULL)
-	{
-		if (strlen (pClassName) > SCH_MAXCLASSNAMELENGTH - 1)
-		{
-			Error err = SchedulerErrors (__FILE__, __LINE__,
-				SCH_CLASSNAME_TOOLONG);
-
-			return err;
-		}
-
-		strcpy (_pClassName, pClassName);
-	}
-	else
-		strcpy (_pClassName, "");
-
-
-	_schTimesStatus		= SCHTIMES_INITIALIZED;
-
-
-	return errNoError;
-}
-
-
-Error Times2:: init (const char *pSchedule, const char *pClassName)
-
+Times2:: Times2 (string schedule, string className)
 {
 
 	// schedule format:
 	//	<year> <month> <monthday> <weekday> <hour> <minute> <second>
 
-	if (_schTimesStatus != SCHTIMES_BUILDED)
-	{
-		Error err = SchedulerErrors (__FILE__, __LINE__,
-			SCH_OPERATION_NOTALLOWED, 1, _schTimesStatus);
-
-		return err;
-	}
-
-	if (pSchedule == (const char *) NULL)
-	{
-		Error err = SchedulerErrors (__FILE__, __LINE__,
-			SCH_ACTIVATION_WRONG);
-
-		return err;
-	}
-
-	// checks on pSchedule parameter
+	// checks on schedule parameter
 	{
 
 		long		lScheduleLength;
 
 		
-		lScheduleLength		= strlen (pSchedule);
+		lScheduleLength		= schedule.size();
 
 		// check length
 		{
 			if (lScheduleLength > SCH_MAXSCHEDULELENGTH - 1)
 			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_ACTIVATION_WRONG);
-
-				return err;
+                            throw invalid_argument(string("Wrong parameter"));
 			}
 		}
 
@@ -161,20 +84,17 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 			for (lScheduleIndex = 0; lScheduleIndex < lScheduleLength;
 				lScheduleIndex++)
 			{
-				if (!isdigit (pSchedule [lScheduleIndex]))
+				if (!isdigit (schedule [lScheduleIndex]))
 				{
-					if (pSchedule [lScheduleIndex] != '*')
+					if (schedule [lScheduleIndex] != '*')
 					{
-						if (pSchedule [lScheduleIndex] != ',')
+						if (schedule [lScheduleIndex] != ',')
 						{
-							if (pSchedule [lScheduleIndex] != '-')
+							if (schedule [lScheduleIndex] != '-')
 							{
-								if (pSchedule [lScheduleIndex] != ' ')
+								if (schedule [lScheduleIndex] != ' ')
 								{
-									Error err = SchedulerErrors (__FILE__,
-										__LINE__, SCH_ACTIVATION_WRONG);
-
-									return err;
+                                                                    throw invalid_argument(string("Wrong parameter"));
 								}
 								else
 								{
@@ -188,10 +108,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 			if (lSpacesNumber != 6)
 			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_ACTIVATION_WRONG);
-
-				return err;
+                            throw invalid_argument(string("Wrong parameter"));
 			}
 		}
 
@@ -204,16 +121,13 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 			char				*pScheduleTokenLast;
 
 
-			strcpy (pScheduleCopy, pSchedule);
+			strcpy (pScheduleCopy, schedule.c_str());
 
 			// year
 			if ((pScheduleToken = strtok_r (pScheduleCopy, " ",
 				&pScheduleTokenLast)) == (char *) NULL)
 			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
+                            throw invalid_argument(string("Wrong parameter"));
 			}
 
 			strcpy (pYear, pScheduleToken);
@@ -225,10 +139,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 			if ((pScheduleToken = strtok_r ((char *) NULL, " ",
 				&pScheduleTokenLast)) == (char *) NULL)
 			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
+                            throw invalid_argument(string("Wrong parameter"));
 			}
 
 			if (strchr (pScheduleToken, ',') != (char *) NULL)
@@ -269,10 +180,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 					if (lValue < 1 || lValue > 12)
 					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValue, "month");
-
-						return err;
+                                            throw invalid_argument(string("Wrong parameter"));
 					}
 				}
 				while (*pPointerToScheduleToken != '\0');
@@ -356,18 +264,12 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 				if (lValueFrom < 1 || lValueFrom > lValueTo)
 				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValueFrom, "month");
-
-					return err;
+                                    throw invalid_argument(string("Wrong parameter"));
 				}
 
 				if (lValueTo > 12)
 				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValueTo, "month");
-
-					return err;
+                                    throw invalid_argument(string("Wrong parameter"));
 				}
 			}
 			else
@@ -379,10 +281,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 					if (lMonth < 1 || lMonth > 12)
 					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_SCHEDULEFIELDRANGE_WRONG, 2, lMonth, "month");
-
-						return err;
+                                            throw invalid_argument(string("Wrong parameter"));
 					}
 				}
 			}
@@ -391,10 +290,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 			if ((pScheduleToken = strtok_r ((char *) NULL, " ",
 				&pScheduleTokenLast)) == (char *) NULL)
 			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
+                            throw invalid_argument(string("Wrong parameter"));
 			}
 
 			if (strchr (pScheduleToken, ',') != (char *) NULL)
@@ -438,11 +334,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 					if (lValue < 1 || lValue > 31)
 					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValue,
-							"monthday");
-
-						return err;
+                                            throw invalid_argument(string("Wrong parameter"));
 					}
 
 					if (lValue <= 30)
@@ -494,12 +386,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 				// we have a loop
 				if (!strcmp (pYear, "*") && lMonth == 2 && !bIsLessThan30)
 				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_SCHEDULEFIELDRANGE_WRONG,
-						2, lValue,
-					"monthday (with '*' as year and february as month)");
-
-					return err;
+                                    throw invalid_argument(string("Wrong parameter"));
 				}
 			}
 			else if (strchr (pScheduleToken, '-') != (char *) NULL)
@@ -551,18 +438,12 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 				if (lValueFrom < 1 || lValueFrom > lValueTo)
 				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValueFrom, "month");
-
-					return err;
+                                    throw invalid_argument(string("Wrong parameter"));
 				}
 
 				if (lValueTo > 31)
 				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValueTo, "month");
-
-					return err;
+                                    throw invalid_argument(string("Wrong parameter"));
 				}
 
 				// if year is *, month is february and day is 30 or 31
@@ -570,12 +451,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 				if (!strcmp (pYear, "*") && lMonth == 2 && lValueFrom == 30 &&
 					lValueTo == 31)
 				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_SCHEDULEFIELDRANGE_WRONG,
-						2, lValueFrom,
-					"monthday (with '*' as year and february as month)");
-
-					return err;
+                                    throw invalid_argument(string("Wrong parameter"));
 				}
 			}
 			else
@@ -589,23 +465,14 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 					if (lMonthDay < 1 || lMonthDay > 31)
 					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_SCHEDULEFIELDRANGE_WRONG, 2, lMonthDay,
-							"monthday");
-
-						return err;
+                                            throw invalid_argument(string("Wrong parameter"));
 					}
 
 					// if year is *, month is february and day is 30 or 31
 					// we have a loop
 					if (!strcmp (pYear, "*") && lMonth == 2 && lMonthDay == 30)
 					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_SCHEDULEFIELDRANGE_WRONG,
-							2, lMonthDay,
-						"monthday (with '*' as year and february as month)");
-
-						return err;
+                                            throw invalid_argument(string("Wrong parameter"));
 					}
 				}
 			}
@@ -614,10 +481,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 			if ((pScheduleToken = strtok_r ((char *) NULL, " ",
 				&pScheduleTokenLast)) == (char *) NULL)
 			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
+                            throw invalid_argument(string("Wrong parameter"));
 			}
 
 			if (strchr (pScheduleToken, ',') != (char *) NULL)
@@ -658,11 +522,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 					if (lValue < 0 || lValue > 6)
 					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValue,
-							"weekday");
-
-						return err;
+                                            throw invalid_argument(string("Wrong parameter"));
 					}
 				}
 				while (*pPointerToScheduleToken != '\0');
@@ -750,18 +610,12 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 				if (lValueFrom < 0 || lValueFrom > lValueTo)
 				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValueFrom, "month");
-
-					return err;
+                                    throw invalid_argument(string("Wrong parameter"));
 				}
 
 				if (lValueTo > 6)
 				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValueTo, "month");
-
-					return err;
+                                    throw invalid_argument(string("Wrong parameter"));
 				}
 			}
 			else
@@ -776,11 +630,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 					if (lWeekDay < 0 || lWeekDay > 6)
 					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_SCHEDULEFIELDRANGE_WRONG, 2, lWeekDay,
-							"weekday");
-
-						return err;
+                                            throw invalid_argument(string("Wrong parameter"));
 					}
 				}
 			}
@@ -789,10 +639,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 			if ((pScheduleToken = strtok_r ((char *) NULL, " ",
 				&pScheduleTokenLast)) == (char *) NULL)
 			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
+                            throw invalid_argument(string("Wrong parameter"));
 			}
 
 			if (strchr (pScheduleToken, ',') != (char *) NULL)
@@ -833,10 +680,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 					if (lValue < 0 || lValue > 23)
 					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValue, "hour");
-
-						return err;
+                                            throw invalid_argument(string("Wrong parameter"));
 					}
 				}
 				while (*pPointerToScheduleToken != '\0');
@@ -923,18 +767,12 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 				if (lValueFrom < 0 || lValueFrom > lValueTo)
 				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValueFrom, "month");
-
-					return err;
+                                    throw invalid_argument(string("Wrong parameter"));
 				}
 
 				if (lValueTo > 23)
 				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValueTo, "month");
-
-					return err;
+                                    throw invalid_argument(string("Wrong parameter"));
 				}
 			}
 			else
@@ -949,10 +787,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 					if (lHour < 0 || lHour > 23)
 					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_SCHEDULEFIELDRANGE_WRONG, 2, lHour, "hour");
-
-						return err;
+                                            throw invalid_argument(string("Wrong parameter"));
 					}
 				}
 			}
@@ -961,10 +796,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 			if ((pScheduleToken = strtok_r ((char *) NULL, " ",
 				&pScheduleTokenLast)) == (char *) NULL)
 			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
+                            throw invalid_argument(string("Wrong parameter"));
 			}
 
 			if (strchr (pScheduleToken, ',') != (char *) NULL)
@@ -1005,11 +837,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 					if (lValue < 0 || lValue > 59)
 					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValue,
-							"minute");
-
-						return err;
+                                            throw invalid_argument(string("Wrong parameter"));
 					}
 				}
 				while (*pPointerToScheduleToken != '\0');
@@ -1097,18 +925,12 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 				if (lValueFrom < 0 || lValueFrom > lValueTo)
 				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValueFrom, "month");
-
-					return err;
+                                    throw invalid_argument(string("Wrong parameter"));
 				}
 
 				if (lValueTo > 59)
 				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValueTo, "month");
-
-					return err;
+                                    throw invalid_argument(string("Wrong parameter"));
 				}
 			}
 			else
@@ -1123,11 +945,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 					if (lMinute < 0 || lMinute > 59)
 					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_SCHEDULEFIELDRANGE_WRONG, 2, lMinute,
-							"minute");
-
-						return err;
+                                            throw invalid_argument(string("Wrong parameter"));
 					}
 				}
 			}
@@ -1136,10 +954,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 			if ((pScheduleToken = strtok_r ((char *) NULL, " ",
 				&pScheduleTokenLast)) == (char *) NULL)
 			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
+                            throw invalid_argument(string("Wrong parameter"));
 			}
 
 			if (strchr (pScheduleToken, ',') != (char *) NULL)
@@ -1180,11 +995,7 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 					if (lValue < 0 || lValue > 59)
 					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValue,
-							"second");
-
-						return err;
+                                            throw invalid_argument(string("Wrong parameter"));
 					}
 				}
 				while (*pPointerToScheduleToken != '\0');
@@ -1272,18 +1083,12 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 				if (lValueFrom < 0 || lValueFrom > lValueTo)
 				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValueFrom, "month");
-
-					return err;
+                                    throw invalid_argument(string("Wrong parameter"));
 				}
 
 				if (lValueTo > 59)
 				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_SCHEDULEFIELDRANGE_WRONG, 2, lValueTo, "month");
-
-					return err;
+                                    throw invalid_argument(string("Wrong parameter"));
 				}
 			}
 			else
@@ -1298,18 +1103,14 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 
 					if (lSecond < 0 || lSecond > 59)
 					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_SCHEDULEFIELDRANGE_WRONG, 2, lSecond,
-							"second");
-
-						return err;
+                                            throw invalid_argument(string("Wrong parameter"));
 					}
 				}
 			}
 		}
 	}
 
-	strcpy (_pCalendarSchedule, pSchedule);
+	strcpy (_pCalendarSchedule, schedule.c_str());
 	_ttTimesType		= SCH_TYPE_CALENDAR;
 
 	// _bCurrentDaylightSavingTime
@@ -1317,45 +1118,16 @@ Error Times2:: init (const char *pSchedule, const char *pClassName)
 	// _bNextDaylightSavingTime
 	strcpy (_pNextExpirationDateTime, "");
 
-	if (pClassName != (const char *) NULL)
-	{
-		if (strlen (pClassName) > SCH_MAXCLASSNAMELENGTH - 1)
-		{
-			Error err = SchedulerErrors (__FILE__, __LINE__,
-				SCH_CLASSNAME_TOOLONG);
-
-			return err;
-		}
-
-		strcpy (_pClassName, pClassName);
-	}
-	else
-		strcpy (_pClassName, "");
+        _className  = className;
 
 
 	_schTimesStatus		= SCHTIMES_INITIALIZED;
-
-
-	return errNoError;
 }
 
 
-Error Times2:: finish (void)
-
+Times2:: ~Times2 (void)
 {
 
-	if (_schTimesStatus == SCHTIMES_BUILDED)
-	{
-		Error err = SchedulerErrors (__FILE__, __LINE__,
-			SCH_OPERATION_NOTALLOWED, 1, _schTimesStatus);
-
-		return err;
-	}
-
-	_schTimesStatus		= SCHTIMES_BUILDED;
-
-
-	return errNoError;
 }
 
 
@@ -1365,151 +1137,137 @@ Error Times2:: start (const char *pStartDateTime)
 
     lock_guard<mutex>   locker(_mtTimesMutex);
 
-	if (_schTimesStatus != SCHTIMES_INITIALIZED)
-	{
-		Error err = SchedulerErrors (__FILE__, __LINE__,
-			SCH_OPERATION_NOTALLOWED, 1, _schTimesStatus);
+    if (_schTimesStatus != SCHTIMES_INITIALIZED)
+    {
+            Error err = SchedulerErrors (__FILE__, __LINE__,
+                    SCH_OPERATION_NOTALLOWED, 1, _schTimesStatus);
 
-		return err;
-	}
+            return err;
+    }
 
-	if (pStartDateTime != (const char *) NULL)
-	{
-		unsigned long		ulSrcYear;
-		unsigned long		ulSrcMonth;
-		unsigned long		ulSrcDay;
-		unsigned long		ulSrcHour;
-		unsigned long		ulSrcMinutes;
-		unsigned long		ulSrcSeconds;
-		unsigned long		ulSrcMilliSeconds;
+    if (pStartDateTime != (const char *) NULL)
+    {
+            unsigned long		ulSrcYear;
+            unsigned long		ulSrcMonth;
+            unsigned long		ulSrcDay;
+            unsigned long		ulSrcHour;
+            unsigned long		ulSrcMinutes;
+            unsigned long		ulSrcSeconds;
+            unsigned long		ulSrcMilliSeconds;
 
-		unsigned long		ulDestYear;
-		unsigned long		ulDestMonth;
-		unsigned long		ulDestDay;
-		unsigned long		ulDestHour;
-		unsigned long		ulDestMinutes;
-		unsigned long		ulDestSeconds;
-		unsigned long		ulDestMilliSeconds;
-
-
-		if (sscanf (pStartDateTime,
-			"%4lu-%2lu-%2lu %2lu:%2lu:%2lu:%4lu",
-			&ulSrcYear,
-			&ulSrcMonth,
-			&ulSrcDay,
-			&ulSrcHour,
-			&ulSrcMinutes,
-			&ulSrcSeconds,
-			&ulSrcMilliSeconds) != 7)
-		{
-			Error err = SchedulerErrors (__FILE__, __LINE__,
-				SCH_SSCANF_FAILED);
-
-			return err;
-		}
-
-		ulDestMilliSeconds		= ulSrcMilliSeconds;
-
-		if (DateTime:: addSeconds (
-			ulSrcYear,
-			ulSrcMonth,
-			ulSrcDay,
-			ulSrcHour,
-			ulSrcMinutes,
-			ulSrcSeconds,
-			-1,
-			0,
-			&ulDestYear,
-			&ulDestMonth,
-			&ulDestDay,
-			&ulDestHour,
-			&ulDestMinutes,
-			&ulDestSeconds,
-			&_bCurrentDaylightSavingTime) != errNoError)
-		{
-			Error err = ToolsErrors (__FILE__, __LINE__,
-				TOOLS_DATETIME_ADDSECONDS_FAILED);
-
-			return err;
-		}
-
-		sprintf (_pCurrentExpirationDateTime,
-			"%04lu-%02lu-%02lu %02lu:%02lu:%02lu:%04lu",
-			ulDestYear,
-			ulDestMonth,
-			ulDestDay,
-			ulDestHour,
-			ulDestMinutes,
-			ulDestSeconds,
-			ulDestMilliSeconds);
-	}
-	else
-	{
-		tm					tmDateTime;
-		unsigned long		ulMilliSecs;
+            unsigned long		ulDestYear;
+            unsigned long		ulDestMonth;
+            unsigned long		ulDestDay;
+            unsigned long		ulDestHour;
+            unsigned long		ulDestMinutes;
+            unsigned long		ulDestSeconds;
+            unsigned long		ulDestMilliSeconds;
 
 
-		if (DateTime:: get_tm_LocalTime (
-			&tmDateTime, &ulMilliSecs) != errNoError)
-		{
-			Error err = ToolsErrors (__FILE__, __LINE__,
-				TOOLS_DATETIME_GET_TM_LOCALTIME_FAILED);
+            if (sscanf (pStartDateTime,
+                    "%4lu-%2lu-%2lu %2lu:%2lu:%2lu:%4lu",
+                    &ulSrcYear,
+                    &ulSrcMonth,
+                    &ulSrcDay,
+                    &ulSrcHour,
+                    &ulSrcMinutes,
+                    &ulSrcSeconds,
+                    &ulSrcMilliSeconds) != 7)
+            {
+                    Error err = SchedulerErrors (__FILE__, __LINE__,
+                            SCH_SSCANF_FAILED);
 
-			return err;
-		}
+                    return err;
+            }
 
-		if (tmDateTime. tm_isdst == 1)
-			_bCurrentDaylightSavingTime			= true;
-		else
-			_bCurrentDaylightSavingTime			= false;
+            ulDestMilliSeconds		= ulSrcMilliSeconds;
 
-		// the format date is yyyy-mm-dd-hh24-mi-ss-milliss
-		sprintf (_pCurrentExpirationDateTime,
-			"%04lu-%02lu-%02lu %02lu:%02lu:%02lu:%04lu",
-			(unsigned long) (tmDateTime. tm_year + 1900),
-			(unsigned long) (tmDateTime. tm_mon + 1),
-			(unsigned long) (tmDateTime. tm_mday),
-			(unsigned long) (tmDateTime. tm_hour),
-			(unsigned long) (tmDateTime. tm_min),
-			(unsigned long) (tmDateTime. tm_sec),
-			ulMilliSecs);
-	}
+            if (DateTime:: addSeconds (
+                    ulSrcYear,
+                    ulSrcMonth,
+                    ulSrcDay,
+                    ulSrcHour,
+                    ulSrcMinutes,
+                    ulSrcSeconds,
+                    -1,
+                    0,
+                    &ulDestYear,
+                    &ulDestMonth,
+                    &ulDestDay,
+                    &ulDestHour,
+                    &ulDestMinutes,
+                    &ulDestSeconds,
+                    &_bCurrentDaylightSavingTime) != errNoError)
+            {
+                    Error err = ToolsErrors (__FILE__, __LINE__,
+                            TOOLS_DATETIME_ADDSECONDS_FAILED);
 
-	if (_ttTimesType == SCH_TYPE_PERIODIC)
-	{
-		Error		errUpdateNextPeriodicExpirationDateTime;
+                    return err;
+            }
 
-		if ((errUpdateNextPeriodicExpirationDateTime =
-			updateNextPeriodicExpirationDateTime ()) != errNoError)
-		{
-			if ((long) errUpdateNextPeriodicExpirationDateTime !=
-				SCH_REACHED_LASTTIMEOUT)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_TIMES_UPDATENEXTPERIODICEXPIRATIONDATETIME_FAILED);
-
-				return err;
-			}
-		}
-	}
-	else
-	{		// SCH_TYPE_CALENDAR
-		Error				errUpdateNextCalendarExpirationDateTime;
-
-		if ((errUpdateNextCalendarExpirationDateTime =
-			updateNextCalendarExpirationDateTime ()) != errNoError)
-		{
-			// Error err = SchedulerErrors (__FILE__, __LINE__,
-			//	SCH_TIMES_UPDATENEXTCALENDAREXPIRATIONDATETIME_FAILED);
-
-			return errUpdateNextCalendarExpirationDateTime;
-		}
-	}
-
-	_schTimesStatus		= SCHTIMES_STARTED;
+            sprintf (_pCurrentExpirationDateTime,
+                    "%04lu-%02lu-%02lu %02lu:%02lu:%02lu:%04lu",
+                    ulDestYear,
+                    ulDestMonth,
+                    ulDestDay,
+                    ulDestHour,
+                    ulDestMinutes,
+                    ulDestSeconds,
+                    ulDestMilliSeconds);
+    }
+    else
+    {
+            tm					tmDateTime;
+            unsigned long		ulMilliSecs;
 
 
-	return errNoError;
+            if (DateTime:: get_tm_LocalTime (
+                    &tmDateTime, &ulMilliSecs) != errNoError)
+            {
+                    Error err = ToolsErrors (__FILE__, __LINE__,
+                            TOOLS_DATETIME_GET_TM_LOCALTIME_FAILED);
+
+                    return err;
+            }
+
+            if (tmDateTime. tm_isdst == 1)
+                    _bCurrentDaylightSavingTime			= true;
+            else
+                    _bCurrentDaylightSavingTime			= false;
+
+            // the format date is yyyy-mm-dd-hh24-mi-ss-milliss
+            sprintf (_pCurrentExpirationDateTime,
+                    "%04lu-%02lu-%02lu %02lu:%02lu:%02lu:%04lu",
+                    (unsigned long) (tmDateTime. tm_year + 1900),
+                    (unsigned long) (tmDateTime. tm_mon + 1),
+                    (unsigned long) (tmDateTime. tm_mday),
+                    (unsigned long) (tmDateTime. tm_hour),
+                    (unsigned long) (tmDateTime. tm_min),
+                    (unsigned long) (tmDateTime. tm_sec),
+                    ulMilliSecs);
+    }
+
+    if (_ttTimesType == SCH_TYPE_PERIODIC)
+    {
+        if (updateNextPeriodicExpirationDateTime () != errNoError)
+        {
+            Error err = SchedulerErrors (__FILE__, __LINE__,
+                    SCH_TIMES_UPDATENEXTPERIODICEXPIRATIONDATETIME_FAILED);
+
+            return err;
+        }
+    }
+    else
+    {		// SCH_TYPE_CALENDAR
+        bool lastTimeout;
+
+        updateNextCalendarExpirationDateTime (lastTimeout);
+    }
+
+    _schTimesStatus		= SCHTIMES_STARTED;
+
+
+    return errNoError;
 }
 
 
@@ -1640,34 +1398,13 @@ bool Times2:: isExpiredTime ()
 }
 
 
-Error Times2:: getClassName (char *pClassName)
-
+string Times2:: getClassName ()
 {
 
     lock_guard<mutex>   locker(_mtTimesMutex);
 
-	if (_schTimesStatus == SCHTIMES_BUILDED)
-	{
-		Error err = SchedulerErrors (__FILE__, __LINE__,
-			SCH_OPERATION_NOTALLOWED, 1, _schTimesStatus);
-
-		return err;
-	}
-
-	if (pClassName == (char *) NULL)
-	{
-		Error err = SchedulerErrors (__FILE__, __LINE__,
-			SCH_ACTIVATION_WRONG);
-
-		return err;
-	}
-
-	strcpy (pClassName, _pClassName);
-
-
-	return errNoError;
+    return _className;
 }
-
 
 Error Times2:: getNextExpirationDateTime (char *pNextExpirationDateTime)
 
@@ -1698,56 +1435,45 @@ Error Times2:: getNextExpirationDateTime (char *pNextExpirationDateTime)
 }
 
 
-Error Times2:: updateNextExpirationDateTime (void)
+Error Times2:: updateNextExpirationDateTime (bool &lastTimeout)
 
 {
 
     lock_guard<mutex>   locker(_mtTimesMutex);
 
-	if (_schTimesStatus != SCHTIMES_STARTED)
-	{
-		Error err = SchedulerErrors (__FILE__, __LINE__,
-			SCH_OPERATION_NOTALLOWED, 1, _schTimesStatus);
+    if (_schTimesStatus != SCHTIMES_STARTED)
+    {
+            Error err = SchedulerErrors (__FILE__, __LINE__,
+                    SCH_OPERATION_NOTALLOWED, 1, _schTimesStatus);
 
-		return err;
-	}
+            return err;
+    }
+    
+    lastTimeout     = false;
 
-	_bCurrentDaylightSavingTime			= _bNextDaylightSavingTime;
-	strcpy (_pCurrentExpirationDateTime, _pNextExpirationDateTime);
+    _bCurrentDaylightSavingTime			= _bNextDaylightSavingTime;
+    strcpy (_pCurrentExpirationDateTime, _pNextExpirationDateTime);
 
-	if (_ttTimesType == SCH_TYPE_PERIODIC)
-	{
-		Error				errUpdateNextPeriodicExpirationDateTime;
-
-
-		if ((errUpdateNextPeriodicExpirationDateTime =
-			updateNextPeriodicExpirationDateTime ()) != errNoError)
-		{
-			if ((long) errUpdateNextPeriodicExpirationDateTime ==
-				SCH_REACHED_LASTTIMEOUT)
-				_schTimesStatus		= SCHTIMES_INITIALIZED;
-
-			return errUpdateNextPeriodicExpirationDateTime;
-		}
-	}
-	else		 // SCH_TYPE_CALENDAR
-	{
-		Error				errUpdateNextCalendarExpirationDateTime;
+    if (_ttTimesType == SCH_TYPE_PERIODIC)
+    {
+        Error				errUpdateNextPeriodicExpirationDateTime;
 
 
-		if ((errUpdateNextCalendarExpirationDateTime =
-			updateNextCalendarExpirationDateTime ()) != errNoError)
-		{
-			if ((long) errUpdateNextCalendarExpirationDateTime ==
-				SCH_REACHED_LASTTIMEOUT)
-				_schTimesStatus		= SCHTIMES_INITIALIZED;
+        if ((errUpdateNextPeriodicExpirationDateTime =
+            updateNextPeriodicExpirationDateTime ()) != errNoError)
+        {
+            return errUpdateNextPeriodicExpirationDateTime;
+        }
+    }
+    else		 // SCH_TYPE_CALENDAR
+    {
+        updateNextCalendarExpirationDateTime (lastTimeout);
+        if (lastTimeout)
+            _schTimesStatus		= SCHTIMES_INITIALIZED;
+    }
 
-			return errUpdateNextCalendarExpirationDateTime;
-		}
-	}
 
-
-	return errNoError;
+    return errNoError;
 }
 
 
@@ -1933,2033 +1659,1934 @@ Error Times2:: addMilliSecondsToDateTime (
 }
 
 
-Error Times2:: updateNextCalendarExpirationDateTime (void)
+void Times2:: updateNextCalendarExpirationDateTime (bool &lastTimeout)
 
 {
 
-	Boolean_t			bIsDateTimeValid;
-	tm					tmNextExpirationDateTime;
-	char				pSchedule [SCH_MAXSCHEDULELENGTH];
-	char				*pScheduleToken;
-	char				*pScheduleTokenLast;
-	unsigned long		ulMilliSeconds;
-
-
-	// initialize the tm struct (the tm_wday field too)
-	{
-		time_t				lUtcTime;
-		unsigned long		ulLocalYear;
-		unsigned long		ulLocalMonth;
-		unsigned long		ulLocalDay;
-		unsigned long		ulLocalHour;
-		unsigned long		ulLocalMinutes;
-		unsigned long		ulLocalSeconds;
-
-
-
-		if (sscanf (_pCurrentExpirationDateTime,
-			"%4lu-%2lu-%2lu %2lu:%2lu:%2lu:%4lu",
-			&ulLocalYear,
-			&ulLocalMonth,
-			&ulLocalDay,
-			&ulLocalHour,
-			&ulLocalMinutes,
-			&ulLocalSeconds,
-			&ulMilliSeconds) != 7)
-		{
-			Error err = SchedulerErrors (__FILE__, __LINE__,
-				SCH_SSCANF_FAILED);
-
-			return err;
-		}
-
-		tmNextExpirationDateTime. tm_year		= ulLocalYear;
-		tmNextExpirationDateTime. tm_mon		= ulLocalMonth;
-		tmNextExpirationDateTime. tm_mday		= ulLocalDay;
-		tmNextExpirationDateTime. tm_hour		= ulLocalHour;
-		tmNextExpirationDateTime. tm_min		= ulLocalMinutes;
-		tmNextExpirationDateTime. tm_sec		= ulLocalSeconds;
-
-		tmNextExpirationDateTime. tm_year		-= 1900;
-		tmNextExpirationDateTime. tm_mon		-= 1;
-
-		//	A negative value for tm_isdst causes mktime() to attempt
-		//	to determine whether Daylight Saving Time is in effect
-		//	for the specified time.
-		tmNextExpirationDateTime. tm_isdst	= _bCurrentDaylightSavingTime;
-
-		lUtcTime = mktime (&tmNextExpirationDateTime);
-
-		#if defined(__hpux) && defined(_CMA__HP)
-			if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
-		#else
-			if (localtime_r (&lUtcTime, &tmNextExpirationDateTime) ==
-				(struct tm *) NULL)
-		#endif
-		{
-			Error err = SchedulerErrors (__FILE__, __LINE__,
-				SCH_LOCALTIME_R_FAILED);
-
-			return err;
-		}
-	}
-
-	// add 1 sec
-	{
-		time_t				lUtcTime;
-
-		lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-		lUtcTime		+= 1;
-
-		#if defined(__hpux) && defined(_CMA__HP)
-			if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
-		#else
-			if (localtime_r (&lUtcTime, &tmNextExpirationDateTime) ==
-				(struct tm *) NULL)
-		#endif
-		{
-			Error err = SchedulerErrors (__FILE__, __LINE__,
-				SCH_LOCALTIME_R_FAILED);
-
-			return err;
-		}
-	}
-
-	bIsDateTimeValid		= false;
-
-	while (!bIsDateTimeValid)
-	{
-		strcpy (pSchedule, _pCalendarSchedule);
-
-		// year
-		if ((pScheduleToken = strtok_r (pSchedule, " ", &pScheduleTokenLast)) ==
-			(char *) NULL)
-		{
-			Error err = SchedulerErrors (__FILE__, __LINE__,
-				SCH_CALENDARSCHEDULE_WRONG);
-
-			return err;
-		}
-
-		if (strchr (pScheduleToken, ',') != (char *) NULL)
-		{
-			Boolean_t		bIsYearValid;
-			long			lMaxYear;
-			long			lValue;
-			char			pNumber [SCH_MAXSCHEDULELENGTH];
-			char			*pPointerToScheduleToken;
-			long			lNumberLength;
-
-
-			pPointerToScheduleToken			= pScheduleToken;
-
-			lMaxYear			= -1;
-			bIsYearValid		= false;
-			do
-			{
-				if (strchr (pPointerToScheduleToken, ',') ==
-					(char *) NULL)
-					lNumberLength		=
-						strlen (pPointerToScheduleToken);
-				else
-					lNumberLength		=
-						strchr (pPointerToScheduleToken, ',') -
-						pPointerToScheduleToken;
-
-				strncpy (pNumber, pPointerToScheduleToken,
-					lNumberLength);
-
-				pNumber [lNumberLength]				= '\0';
-
-				if (strchr (pPointerToScheduleToken, ',') ==
-					(char *) NULL)
-					pPointerToScheduleToken				+=
-						lNumberLength;
-				else
-					pPointerToScheduleToken				+=
-						(lNumberLength + 1);
-
-				lValue			= atol (pNumber);
-
-				if (lValue > lMaxYear)
-					lMaxYear	= lValue;
-
-				if (lValue == tmNextExpirationDateTime. tm_year + 1900)
-					bIsYearValid	= true;
-				else
-				{
-					if (*pPointerToScheduleToken == '\0')
-						break;
-				}
-			}
-			while (!bIsYearValid);
-
-			/* PRIMA (strtok_r annidate non funzionano con windows)
-			Boolean_t		bIsYearValid;
-			long			lValue;
-			long			lMaxYear;
-
-
-			// comma separator
-			if ((pFieldToken = strtok_r (pField, ",", &pFieldTokenLast)) ==
-				(char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			lMaxYear			= -1;
-			bIsYearValid		= false;
-			do
-			{
-				lValue			= atol (pFieldToken);
-
-				if (lValue > lMaxYear)
-					lMaxYear	= lValue;
-
-				if (lValue == tmNextExpirationDateTime. tm_year + 1900)
-					bIsYearValid	= true;
-				else
-				{
-					if ((pFieldToken = strtok_r ((char *) NULL, ",",
-						&pFieldTokenLast)) == (char *) NULL)
-						break;
-				}
-			}
-			while (!bIsYearValid);
-			*/
-
-			if (!bIsYearValid)
-			{
-				if (lMaxYear < tmNextExpirationDateTime. tm_year + 1900)
-				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_REACHED_LASTTIMEOUT);
-
-					return err;
-				}
-
-				//	initialize tmNextExpirationDateTime to the first day
-				//	of the next year
-				{
-					time_t				lUtcTime;
-
-					tmNextExpirationDateTime. tm_year		+= 1;
-					tmNextExpirationDateTime. tm_mon		= 0;
-					tmNextExpirationDateTime. tm_mday		= 1;
-					tmNextExpirationDateTime. tm_hour		= 0;
-					tmNextExpirationDateTime. tm_min		= 0;
-					tmNextExpirationDateTime. tm_sec		= 0;
-
-					//	A negative value for tm_isdst causes mktime() to attempt
-					//	to determine whether Daylight Saving Time is in effect
-					//	for the specified time.
-					tmNextExpirationDateTime. tm_isdst	= -1;
-
-					lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-					#if defined(__hpux) && defined(_CMA__HP)
-						if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
-					#else
-						if (localtime_r (&lUtcTime,
-							&tmNextExpirationDateTime) == (struct tm *) NULL)
-					#endif
-					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_LOCALTIME_R_FAILED);
-
-						return err;
-					}
-				}
-
-				continue;
-			}
-		}
-		else if (strchr (pScheduleToken, '-') != (char *) NULL)
-		{
-			// values range
-			long			lValueFrom;
-			long			lValueTo;
-			char			pNumber [SCH_MAXSCHEDULELENGTH];
-			long			lNumberLength;
-
-
-			lNumberLength		= strchr (pScheduleToken, '-') -
-				pScheduleToken;
-
-			strncpy (pNumber, pScheduleToken, lNumberLength);
-
-			pNumber [lNumberLength]				= '\0';
-
-			lValueFrom			= atol (pNumber);
-
-			strcpy (pNumber, pScheduleToken + lNumberLength + 1);
-
-			lValueTo			= atol (pNumber);
-
-			/* PRIMA (strtok_r annidate non funzionano con windows)
-			// dash separator
-			if ((pFieldToken = strtok_r (pField, "-", &pFieldTokenLast)) ==
-				(char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			lValueFrom		 = atol (pFieldToken);
-
-			if ((pFieldToken = strtok_r ((char *) NULL, "-",
-				&pFieldTokenLast)) == (char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			lValueTo		 = atol (pFieldToken);
-			*/
-
-			if (!(lValueFrom <= tmNextExpirationDateTime. tm_year + 1900 &&
-				tmNextExpirationDateTime. tm_year + 1900 <= lValueTo))
-			{
-				if (lValueTo < tmNextExpirationDateTime. tm_year + 1900)
-				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_REACHED_LASTTIMEOUT);
-
-					return err;
-				}
-
-				//	initialize tmNextExpirationDateTime to the first day
-				//	of the next year
-				{
-					time_t				lUtcTime;
-
-					tmNextExpirationDateTime. tm_year		+= 1;
-					tmNextExpirationDateTime. tm_mon		= 0;
-					tmNextExpirationDateTime. tm_mday		= 1;
-					tmNextExpirationDateTime. tm_hour		= 0;
-					tmNextExpirationDateTime. tm_min		= 0;
-					tmNextExpirationDateTime. tm_sec		= 0;
-
-					//	A negative value for tm_isdst causes mktime() to attempt
-					//	to determine whether Daylight Saving Time is in effect
-					//	for the specified time.
-					tmNextExpirationDateTime. tm_isdst	= -1;
-
-					lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-					#if defined(__hpux) && defined(_CMA__HP)
-						if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
-					#else
-						if (localtime_r (&lUtcTime,
-							&tmNextExpirationDateTime) == (struct tm *) NULL)
-					#endif
-					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_LOCALTIME_R_FAILED);
-
-						return err;
-					}
-				}
-
-				continue;
-			}
-		}
-		else
-		{	// single value or '*'
-
-			if (pScheduleToken [0] != '*')
-			{
-				long		lYear;
-
-
-				lYear			= atol (pScheduleToken);
-
-				if (lYear != tmNextExpirationDateTime. tm_year + 1900)
-				{
-					if (lYear < tmNextExpirationDateTime. tm_year + 1900)
-					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_REACHED_LASTTIMEOUT);
-
-						return err;
-					}
-
-					//	initialize tmNextExpirationDateTime to the first day
-					//	of the next year
-					{
-						time_t				lUtcTime;
-
-						tmNextExpirationDateTime. tm_year		+= 1;
-						tmNextExpirationDateTime. tm_mon		= 0;
-						tmNextExpirationDateTime. tm_mday		= 1;
-						tmNextExpirationDateTime. tm_hour		= 0;
-						tmNextExpirationDateTime. tm_min		= 0;
-						tmNextExpirationDateTime. tm_sec		= 0;
-
-						//	A negative value for tm_isdst causes mktime()
-						//	to attempt to determine whether
-						//	Daylight Saving Time is in effect for the specified
-						//	time.
-						tmNextExpirationDateTime. tm_isdst	= -1;
-
-						lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-						#if defined(__hpux) && defined(_CMA__HP)
-							if (localtime_r (&lUtcTime,
-								&tmNextExpirationDateTime))
-						#else
-							if (localtime_r (&lUtcTime,
-								&tmNextExpirationDateTime) ==
-								(struct tm *) NULL)
-						#endif
-						{
-							Error err = SchedulerErrors (__FILE__, __LINE__,
-								SCH_LOCALTIME_R_FAILED);
-
-							return err;
-						}
-					}
-
-					continue;
-				}
-			}
-		}
-
-		// month
-		if ((pScheduleToken = strtok_r ((char *) NULL, " ",
-			&pScheduleTokenLast)) == (char *) NULL)
-		{
-			Error err = SchedulerErrors (__FILE__, __LINE__,
-				SCH_CALENDARSCHEDULE_WRONG);
-
-			return err;
-		}
-
-		if (strchr (pScheduleToken, ',') != (char *) NULL)
-		{
-			Boolean_t		bIsMonthValid;
-			long			lValue;
-			char			pNumber [SCH_MAXSCHEDULELENGTH];
-			char			*pPointerToScheduleToken;
-			long			lNumberLength;
-
-
-			pPointerToScheduleToken			= pScheduleToken;
-
-			bIsMonthValid		= false;
-			do
-			{
-				if (strchr (pPointerToScheduleToken, ',') ==
-					(char *) NULL)
-					lNumberLength		=
-						strlen (pPointerToScheduleToken);
-				else
-					lNumberLength		=
-						strchr (pPointerToScheduleToken, ',') -
-						pPointerToScheduleToken;
-
-				strncpy (pNumber, pPointerToScheduleToken,
-					lNumberLength);
-
-				pNumber [lNumberLength]				= '\0';
-
-				if (strchr (pPointerToScheduleToken, ',') ==
-					(char *) NULL)
-					pPointerToScheduleToken				+=
-						lNumberLength;
-				else
-					pPointerToScheduleToken				+=
-						(lNumberLength + 1);
-
-				lValue			= atol (pNumber);
-
-				if (lValue == tmNextExpirationDateTime. tm_mon + 1)
-					bIsMonthValid	= true;
-				else
-				{
-					if (*pPointerToScheduleToken == '\0')
-						break;
-				}
-			}
-			while (!bIsMonthValid);
-
-			/* PRIMA (strtok_r annidate non funzionano con windows)
-			Boolean_t		bIsMonthValid;
-			long			lValue;
-
-
-			// comma separator
-			if ((pFieldToken = strtok_r (pField, ",", &pFieldTokenLast)) ==
-				(char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			bIsMonthValid		= false;
-			do
-			{
-				lValue			= atol (pFieldToken);
-
-				if (lValue == tmNextExpirationDateTime. tm_mon + 1)
-					bIsMonthValid	= true;
-				else
-				{
-					if ((pFieldToken = strtok_r ((char *) NULL, ",",
-						&pFieldTokenLast)) == (char *) NULL)
-						break;
-				}
-			}
-			while (!bIsMonthValid);
-			*/
-
-			if (!bIsMonthValid)
-			{
-				//	initialize tmNextExpirationDateTime to the first minute
-				//	of the next month
-				{
-					time_t				lUtcTime;
-
-					if (tmNextExpirationDateTime. tm_mon == 11)
-					{
-						tmNextExpirationDateTime. tm_mon		= 0;
-						tmNextExpirationDateTime. tm_year		+= 1;
-					}
-					else
-						tmNextExpirationDateTime. tm_mon		+= 1;
-					tmNextExpirationDateTime. tm_mday		= 1;
-					tmNextExpirationDateTime. tm_hour		= 0;
-					tmNextExpirationDateTime. tm_min		= 0;
-					tmNextExpirationDateTime. tm_sec		= 0;
-
-					//	A negative value for tm_isdst causes mktime() to attempt
-					//	to determine whether Daylight Saving Time is in effect
-					//	for the specified time.
-					tmNextExpirationDateTime. tm_isdst	= -1;
-
-					lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-					#if defined(__hpux) && defined(_CMA__HP)
-						if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
-					#else
-						if (localtime_r (&lUtcTime,
-							&tmNextExpirationDateTime) == (struct tm *) NULL)
-					#endif
-					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_LOCALTIME_R_FAILED);
-
-						return err;
-					}
-				}
-
-				continue;
-			}
-		}
-		else if (strchr (pScheduleToken, '-') != (char *) NULL)
-		{
-			// values range
-			long			lValueFrom;
-			long			lValueTo;
-			char			pNumber [SCH_MAXSCHEDULELENGTH];
-			long			lNumberLength;
-
-
-			lNumberLength		= strchr (pScheduleToken, '-') -
-				pScheduleToken;
-
-			strncpy (pNumber, pScheduleToken, lNumberLength);
-
-			pNumber [lNumberLength]				= '\0';
-
-			lValueFrom			= atol (pNumber);
-
-			strcpy (pNumber, pScheduleToken + lNumberLength + 1);
-
-			lValueTo			= atol (pNumber);
-
-			/* PRIMA (strtok_r annidate non funzionano con windows)
-			// dash separator
-			if ((pFieldToken = strtok_r (pField, "-", &pFieldTokenLast)) ==
-				(char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			lValueFrom		 = atol (pFieldToken);
-
-			if ((pFieldToken = strtok_r ((char *) NULL, "-",
-				&pFieldTokenLast)) == (char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			lValueTo		 = atol (pFieldToken);
-			*/
-
-			if (!(lValueFrom <= tmNextExpirationDateTime. tm_mon + 1 &&
-				tmNextExpirationDateTime. tm_mon + 1 <= lValueTo))
-			{
-				//	initialize tmNextExpirationDateTime to the first minute
-				//	of the next month
-				{
-					time_t				lUtcTime;
-
-					if (tmNextExpirationDateTime. tm_mon == 11)
-					{
-						tmNextExpirationDateTime. tm_mon		= 0;
-						tmNextExpirationDateTime. tm_year		+= 1;
-					}
-					else
-						tmNextExpirationDateTime. tm_mon		+= 1;
-					tmNextExpirationDateTime. tm_mday		= 1;
-					tmNextExpirationDateTime. tm_hour		= 0;
-					tmNextExpirationDateTime. tm_min		= 0;
-					tmNextExpirationDateTime. tm_sec		= 0;
-
-					//	A negative value for tm_isdst causes mktime() to attempt
-					//	to determine whether Daylight Saving Time is in effect
-					//	for the specified time.
-					tmNextExpirationDateTime. tm_isdst	= -1;
-
-					lUtcTime = mktime (&tmNextExpirationDateTime);
-
-					#if defined(__hpux) && defined(_CMA__HP)
-						if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
-					#else
-						if (localtime_r (&lUtcTime,
-							&tmNextExpirationDateTime) == (struct tm *) NULL)
-					#endif
-					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_LOCALTIME_R_FAILED);
-
-						return err;
-					}
-				}
-
-				continue;
-			}
-		}
-		else
-		{	// single value or '*'
-
-			if (pScheduleToken [0] != '*')
-			{
-				long			lMonth;
-
-				
-				lMonth			= atol (pScheduleToken);
-				
-				if (lMonth != tmNextExpirationDateTime. tm_mon + 1)
-				{
-					//	initialize tmNextExpirationDateTime to the first minute
-					//	of the next month
-					{
-						time_t				lUtcTime;
-
-						if (tmNextExpirationDateTime. tm_mon == 11)
-						{
-							tmNextExpirationDateTime. tm_mon		= 0;
-							tmNextExpirationDateTime. tm_year		+= 1;
-						}
-						else
-							tmNextExpirationDateTime. tm_mon		+= 1;
-						tmNextExpirationDateTime. tm_mday		= 1;
-						tmNextExpirationDateTime. tm_hour		= 0;
-						tmNextExpirationDateTime. tm_min		= 0;
-						tmNextExpirationDateTime. tm_sec		= 0;
-
-						//	A negative value for tm_isdst causes mktime()
-						//	to attempt to determine whether
-						//	Daylight Saving Time is in effect
-						//	for the specified time.
-						tmNextExpirationDateTime. tm_isdst	= -1;
-
-						lUtcTime = mktime (&tmNextExpirationDateTime);
-
-						#if defined(__hpux) && defined(_CMA__HP)
-							if (localtime_r (&lUtcTime,
-								&tmNextExpirationDateTime))
-						#else
-							if (localtime_r (&lUtcTime,
-								&tmNextExpirationDateTime) ==
-								(struct tm *) NULL)
-						#endif
-						{
-							Error err = SchedulerErrors (__FILE__, __LINE__,
-								SCH_LOCALTIME_R_FAILED);
-
-							return err;
-						}
-					}
-
-					continue;
-				}
-			}
-		}
-
-		// monthday and weekday
-
-		{
-			Boolean_t		bIsNecessaryAddDayForMonthDay;
-			Boolean_t		bIsNecessaryAddDayForWeekDay;
-			Boolean_t		bIsMonthDayStar;
-			Boolean_t		bIsWeekDayStar;
-			Boolean_t		bIsNecessaryAddDay;
-
-
-			bIsNecessaryAddDayForMonthDay		= false;
-			bIsNecessaryAddDayForWeekDay		= false;
-
-			// monthday
-			if ((pScheduleToken = strtok_r ((char *) NULL, " ",
-				&pScheduleTokenLast)) == (char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			if (strchr (pScheduleToken, ',') != (char *) NULL)
-			{
-				Boolean_t		bIsMonthDayValid;
-				long			lValue;
-				char			pNumber [SCH_MAXSCHEDULELENGTH];
-				char			*pPointerToScheduleToken;
-				long			lNumberLength;
-
-
-				pPointerToScheduleToken			= pScheduleToken;
-
-				bIsMonthDayStar			= false;
-
-				bIsMonthDayValid		= false;
-				do
-				{
-					if (strchr (pPointerToScheduleToken, ',') ==
-						(char *) NULL)
-						lNumberLength		=
-							strlen (pPointerToScheduleToken);
-					else
-						lNumberLength		=
-							strchr (pPointerToScheduleToken, ',') -
-							pPointerToScheduleToken;
-
-					strncpy (pNumber, pPointerToScheduleToken,
-						lNumberLength);
-
-					pNumber [lNumberLength]				= '\0';
-
-					if (strchr (pPointerToScheduleToken, ',') ==
-						(char *) NULL)
-						pPointerToScheduleToken				+=
-							lNumberLength;
-					else
-						pPointerToScheduleToken				+=
-							(lNumberLength + 1);
-
-					lValue			= atol (pNumber);
-
-					if (lValue == tmNextExpirationDateTime. tm_mday)
-						bIsMonthDayValid	= true;
-					else
-					{
-						if (*pPointerToScheduleToken == '\0')
-							break;
-					}
-				}
-				while (!bIsMonthDayValid);
-
-				/* PRIMA (strtok_r annidate non funzionano con windows)
-				Boolean_t		bIsMonthDayValid;
-				long			lValue;
-
-
-				bIsMonthDayStar			= false;
-
-				// comma separator
-				if ((pFieldToken = strtok_r (pField, ",", &pFieldTokenLast)) ==
-					(char *) NULL)
-				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_CALENDARSCHEDULE_WRONG);
-
-					return err;
-				}
-
-				bIsMonthDayValid		= false;
-				do
-				{
-					lValue			= atol (pFieldToken);
-
-					if (lValue == tmNextExpirationDateTime. tm_mday)
-						bIsMonthDayValid	= true;
-					else
-					{
-						if ((pFieldToken = strtok_r ((char *) NULL, ",",
-							&pFieldTokenLast)) == (char *) NULL)
-							break;
-					}
-				}
-				while (!bIsMonthDayValid);
-				*/
-
-				if (!bIsMonthDayValid)
-				{
-					bIsNecessaryAddDayForMonthDay		= true;
-				}
-			}
-			else if (strchr (pScheduleToken, '-') != (char *) NULL)
-			{
-				// values range
-				long			lValueFrom;
-				long			lValueTo;
-				char			pNumber [SCH_MAXSCHEDULELENGTH];
-				long			lNumberLength;
-
-
-				bIsMonthDayStar			= false;
-
-				lNumberLength		= strchr (pScheduleToken, '-') -
-					pScheduleToken;
-
-				strncpy (pNumber, pScheduleToken, lNumberLength);
-
-				pNumber [lNumberLength]				= '\0';
-
-				lValueFrom			= atol (pNumber);
-
-				strcpy (pNumber, pScheduleToken + lNumberLength + 1);
-
-				lValueTo			= atol (pNumber);
-
-				/* PRIMA (strtok_r annidate non funzionano con windows)
-				bIsMonthDayStar			= false;
-
-				// dash separator
-				if ((pFieldToken = strtok_r (pField, "-", &pFieldTokenLast)) ==
-					(char *) NULL)
-				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_CALENDARSCHEDULE_WRONG);
-
-					return err;
-				}
-
-				lValueFrom		 = atol (pFieldToken);
-
-				if ((pFieldToken = strtok_r ((char *) NULL, "-",
-					&pFieldTokenLast)) == (char *) NULL)
-				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_CALENDARSCHEDULE_WRONG);
-
-					return err;
-				}
-
-				lValueTo		 = atol (pFieldToken);
-				*/
-
-				if (!(lValueFrom <= tmNextExpirationDateTime. tm_mday &&
-					tmNextExpirationDateTime. tm_mday <= lValueTo))
-				{
-					bIsNecessaryAddDayForMonthDay		= true;
-				}
-			}
-			else
-			{	// single value or '*'
-
-				if (pScheduleToken [0] != '*')
-				{
-					long			lMonthDay;
-
-				
-					bIsMonthDayStar			= false;
-
-					lMonthDay		= atol (pScheduleToken);
-				
-					if (lMonthDay != tmNextExpirationDateTime. tm_mday)
-					{
-						bIsNecessaryAddDayForMonthDay		= true;
-					}
-				}
-				else
-					bIsMonthDayStar			= true;
-			}
-
-			// weekday
-			if ((pScheduleToken = strtok_r ((char *) NULL, " ",
-				&pScheduleTokenLast)) == (char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			if (strchr (pScheduleToken, ',') != (char *) NULL)
-			{
-				Boolean_t		bIsWeekDayValid;
-				long			lValue;
-				char			pNumber [SCH_MAXSCHEDULELENGTH];
-				char			*pPointerToScheduleToken;
-				long			lNumberLength;
-
-
-				pPointerToScheduleToken			= pScheduleToken;
-
-				bIsWeekDayStar			= false;
-
-				bIsWeekDayValid			= false;
-				do
-				{
-					if (strchr (pPointerToScheduleToken, ',') ==
-						(char *) NULL)
-						lNumberLength		=
-							strlen (pPointerToScheduleToken);
-					else
-						lNumberLength		=
-							strchr (pPointerToScheduleToken, ',') -
-							pPointerToScheduleToken;
-
-					strncpy (pNumber, pPointerToScheduleToken,
-						lNumberLength);
-
-					pNumber [lNumberLength]				= '\0';
-
-					if (strchr (pPointerToScheduleToken, ',') ==
-						(char *) NULL)
-						pPointerToScheduleToken				+=
-							lNumberLength;
-					else
-						pPointerToScheduleToken				+=
-							(lNumberLength + 1);
-
-					lValue			= atol (pNumber);
-
-					if (lValue == tmNextExpirationDateTime. tm_wday)
-						bIsWeekDayValid	= true;
-					else
-					{
-						if (*pPointerToScheduleToken == '\0')
-							break;
-					}
-				}
-				while (!bIsWeekDayValid);
-
-				/* PRIMA (strtok_r annidate non funzionano con windows)
-				Boolean_t		bIsWeekDayValid;
-				long			lValue;
-
-
-				bIsWeekDayStar			= false;
-
-				// comma separator
-				if ((pFieldToken = strtok_r (pField, ",", &pFieldTokenLast)) ==
-					(char *) NULL)
-				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_CALENDARSCHEDULE_WRONG);
-
-					return err;
-				}
-
-				bIsWeekDayValid		= false;
-				do
-				{
-					lValue			= atol (pFieldToken);
-
-					if (lValue == tmNextExpirationDateTime. tm_wday)
-						bIsWeekDayValid	= true;
-					else
-					{
-						if ((pFieldToken = strtok_r ((char *) NULL, ",",
-							&pFieldTokenLast)) == (char *) NULL)
-							break;
-					}
-				}
-				while (!bIsWeekDayValid);
-				*/
-
-				if (!bIsWeekDayValid)
-				{
-					bIsNecessaryAddDayForWeekDay		= true;
-				}
-			}
-			else if (strchr (pScheduleToken, '-') != (char *) NULL)
-			{
-				// values range
-				long			lValueFrom;
-				long			lValueTo;
-				char			pNumber [SCH_MAXSCHEDULELENGTH];
-				long			lNumberLength;
-
-
-				bIsWeekDayStar			= false;
-
-				lNumberLength		= strchr (pScheduleToken, '-') -
-					pScheduleToken;
-
-				strncpy (pNumber, pScheduleToken, lNumberLength);
-
-				pNumber [lNumberLength]				= '\0';
-
-				lValueFrom			= atol (pNumber);
-
-				strcpy (pNumber, pScheduleToken + lNumberLength + 1);
-
-				lValueTo			= atol (pNumber);
-
-				/* PRIMA (strtok_r annidate non funzionano con windows)
-				bIsWeekDayStar			= false;
-
-				// dash separator
-				if ((pFieldToken = strtok_r (pField, "-", &pFieldTokenLast)) ==
-					(char *) NULL)
-				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_CALENDARSCHEDULE_WRONG);
-
-					return err;
-				}
-
-				lValueFrom		 = atol (pFieldToken);
-
-				if ((pFieldToken = strtok_r ((char *) NULL, "-",
-					&pFieldTokenLast)) == (char *) NULL)
-				{
-					Error err = SchedulerErrors (__FILE__, __LINE__,
-						SCH_CALENDARSCHEDULE_WRONG);
-
-					return err;
-				}
-
-				lValueTo		 = atol (pFieldToken);
-				*/
-
-				if (!(lValueFrom <= tmNextExpirationDateTime. tm_wday &&
-					tmNextExpirationDateTime. tm_wday <= lValueTo))
-				{
-					bIsNecessaryAddDayForWeekDay		= true;
-				}
-			}
-			else
-			{	// single value or '*'
-
-				if (pScheduleToken [0] != '*')
-				{
-					long			lWeekDay;
-
-
-					bIsWeekDayStar			= false;
-
-					lWeekDay		= atol (pScheduleToken);
-
-					if (lWeekDay != tmNextExpirationDateTime. tm_wday)
-					{
-						bIsNecessaryAddDayForWeekDay		= true;
-					}
-				}
-				else
-					bIsWeekDayStar			= true;
-			}
-
-			if (bIsMonthDayStar && bIsWeekDayStar)
-				bIsNecessaryAddDay		= false;
-			else if (!bIsMonthDayStar && bIsWeekDayStar)
-			{
-				if (bIsNecessaryAddDayForMonthDay)
-					bIsNecessaryAddDay		= true;
-				else
-					bIsNecessaryAddDay		= false;
-			}
-			else if (bIsMonthDayStar && !bIsWeekDayStar)
-			{
-				if (bIsNecessaryAddDayForWeekDay)
-					bIsNecessaryAddDay		= true;
-				else
-					bIsNecessaryAddDay		= false;
-			}
-			else
-			{		// !bIsMonthDayStar && !bIsWeekDayStar
-				if (bIsNecessaryAddDayForMonthDay &&
-					bIsNecessaryAddDayForWeekDay)
-					bIsNecessaryAddDay		= true;
-				else
-					bIsNecessaryAddDay		= false;
-			}
-
-			if (bIsNecessaryAddDay)
-			{
-				// add 1 day
-				{
-					time_t				lUtcTime;
-
-					tmNextExpirationDateTime. tm_hour		= 0;
-					tmNextExpirationDateTime. tm_min		= 0;
-					tmNextExpirationDateTime. tm_sec		= 0;
-
-					//	A negative value for tm_isdst causes mktime() to attempt
-					//	to determine whether Daylight Saving Time is in effect
-					//	for the specified time.
-					tmNextExpirationDateTime. tm_isdst	= -1;
-
-					lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-					lUtcTime		+= (60 * 60 * 24);
-
-					#if defined(__hpux) && defined(_CMA__HP)
-						if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
-					#else
-						if (localtime_r (&lUtcTime,
-							&tmNextExpirationDateTime) == (struct tm *) NULL)
-					#endif
-					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_LOCALTIME_R_FAILED);
-
-						return err;
-					}
-
-					// gestione ora legale
-					switch (tmNextExpirationDateTime. tm_hour)
-					{
-						case 0:
-							// OK
-
-							break;
-						case 23:
-							//	gestione ora legale: 3 -> 2.
-							//	Anche se si sommano 24 ore,
-							//	in pratica se ne sommano 23
-							lUtcTime		+= (60 * 60);
-
-							#if defined(__hpux) && defined(_CMA__HP)
-								if (localtime_r (&lUtcTime,
-									&tmNextExpirationDateTime))
-							#else
-								if (localtime_r (&lUtcTime,
-									&tmNextExpirationDateTime) ==
-									(struct tm *) NULL)
-							#endif
-							{
-								Error err = SchedulerErrors (__FILE__, __LINE__,
-									SCH_LOCALTIME_R_FAILED);
-
-								return err;
-							}
-
-							break;
-						case 1:
-							//	gestione ora legale: 2 -> 3.
-							//	Anche se si sommano 24 ore,
-							//	in pratica se ne sommano 25
-
-							lUtcTime		-= (60 * 60);
-
-							#if defined(__hpux) && defined(_CMA__HP)
-								if (localtime_r (&lUtcTime,
-									&tmNextExpirationDateTime))
-							#else
-								if (localtime_r (&lUtcTime,
-									&tmNextExpirationDateTime) ==
-									(struct tm *) NULL)
-							#endif
-							{
-								Error err = SchedulerErrors (__FILE__, __LINE__,
-									SCH_LOCALTIME_R_FAILED);
-
-								return err;
-							}
-
-							break;
-						default:
-								Error err = SchedulerErrors (__FILE__, __LINE__,
-									SCH_LOCALTIME_R_FAILED);
-
-								return err;
-					}
-				}
-
-				continue;
-			}
-		}
-
-		// hour
-		if ((pScheduleToken = strtok_r ((char *) NULL, " ",
-			&pScheduleTokenLast)) == (char *) NULL)
-		{
-			Error err = SchedulerErrors (__FILE__, __LINE__,
-				SCH_CALENDARSCHEDULE_WRONG);
-
-			return err;
-		}
-
-		if (strchr (pScheduleToken, ',') != (char *) NULL)
-		{
-			Boolean_t		bIsHourValid;
-			long			lValue;
-			char			pNumber [SCH_MAXSCHEDULELENGTH];
-			char			*pPointerToScheduleToken;
-			long			lNumberLength;
-
-
-			pPointerToScheduleToken			= pScheduleToken;
-
-			bIsHourValid		= false;
-			do
-			{
-				if (strchr (pPointerToScheduleToken, ',') ==
-					(char *) NULL)
-					lNumberLength		=
-						strlen (pPointerToScheduleToken);
-				else
-					lNumberLength		=
-						strchr (pPointerToScheduleToken, ',') -
-						pPointerToScheduleToken;
-
-				strncpy (pNumber, pPointerToScheduleToken,
-					lNumberLength);
-
-				pNumber [lNumberLength]				= '\0';
-
-				if (strchr (pPointerToScheduleToken, ',') ==
-					(char *) NULL)
-					pPointerToScheduleToken				+=
-						lNumberLength;
-				else
-					pPointerToScheduleToken				+=
-						(lNumberLength + 1);
-
-				lValue			= atol (pNumber);
-
-				if (lValue == tmNextExpirationDateTime. tm_hour)
-					bIsHourValid	= true;
-				else
-				{
-					if (*pPointerToScheduleToken == '\0')
-						break;
-				}
-			}
-			while (!bIsHourValid);
-
-			/* PRIMA (strtok_r annidate non funzionano con windows)
-			Boolean_t		bIsHourValid;
-			long			lValue;
-
-
-			// comma separator
-			if ((pFieldToken = strtok_r (pField, ",", &pFieldTokenLast)) ==
-				(char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			bIsHourValid		= false;
-			do
-			{
-				lValue			= atol (pFieldToken);
-
-				if (lValue == tmNextExpirationDateTime. tm_hour)
-					bIsHourValid	= true;
-				else
-				{
-					if ((pFieldToken = strtok_r ((char *) NULL, ",",
-						&pFieldTokenLast)) == (char *) NULL)
-						break;
-				}
-			}
-			while (!bIsHourValid);
-			*/
-
-			if (!bIsHourValid)
-			{
-				// add 1 hour
-				{
-					time_t				lUtcTime;
-					unsigned long		ulInitialHour;
-
-					tmNextExpirationDateTime. tm_min		= 0;
-					tmNextExpirationDateTime. tm_sec		= 0;
-
-					//	A negative value for tm_isdst causes mktime() to attempt
-					//	to determine whether Daylight Saving Time is in effect
-					//	for the specified time.
-					tmNextExpirationDateTime. tm_isdst	= -1;
-
-					ulInitialHour	= tmNextExpirationDateTime. tm_hour;
-
-					lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-					lUtcTime		+= (60 * 60);
-
-					#if defined(__hpux) && defined(_CMA__HP)
-						if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
-					#else
-						if (localtime_r (&lUtcTime,
-							&tmNextExpirationDateTime) == (struct tm *) NULL)
-					#endif
-					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_LOCALTIME_R_FAILED);
-
-						return err;
-					}
-
-					//	gestione ora legale: 3 -> 2
-					if (ulInitialHour == tmNextExpirationDateTime. tm_hour)
-					{
-						//	gestione ora legale: 3 -> 2
-						//	se alle 2 si somma 1 ora si ottiene ancora 2
-						//	quindi dobbiamo sommare un'altra ora
-
-						lUtcTime		+= (60 * 60);
-
-						#if defined(__hpux) && defined(_CMA__HP)
-							if (localtime_r (&lUtcTime,
-								&tmNextExpirationDateTime))
-						#else
-							if (localtime_r (&lUtcTime,
-								&tmNextExpirationDateTime) ==
-								(struct tm *) NULL)
-						#endif
-						{
-							Error err = SchedulerErrors (__FILE__, __LINE__,
-								SCH_LOCALTIME_R_FAILED);
-
-							return err;
-						}
-					}
-				}
-
-				continue;
-			}
-		}
-		else if (strchr (pScheduleToken, '-') != (char *) NULL)
-		{
-			// values range
-			long			lValueFrom;
-			long			lValueTo;
-			char			pNumber [SCH_MAXSCHEDULELENGTH];
-			long			lNumberLength;
-
-
-			lNumberLength		= strchr (pScheduleToken, '-') -
-				pScheduleToken;
-
-			strncpy (pNumber, pScheduleToken, lNumberLength);
-
-			pNumber [lNumberLength]				= '\0';
-
-			lValueFrom			= atol (pNumber);
-
-			strcpy (pNumber, pScheduleToken + lNumberLength + 1);
-
-			lValueTo			= atol (pNumber);
-
-			/* PRIMA (strtok_r annidate non funzionano con windows)
-			// dash separator
-			if ((pFieldToken = strtok_r (pField, "-", &pFieldTokenLast)) ==
-				(char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			lValueFrom		 = atol (pFieldToken);
-
-			if ((pFieldToken = strtok_r ((char *) NULL, "-",
-				&pFieldTokenLast)) == (char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			lValueTo		 = atol (pFieldToken);
-			*/
-
-			if (!(lValueFrom <= tmNextExpirationDateTime. tm_hour &&
-				tmNextExpirationDateTime. tm_hour <= lValueTo))
-			{
-				// add 1 hour
-				{
-					time_t				lUtcTime;
-					unsigned long		ulInitialHour;
-
-					tmNextExpirationDateTime. tm_min		= 0;
-					tmNextExpirationDateTime. tm_sec		= 0;
-
-					//	A negative value for tm_isdst causes mktime() to attempt
-					//	to determine whether Daylight Saving Time is in effect
-					//	for the specified time.
-					tmNextExpirationDateTime. tm_isdst	= -1;
-
-					ulInitialHour	= tmNextExpirationDateTime. tm_hour;
-
-					lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-					lUtcTime		+= (60 * 60);
-
-					#if defined(__hpux) && defined(_CMA__HP)
-						if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
-					#else
-						if (localtime_r (&lUtcTime,
-							&tmNextExpirationDateTime) == (struct tm *) NULL)
-					#endif
-					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_LOCALTIME_R_FAILED);
-
-						return err;
-					}
-
-					//	gestione ora legale: 3 -> 2.
-					//	se alle 2 si somma 1 ora si ottiene ancora 2
-					//	quindi dobbiamo sommare un'altra ora
-					if (ulInitialHour == tmNextExpirationDateTime. tm_hour)
-					{
-						lUtcTime		+= (60 * 60);
-
-						#if defined(__hpux) && defined(_CMA__HP)
-							if (localtime_r (&lUtcTime,
-								&tmNextExpirationDateTime))
-						#else
-							if (localtime_r (&lUtcTime,
-								&tmNextExpirationDateTime) ==
-								(struct tm *) NULL)
-						#endif
-						{
-							Error err = SchedulerErrors (__FILE__, __LINE__,
-								SCH_LOCALTIME_R_FAILED);
-
-							return err;
-						}
-					}
-				}
-
-				continue;
-			}
-		}
-		else
-		{	// single value or '*'
-
-			if (pScheduleToken [0] != '*')
-			{
-				long			lHour;
-				
-				lHour		= atol (pScheduleToken);
-				
-				if (lHour != tmNextExpirationDateTime. tm_hour)
-				{
-					// add 1 hour
-					{
-						time_t				lUtcTime;
-						unsigned long		ulInitialHour;
-
-						tmNextExpirationDateTime. tm_min		= 0;
-						tmNextExpirationDateTime. tm_sec		= 0;
-
-						//	A negative value for tm_isdst causes mktime()
-						//	to attempt to determine whether
-						//	Daylight Saving Time is in effect
-						//	for the specified time.
-						tmNextExpirationDateTime. tm_isdst	= -1;
-
-						ulInitialHour	= tmNextExpirationDateTime. tm_hour;
-
-						lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-						lUtcTime		+= (60 * 60);
-
-						#if defined(__hpux) && defined(_CMA__HP)
-							if (localtime_r (&lUtcTime,
-								&tmNextExpirationDateTime))
-						#else
-							if (localtime_r (&lUtcTime,
-								&tmNextExpirationDateTime) ==
-								(struct tm *) NULL)
-						#endif
-						{
-							Error err = SchedulerErrors (__FILE__, __LINE__,
-								SCH_LOCALTIME_R_FAILED);
-
-							return err;
-						}
-
-						//	gestione ora legale: 3 -> 2 and 2 -> 4.
-						//	se alle 2 si somma 1 ora si ottiene ancora 2
-						//	quindi dobbiamo sommare un'altra ora
-						if (ulInitialHour == tmNextExpirationDateTime. tm_hour)
-						{
-							lUtcTime		+= (60 * 60);
-
-							#if defined(__hpux) && defined(_CMA__HP)
-								if (localtime_r (&lUtcTime,
-									&tmNextExpirationDateTime))
-							#else
-								if (localtime_r (&lUtcTime,
-									&tmNextExpirationDateTime) ==
-									(struct tm *) NULL)
-							#endif
-							{
-								Error err = SchedulerErrors (__FILE__, __LINE__,
-									SCH_LOCALTIME_R_FAILED);
-
-								return err;
-							}
-						}
-					}
-
-					continue;
-				}
-			}
-		}
-
-		// minute
-		if ((pScheduleToken = strtok_r ((char *) NULL, " ",
-			&pScheduleTokenLast)) == (char *) NULL)
-		{
-			Error err = SchedulerErrors (__FILE__, __LINE__,
-				SCH_CALENDARSCHEDULE_WRONG);
-
-			return err;
-		}
-
-		if (strchr (pScheduleToken, ',') != (char *) NULL)
-		{
-			Boolean_t		bIsMinuteValid;
-			long			lValue;
-			char			pNumber [SCH_MAXSCHEDULELENGTH];
-			char			*pPointerToScheduleToken;
-			long			lNumberLength;
-
-
-			pPointerToScheduleToken			= pScheduleToken;
-
-			bIsMinuteValid		= false;
-			do
-			{
-				if (strchr (pPointerToScheduleToken, ',') ==
-					(char *) NULL)
-					lNumberLength		=
-						strlen (pPointerToScheduleToken);
-				else
-					lNumberLength		=
-						strchr (pPointerToScheduleToken, ',') -
-						pPointerToScheduleToken;
-
-				strncpy (pNumber, pPointerToScheduleToken,
-					lNumberLength);
-
-				pNumber [lNumberLength]				= '\0';
-
-				if (strchr (pPointerToScheduleToken, ',') ==
-					(char *) NULL)
-					pPointerToScheduleToken				+=
-						lNumberLength;
-				else
-					pPointerToScheduleToken				+=
-						(lNumberLength + 1);
-
-				lValue			= atol (pNumber);
-
-				if (lValue == tmNextExpirationDateTime. tm_min)
-					bIsMinuteValid		= true;
-				else
-				{
-					if (*pPointerToScheduleToken == '\0')
-						break;
-				}
-			}
-			while (!bIsMinuteValid);
-
-			/* PRIMA (strtok_r annidate non funzionano con windows)
-			Boolean_t		bIsMinuteValid;
-			long			lValue;
-
-
-			// comma separator
-			if ((pFieldToken = strtok_r (pField, ",", &pFieldTokenLast)) ==
-				(char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			bIsMinuteValid		= false;
-			do
-			{
-				lValue			= atol (pFieldToken);
-
-				if (lValue == tmNextExpirationDateTime. tm_min)
-					bIsMinuteValid		= true;
-				else
-				{
-					if ((pFieldToken = strtok_r ((char *) NULL, ",",
-						&pFieldTokenLast)) == (char *) NULL)
-						break;
-				}
-			}
-			while (!bIsMinuteValid);
-			*/
-
-			if (!bIsMinuteValid)
-			{
-				// add 1 min
-				{
-					time_t				lUtcTime;
-
-					tmNextExpirationDateTime. tm_sec		= 0;
-
-					//	A negative value for tm_isdst causes mktime() to attempt
-					//	to determine whether Daylight Saving Time is in effect
-					//	for the specified time.
-					tmNextExpirationDateTime. tm_isdst	= -1;
-
-					lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-					lUtcTime		+= 60;
-
-					#if defined(__hpux) && defined(_CMA__HP)
-						if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
-					#else
-						if (localtime_r (&lUtcTime,
-							&tmNextExpirationDateTime) == (struct tm *) NULL)
-					#endif
-					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_LOCALTIME_R_FAILED);
-
-						return err;
-					}
-				}
-
-				continue;
-			}
-		}
-		else if (strchr (pScheduleToken, '-') != (char *) NULL)
-		{
-			// values range
-			long			lValueFrom;
-			long			lValueTo;
-			char			pNumber [SCH_MAXSCHEDULELENGTH];
-			long			lNumberLength;
-
-
-			lNumberLength		= strchr (pScheduleToken, '-') -
-				pScheduleToken;
-
-			strncpy (pNumber, pScheduleToken, lNumberLength);
-
-			pNumber [lNumberLength]				= '\0';
-
-			lValueFrom			= atol (pNumber);
-
-			strcpy (pNumber, pScheduleToken + lNumberLength + 1);
-
-			lValueTo			= atol (pNumber);
-
-			/* PRIMA (strtok_r annidate non funzionano con windows)
-			// dash separator
-			if ((pFieldToken = strtok_r (pField, "-", &pFieldTokenLast)) ==
-				(char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			lValueFrom		 = atol (pFieldToken);
-
-			if ((pFieldToken = strtok_r ((char *) NULL, "-",
-				&pFieldTokenLast)) == (char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			lValueTo		 = atol (pFieldToken);
-			*/
-
-			if (!(lValueFrom <= tmNextExpirationDateTime. tm_min &&
-				tmNextExpirationDateTime. tm_min <= lValueTo))
-			{
-				// add 1 minute
-				{
-					time_t				lUtcTime;
-
-					tmNextExpirationDateTime. tm_sec		= 0;
-
-					//	A negative value for tm_isdst causes mktime() to attempt
-					//	to determine whether Daylight Saving Time is in effect
-					//	for the specified time.
-					tmNextExpirationDateTime. tm_isdst	= -1;
-
-					lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-					lUtcTime		+= 60;
-
-					#if defined(__hpux) && defined(_CMA__HP)
-						if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
-					#else
-						if (localtime_r (&lUtcTime,
-							&tmNextExpirationDateTime) == (struct tm *) NULL)
-					#endif
-					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_LOCALTIME_R_FAILED);
-
-						return err;
-					}
-				}
-
-				continue;
-			}
-		}
-		else
-		{	// single value or '*'
-
-			if (pScheduleToken [0] != '*')
-			{
-				long			lMinute;
-				
-				
-				lMinute			= atol (pScheduleToken);
-				
-				if (lMinute != tmNextExpirationDateTime. tm_min)
-				{
-					// add 1 minute
-					{
-						time_t				lUtcTime;
-
-						tmNextExpirationDateTime. tm_sec		= 0;
-
-						//	A negative value for tm_isdst causes mktime()
-						//	to attempt to determine whether
-						//	Daylight Saving Time is in effect
-						//	for the specified time.
-						tmNextExpirationDateTime. tm_isdst	= -1;
-
-						lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-						lUtcTime		+= 60;
-
-						#if defined(__hpux) && defined(_CMA__HP)
-							if (localtime_r (&lUtcTime,
-								&tmNextExpirationDateTime))
-						#else
-							if (localtime_r (&lUtcTime,
-								&tmNextExpirationDateTime) ==
-								(struct tm *) NULL)
-						#endif
-						{
-							Error err = SchedulerErrors (__FILE__, __LINE__,
-								SCH_LOCALTIME_R_FAILED);
-
-							return err;
-						}
-					}
-
-					continue;
-				}
-			}
-		}
-
-		// second
-		if ((pScheduleToken = strtok_r ((char *) NULL, " ",
-			&pScheduleTokenLast)) == (char *) NULL)
-		{
-			Error err = SchedulerErrors (__FILE__, __LINE__,
-				SCH_CALENDARSCHEDULE_WRONG);
-
-			return err;
-		}
-
-		if (strchr (pScheduleToken, ',') != (char *) NULL)
-		{
-			Boolean_t		bIsSecondValid;
-			long			lValue;
-			char			pNumber [SCH_MAXSCHEDULELENGTH];
-			char			*pPointerToScheduleToken;
-			long			lNumberLength;
-
-
-			pPointerToScheduleToken			= pScheduleToken;
-
-			bIsSecondValid		= false;
-			do
-			{
-				if (strchr (pPointerToScheduleToken, ',') ==
-					(char *) NULL)
-					lNumberLength		=
-						strlen (pPointerToScheduleToken);
-				else
-					lNumberLength		=
-						strchr (pPointerToScheduleToken, ',') -
-						pPointerToScheduleToken;
-
-				strncpy (pNumber, pPointerToScheduleToken,
-					lNumberLength);
-
-				pNumber [lNumberLength]				= '\0';
-
-				if (strchr (pPointerToScheduleToken, ',') ==
-					(char *) NULL)
-					pPointerToScheduleToken				+=
-						lNumberLength;
-				else
-					pPointerToScheduleToken				+=
-						(lNumberLength + 1);
-
-				lValue			= atol (pNumber);
-
-				if (lValue == tmNextExpirationDateTime. tm_sec)
-					bIsSecondValid		= true;
-				else
-				{
-					if (*pPointerToScheduleToken == '\0')
-						break;
-				}
-			}
-			while (!bIsSecondValid);
-
-			/* PRIMA (strtok_r annidate non funzionano con windows)
-			Boolean_t		bIsSecondValid;
-			long			lValue;
-
-
-			// comma separator
-			if ((pFieldToken = strtok_r (pField, ",", &pFieldTokenLast)) ==
-				(char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			bIsSecondValid		= false;
-			do
-			{
-				lValue			= atol (pFieldToken);
-
-				if (lValue == tmNextExpirationDateTime. tm_sec)
-					bIsSecondValid		= true;
-				else
-				{
-					if ((pFieldToken = strtok_r ((char *) NULL, ",",
-						&pFieldTokenLast)) == (char *) NULL)
-						break;
-				}
-			}
-			while (!bIsSecondValid);
-			*/
-
-			if (!bIsSecondValid)
-			{
-				// add 1 second
-				{
-					time_t				lUtcTime;
-
-					//	A negative value for tm_isdst causes mktime() to attempt
-					//	to determine whether Daylight Saving Time is in effect
-					//	for the specified time.
-					tmNextExpirationDateTime. tm_isdst	= -1;
-
-					lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-					lUtcTime		+= 1;
-
-					#if defined(__hpux) && defined(_CMA__HP)
-						if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
-					#else
-						if (localtime_r (&lUtcTime,
-							&tmNextExpirationDateTime) == (struct tm *) NULL)
-					#endif
-					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_LOCALTIME_R_FAILED);
-
-						return err;
-					}
-				}
-
-				continue;
-			}
-		}
-		else if (strchr (pScheduleToken, '-') != (char *) NULL)
-		{
-			// values range
-			long			lValueFrom;
-			long			lValueTo;
-			char			pNumber [SCH_MAXSCHEDULELENGTH];
-			long			lNumberLength;
-
-
-			lNumberLength		= strchr (pScheduleToken, '-') -
-				pScheduleToken;
-
-			strncpy (pNumber, pScheduleToken, lNumberLength);
-
-			pNumber [lNumberLength]				= '\0';
-
-			lValueFrom			= atol (pNumber);
-
-			strcpy (pNumber, pScheduleToken + lNumberLength + 1);
-
-			lValueTo			= atol (pNumber);
-
-			/* PRIMA (strtok_r annidate non funzionano con windows)
-			// dash separator
-			if ((pFieldToken = strtok_r (pField, "-", &pFieldTokenLast)) ==
-				(char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			lValueFrom		 = atol (pFieldToken);
-
-			if ((pFieldToken = strtok_r ((char *) NULL, "-",
-				&pFieldTokenLast)) == (char *) NULL)
-			{
-				Error err = SchedulerErrors (__FILE__, __LINE__,
-					SCH_CALENDARSCHEDULE_WRONG);
-
-				return err;
-			}
-
-			lValueTo		 = atol (pFieldToken);
-			*/
-
-			if (!(lValueFrom <= tmNextExpirationDateTime. tm_sec &&
-				tmNextExpirationDateTime. tm_sec <= lValueTo))
-			{
-				// add 1 second
-				{
-					time_t				lUtcTime;
-
-					//	A negative value for tm_isdst causes mktime() to attempt
-					//	to determine whether Daylight Saving Time is in effect
-					//	for the specified time.
-					tmNextExpirationDateTime. tm_isdst	= -1;
-
-					lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-					lUtcTime		+= 1;
-
-					#if defined(__hpux) && defined(_CMA__HP)
-						if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
-					#else
-						if (localtime_r (&lUtcTime,
-							&tmNextExpirationDateTime) == (struct tm *) NULL)
-					#endif
-					{
-						Error err = SchedulerErrors (__FILE__, __LINE__,
-							SCH_LOCALTIME_R_FAILED);
-
-						return err;
-					}
-				}
-
-				continue;
-			}
-		}
-		else
-		{	// single value or '*'
-
-			if (pScheduleToken [0] != '*')
-			{
-				long			lSecond;
-
-
-				lSecond		= atol (pScheduleToken);
-
-				if (lSecond != tmNextExpirationDateTime. tm_sec)
-				{
-					// add 1 sec
-					{
-						time_t				lUtcTime;
-
-						//	A negative value for tm_isdst causes mktime()
-						//	to attempt to determine whether
-						//	Daylight Saving Time is in effect
-						//	for the specified time.
-						tmNextExpirationDateTime. tm_isdst	= -1;
-
-						lUtcTime		= mktime (&tmNextExpirationDateTime);
-
-						lUtcTime		+= 1;
-
-						#if defined(__hpux) && defined(_CMA__HP)
-							if (localtime_r (&lUtcTime,
-								&tmNextExpirationDateTime))
-						#else
-							if (localtime_r (&lUtcTime,
-								&tmNextExpirationDateTime) ==
-								(struct tm *) NULL)
-						#endif
-						{
-							Error err = SchedulerErrors (__FILE__, __LINE__,
-								SCH_LOCALTIME_R_FAILED);
-
-							return err;
-						}
-					}
-
-					continue;
-				}
-			}
-		}
-
-		bIsDateTimeValid		= true;
-	}
-
-	sprintf (_pNextExpirationDateTime,
-		"%04lu-%02lu-%02lu %02lu:%02lu:%02lu:%04lu",
-		(unsigned long) (tmNextExpirationDateTime. tm_year + 1900),
-		(unsigned long) (tmNextExpirationDateTime. tm_mon + 1),
-		(unsigned long) (tmNextExpirationDateTime. tm_mday),
-		(unsigned long) (tmNextExpirationDateTime. tm_hour),
-		(unsigned long) (tmNextExpirationDateTime. tm_min),
-		(unsigned long) (tmNextExpirationDateTime. tm_sec),
-		ulMilliSeconds);
-
-	_bNextDaylightSavingTime		= tmNextExpirationDateTime. tm_isdst;
-
-
-	return errNoError;
+    Boolean_t			bIsDateTimeValid;
+    tm					tmNextExpirationDateTime;
+    char				pSchedule [SCH_MAXSCHEDULELENGTH];
+    char				*pScheduleToken;
+    char				*pScheduleTokenLast;
+    unsigned long		ulMilliSeconds;
+
+
+    lastTimeout     = false;
+    
+    // initialize the tm struct (the tm_wday field too)
+    {
+            time_t				lUtcTime;
+            unsigned long		ulLocalYear;
+            unsigned long		ulLocalMonth;
+            unsigned long		ulLocalDay;
+            unsigned long		ulLocalHour;
+            unsigned long		ulLocalMinutes;
+            unsigned long		ulLocalSeconds;
+
+
+
+            if (sscanf (_pCurrentExpirationDateTime,
+                    "%4lu-%2lu-%2lu %2lu:%2lu:%2lu:%4lu",
+                    &ulLocalYear,
+                    &ulLocalMonth,
+                    &ulLocalDay,
+                    &ulLocalHour,
+                    &ulLocalMinutes,
+                    &ulLocalSeconds,
+                    &ulMilliSeconds) != 7)
+            {
+                throw runtime_error(string("sscanf failed"));
+            }
+
+            tmNextExpirationDateTime. tm_year		= ulLocalYear;
+            tmNextExpirationDateTime. tm_mon		= ulLocalMonth;
+            tmNextExpirationDateTime. tm_mday		= ulLocalDay;
+            tmNextExpirationDateTime. tm_hour		= ulLocalHour;
+            tmNextExpirationDateTime. tm_min		= ulLocalMinutes;
+            tmNextExpirationDateTime. tm_sec		= ulLocalSeconds;
+
+            tmNextExpirationDateTime. tm_year		-= 1900;
+            tmNextExpirationDateTime. tm_mon		-= 1;
+
+            //	A negative value for tm_isdst causes mktime() to attempt
+            //	to determine whether Daylight Saving Time is in effect
+            //	for the specified time.
+            tmNextExpirationDateTime. tm_isdst	= _bCurrentDaylightSavingTime;
+
+            lUtcTime = mktime (&tmNextExpirationDateTime);
+
+            #if defined(__hpux) && defined(_CMA__HP)
+                    if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
+            #else
+                    if (localtime_r (&lUtcTime, &tmNextExpirationDateTime) ==
+                            (struct tm *) NULL)
+            #endif
+            {
+                throw runtime_error(string("localtime_r failed"));
+            }
+    }
+
+    // add 1 sec
+    {
+            time_t				lUtcTime;
+
+            lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+            lUtcTime		+= 1;
+
+            #if defined(__hpux) && defined(_CMA__HP)
+                    if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
+            #else
+                    if (localtime_r (&lUtcTime, &tmNextExpirationDateTime) ==
+                            (struct tm *) NULL)
+            #endif
+            {
+                throw runtime_error(string("localtime_r failed"));
+            }
+    }
+
+    bIsDateTimeValid		= false;
+
+    while (!bIsDateTimeValid)
+    {
+            strcpy (pSchedule, _pCalendarSchedule);
+
+            // year
+            if ((pScheduleToken = strtok_r (pSchedule, " ", &pScheduleTokenLast)) ==
+                    (char *) NULL)
+            {
+                throw runtime_error(string("strtok_r failed"));
+            }
+
+            if (strchr (pScheduleToken, ',') != (char *) NULL)
+            {
+                    Boolean_t		bIsYearValid;
+                    long			lMaxYear;
+                    long			lValue;
+                    char			pNumber [SCH_MAXSCHEDULELENGTH];
+                    char			*pPointerToScheduleToken;
+                    long			lNumberLength;
+
+
+                    pPointerToScheduleToken			= pScheduleToken;
+
+                    lMaxYear			= -1;
+                    bIsYearValid		= false;
+                    do
+                    {
+                            if (strchr (pPointerToScheduleToken, ',') ==
+                                    (char *) NULL)
+                                    lNumberLength		=
+                                            strlen (pPointerToScheduleToken);
+                            else
+                                    lNumberLength		=
+                                            strchr (pPointerToScheduleToken, ',') -
+                                            pPointerToScheduleToken;
+
+                            strncpy (pNumber, pPointerToScheduleToken,
+                                    lNumberLength);
+
+                            pNumber [lNumberLength]				= '\0';
+
+                            if (strchr (pPointerToScheduleToken, ',') ==
+                                    (char *) NULL)
+                                    pPointerToScheduleToken				+=
+                                            lNumberLength;
+                            else
+                                    pPointerToScheduleToken				+=
+                                            (lNumberLength + 1);
+
+                            lValue			= atol (pNumber);
+
+                            if (lValue > lMaxYear)
+                                    lMaxYear	= lValue;
+
+                            if (lValue == tmNextExpirationDateTime. tm_year + 1900)
+                                    bIsYearValid	= true;
+                            else
+                            {
+                                    if (*pPointerToScheduleToken == '\0')
+                                            break;
+                            }
+                    }
+                    while (!bIsYearValid);
+
+                    /* PRIMA (strtok_r annidate non funzionano con windows)
+                    Boolean_t		bIsYearValid;
+                    long			lValue;
+                    long			lMaxYear;
+
+
+                    // comma separator
+                    if ((pFieldToken = strtok_r (pField, ",", &pFieldTokenLast)) ==
+                            (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    lMaxYear			= -1;
+                    bIsYearValid		= false;
+                    do
+                    {
+                            lValue			= atol (pFieldToken);
+
+                            if (lValue > lMaxYear)
+                                    lMaxYear	= lValue;
+
+                            if (lValue == tmNextExpirationDateTime. tm_year + 1900)
+                                    bIsYearValid	= true;
+                            else
+                            {
+                                    if ((pFieldToken = strtok_r ((char *) NULL, ",",
+                                            &pFieldTokenLast)) == (char *) NULL)
+                                            break;
+                            }
+                    }
+                    while (!bIsYearValid);
+                    */
+
+                    if (!bIsYearValid)
+                    {
+                            if (lMaxYear < tmNextExpirationDateTime. tm_year + 1900)
+                            {
+                                lastTimeout         = true;
+
+                                return;
+                            }
+
+                            //	initialize tmNextExpirationDateTime to the first day
+                            //	of the next year
+                            {
+                                    time_t				lUtcTime;
+
+                                    tmNextExpirationDateTime. tm_year		+= 1;
+                                    tmNextExpirationDateTime. tm_mon		= 0;
+                                    tmNextExpirationDateTime. tm_mday		= 1;
+                                    tmNextExpirationDateTime. tm_hour		= 0;
+                                    tmNextExpirationDateTime. tm_min		= 0;
+                                    tmNextExpirationDateTime. tm_sec		= 0;
+
+                                    //	A negative value for tm_isdst causes mktime() to attempt
+                                    //	to determine whether Daylight Saving Time is in effect
+                                    //	for the specified time.
+                                    tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                    lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+                                    #if defined(__hpux) && defined(_CMA__HP)
+                                            if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
+                                    #else
+                                            if (localtime_r (&lUtcTime,
+                                                    &tmNextExpirationDateTime) == (struct tm *) NULL)
+                                    #endif
+                                    {
+                                        throw runtime_error(string("localtime_r failed"));
+                                    }
+                            }
+
+                            continue;
+                    }
+            }
+            else if (strchr (pScheduleToken, '-') != (char *) NULL)
+            {
+                    // values range
+                    long			lValueFrom;
+                    long			lValueTo;
+                    char			pNumber [SCH_MAXSCHEDULELENGTH];
+                    long			lNumberLength;
+
+
+                    lNumberLength		= strchr (pScheduleToken, '-') -
+                            pScheduleToken;
+
+                    strncpy (pNumber, pScheduleToken, lNumberLength);
+
+                    pNumber [lNumberLength]				= '\0';
+
+                    lValueFrom			= atol (pNumber);
+
+                    strcpy (pNumber, pScheduleToken + lNumberLength + 1);
+
+                    lValueTo			= atol (pNumber);
+
+                    /* PRIMA (strtok_r annidate non funzionano con windows)
+                    // dash separator
+                    if ((pFieldToken = strtok_r (pField, "-", &pFieldTokenLast)) ==
+                            (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    lValueFrom		 = atol (pFieldToken);
+
+                    if ((pFieldToken = strtok_r ((char *) NULL, "-",
+                            &pFieldTokenLast)) == (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    lValueTo		 = atol (pFieldToken);
+                    */
+
+                    if (!(lValueFrom <= tmNextExpirationDateTime. tm_year + 1900 &&
+                            tmNextExpirationDateTime. tm_year + 1900 <= lValueTo))
+                    {
+                            if (lValueTo < tmNextExpirationDateTime. tm_year + 1900)
+                            {
+                                lastTimeout     = true;
+
+                                return;
+                            }
+
+                            //	initialize tmNextExpirationDateTime to the first day
+                            //	of the next year
+                            {
+                                    time_t				lUtcTime;
+
+                                    tmNextExpirationDateTime. tm_year		+= 1;
+                                    tmNextExpirationDateTime. tm_mon		= 0;
+                                    tmNextExpirationDateTime. tm_mday		= 1;
+                                    tmNextExpirationDateTime. tm_hour		= 0;
+                                    tmNextExpirationDateTime. tm_min		= 0;
+                                    tmNextExpirationDateTime. tm_sec		= 0;
+
+                                    //	A negative value for tm_isdst causes mktime() to attempt
+                                    //	to determine whether Daylight Saving Time is in effect
+                                    //	for the specified time.
+                                    tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                    lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+                                    #if defined(__hpux) && defined(_CMA__HP)
+                                            if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
+                                    #else
+                                            if (localtime_r (&lUtcTime,
+                                                    &tmNextExpirationDateTime) == (struct tm *) NULL)
+                                    #endif
+                                    {
+                                        throw runtime_error(string("localtime_r failed"));
+                                    }
+                            }
+
+                            continue;
+                    }
+            }
+            else
+            {	// single value or '*'
+
+                    if (pScheduleToken [0] != '*')
+                    {
+                            long		lYear;
+
+
+                            lYear			= atol (pScheduleToken);
+
+                            if (lYear != tmNextExpirationDateTime. tm_year + 1900)
+                            {
+                                    if (lYear < tmNextExpirationDateTime. tm_year + 1900)
+                                    {
+                                        lastTimeout         = true;
+
+                                        return;
+                                    }
+
+                                    //	initialize tmNextExpirationDateTime to the first day
+                                    //	of the next year
+                                    {
+                                            time_t				lUtcTime;
+
+                                            tmNextExpirationDateTime. tm_year		+= 1;
+                                            tmNextExpirationDateTime. tm_mon		= 0;
+                                            tmNextExpirationDateTime. tm_mday		= 1;
+                                            tmNextExpirationDateTime. tm_hour		= 0;
+                                            tmNextExpirationDateTime. tm_min		= 0;
+                                            tmNextExpirationDateTime. tm_sec		= 0;
+
+                                            //	A negative value for tm_isdst causes mktime()
+                                            //	to attempt to determine whether
+                                            //	Daylight Saving Time is in effect for the specified
+                                            //	time.
+                                            tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                            lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+                                            #if defined(__hpux) && defined(_CMA__HP)
+                                                    if (localtime_r (&lUtcTime,
+                                                            &tmNextExpirationDateTime))
+                                            #else
+                                                    if (localtime_r (&lUtcTime,
+                                                            &tmNextExpirationDateTime) ==
+                                                            (struct tm *) NULL)
+                                            #endif
+                                            {
+                                                throw runtime_error(string("localtime_r failed"));
+                                            }
+                                    }
+
+                                    continue;
+                            }
+                    }
+            }
+
+            // month
+            if ((pScheduleToken = strtok_r ((char *) NULL, " ",
+                    &pScheduleTokenLast)) == (char *) NULL)
+            {
+                throw runtime_error(string("strtok_r failed"));
+            }
+
+            if (strchr (pScheduleToken, ',') != (char *) NULL)
+            {
+                    Boolean_t		bIsMonthValid;
+                    long			lValue;
+                    char			pNumber [SCH_MAXSCHEDULELENGTH];
+                    char			*pPointerToScheduleToken;
+                    long			lNumberLength;
+
+
+                    pPointerToScheduleToken			= pScheduleToken;
+
+                    bIsMonthValid		= false;
+                    do
+                    {
+                            if (strchr (pPointerToScheduleToken, ',') ==
+                                    (char *) NULL)
+                                    lNumberLength		=
+                                            strlen (pPointerToScheduleToken);
+                            else
+                                    lNumberLength		=
+                                            strchr (pPointerToScheduleToken, ',') -
+                                            pPointerToScheduleToken;
+
+                            strncpy (pNumber, pPointerToScheduleToken,
+                                    lNumberLength);
+
+                            pNumber [lNumberLength]				= '\0';
+
+                            if (strchr (pPointerToScheduleToken, ',') ==
+                                    (char *) NULL)
+                                    pPointerToScheduleToken				+=
+                                            lNumberLength;
+                            else
+                                    pPointerToScheduleToken				+=
+                                            (lNumberLength + 1);
+
+                            lValue			= atol (pNumber);
+
+                            if (lValue == tmNextExpirationDateTime. tm_mon + 1)
+                                    bIsMonthValid	= true;
+                            else
+                            {
+                                    if (*pPointerToScheduleToken == '\0')
+                                            break;
+                            }
+                    }
+                    while (!bIsMonthValid);
+
+                    /* PRIMA (strtok_r annidate non funzionano con windows)
+                    Boolean_t		bIsMonthValid;
+                    long			lValue;
+
+
+                    // comma separator
+                    if ((pFieldToken = strtok_r (pField, ",", &pFieldTokenLast)) ==
+                            (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    bIsMonthValid		= false;
+                    do
+                    {
+                            lValue			= atol (pFieldToken);
+
+                            if (lValue == tmNextExpirationDateTime. tm_mon + 1)
+                                    bIsMonthValid	= true;
+                            else
+                            {
+                                    if ((pFieldToken = strtok_r ((char *) NULL, ",",
+                                            &pFieldTokenLast)) == (char *) NULL)
+                                            break;
+                            }
+                    }
+                    while (!bIsMonthValid);
+                    */
+
+                    if (!bIsMonthValid)
+                    {
+                            //	initialize tmNextExpirationDateTime to the first minute
+                            //	of the next month
+                            {
+                                    time_t				lUtcTime;
+
+                                    if (tmNextExpirationDateTime. tm_mon == 11)
+                                    {
+                                            tmNextExpirationDateTime. tm_mon		= 0;
+                                            tmNextExpirationDateTime. tm_year		+= 1;
+                                    }
+                                    else
+                                            tmNextExpirationDateTime. tm_mon		+= 1;
+                                    tmNextExpirationDateTime. tm_mday		= 1;
+                                    tmNextExpirationDateTime. tm_hour		= 0;
+                                    tmNextExpirationDateTime. tm_min		= 0;
+                                    tmNextExpirationDateTime. tm_sec		= 0;
+
+                                    //	A negative value for tm_isdst causes mktime() to attempt
+                                    //	to determine whether Daylight Saving Time is in effect
+                                    //	for the specified time.
+                                    tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                    lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+                                    #if defined(__hpux) && defined(_CMA__HP)
+                                            if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
+                                    #else
+                                            if (localtime_r (&lUtcTime,
+                                                    &tmNextExpirationDateTime) == (struct tm *) NULL)
+                                    #endif
+                                    {
+                                        throw runtime_error(string("localtime_r failed"));
+                                    }
+                            }
+
+                            continue;
+                    }
+            }
+            else if (strchr (pScheduleToken, '-') != (char *) NULL)
+            {
+                    // values range
+                    long			lValueFrom;
+                    long			lValueTo;
+                    char			pNumber [SCH_MAXSCHEDULELENGTH];
+                    long			lNumberLength;
+
+
+                    lNumberLength		= strchr (pScheduleToken, '-') -
+                            pScheduleToken;
+
+                    strncpy (pNumber, pScheduleToken, lNumberLength);
+
+                    pNumber [lNumberLength]				= '\0';
+
+                    lValueFrom			= atol (pNumber);
+
+                    strcpy (pNumber, pScheduleToken + lNumberLength + 1);
+
+                    lValueTo			= atol (pNumber);
+
+                    /* PRIMA (strtok_r annidate non funzionano con windows)
+                    // dash separator
+                    if ((pFieldToken = strtok_r (pField, "-", &pFieldTokenLast)) ==
+                            (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    lValueFrom		 = atol (pFieldToken);
+
+                    if ((pFieldToken = strtok_r ((char *) NULL, "-",
+                            &pFieldTokenLast)) == (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    lValueTo		 = atol (pFieldToken);
+                    */
+
+                    if (!(lValueFrom <= tmNextExpirationDateTime. tm_mon + 1 &&
+                            tmNextExpirationDateTime. tm_mon + 1 <= lValueTo))
+                    {
+                            //	initialize tmNextExpirationDateTime to the first minute
+                            //	of the next month
+                            {
+                                    time_t				lUtcTime;
+
+                                    if (tmNextExpirationDateTime. tm_mon == 11)
+                                    {
+                                            tmNextExpirationDateTime. tm_mon		= 0;
+                                            tmNextExpirationDateTime. tm_year		+= 1;
+                                    }
+                                    else
+                                            tmNextExpirationDateTime. tm_mon		+= 1;
+                                    tmNextExpirationDateTime. tm_mday		= 1;
+                                    tmNextExpirationDateTime. tm_hour		= 0;
+                                    tmNextExpirationDateTime. tm_min		= 0;
+                                    tmNextExpirationDateTime. tm_sec		= 0;
+
+                                    //	A negative value for tm_isdst causes mktime() to attempt
+                                    //	to determine whether Daylight Saving Time is in effect
+                                    //	for the specified time.
+                                    tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                    lUtcTime = mktime (&tmNextExpirationDateTime);
+
+                                    #if defined(__hpux) && defined(_CMA__HP)
+                                            if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
+                                    #else
+                                            if (localtime_r (&lUtcTime,
+                                                    &tmNextExpirationDateTime) == (struct tm *) NULL)
+                                    #endif
+                                    {
+                                        throw runtime_error(string("localtime_r failed"));
+                                    }
+                            }
+
+                            continue;
+                    }
+            }
+            else
+            {	// single value or '*'
+
+                    if (pScheduleToken [0] != '*')
+                    {
+                            long			lMonth;
+
+
+                            lMonth			= atol (pScheduleToken);
+
+                            if (lMonth != tmNextExpirationDateTime. tm_mon + 1)
+                            {
+                                    //	initialize tmNextExpirationDateTime to the first minute
+                                    //	of the next month
+                                    {
+                                            time_t				lUtcTime;
+
+                                            if (tmNextExpirationDateTime. tm_mon == 11)
+                                            {
+                                                    tmNextExpirationDateTime. tm_mon		= 0;
+                                                    tmNextExpirationDateTime. tm_year		+= 1;
+                                            }
+                                            else
+                                                    tmNextExpirationDateTime. tm_mon		+= 1;
+                                            tmNextExpirationDateTime. tm_mday		= 1;
+                                            tmNextExpirationDateTime. tm_hour		= 0;
+                                            tmNextExpirationDateTime. tm_min		= 0;
+                                            tmNextExpirationDateTime. tm_sec		= 0;
+
+                                            //	A negative value for tm_isdst causes mktime()
+                                            //	to attempt to determine whether
+                                            //	Daylight Saving Time is in effect
+                                            //	for the specified time.
+                                            tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                            lUtcTime = mktime (&tmNextExpirationDateTime);
+
+                                            #if defined(__hpux) && defined(_CMA__HP)
+                                                    if (localtime_r (&lUtcTime,
+                                                            &tmNextExpirationDateTime))
+                                            #else
+                                                    if (localtime_r (&lUtcTime,
+                                                            &tmNextExpirationDateTime) ==
+                                                            (struct tm *) NULL)
+                                            #endif
+                                            {
+                                                throw runtime_error(string("localtime_r failed"));
+                                            }
+                                    }
+
+                                    continue;
+                            }
+                    }
+            }
+
+            // monthday and weekday
+
+            {
+                    Boolean_t		bIsNecessaryAddDayForMonthDay;
+                    Boolean_t		bIsNecessaryAddDayForWeekDay;
+                    Boolean_t		bIsMonthDayStar;
+                    Boolean_t		bIsWeekDayStar;
+                    Boolean_t		bIsNecessaryAddDay;
+
+
+                    bIsNecessaryAddDayForMonthDay		= false;
+                    bIsNecessaryAddDayForWeekDay		= false;
+
+                    // monthday
+                    if ((pScheduleToken = strtok_r ((char *) NULL, " ",
+                            &pScheduleTokenLast)) == (char *) NULL)
+                    {
+                        throw runtime_error(string("strtok_r failed"));
+                    }
+
+                    if (strchr (pScheduleToken, ',') != (char *) NULL)
+                    {
+                            Boolean_t		bIsMonthDayValid;
+                            long			lValue;
+                            char			pNumber [SCH_MAXSCHEDULELENGTH];
+                            char			*pPointerToScheduleToken;
+                            long			lNumberLength;
+
+
+                            pPointerToScheduleToken			= pScheduleToken;
+
+                            bIsMonthDayStar			= false;
+
+                            bIsMonthDayValid		= false;
+                            do
+                            {
+                                    if (strchr (pPointerToScheduleToken, ',') ==
+                                            (char *) NULL)
+                                            lNumberLength		=
+                                                    strlen (pPointerToScheduleToken);
+                                    else
+                                            lNumberLength		=
+                                                    strchr (pPointerToScheduleToken, ',') -
+                                                    pPointerToScheduleToken;
+
+                                    strncpy (pNumber, pPointerToScheduleToken,
+                                            lNumberLength);
+
+                                    pNumber [lNumberLength]				= '\0';
+
+                                    if (strchr (pPointerToScheduleToken, ',') ==
+                                            (char *) NULL)
+                                            pPointerToScheduleToken				+=
+                                                    lNumberLength;
+                                    else
+                                            pPointerToScheduleToken				+=
+                                                    (lNumberLength + 1);
+
+                                    lValue			= atol (pNumber);
+
+                                    if (lValue == tmNextExpirationDateTime. tm_mday)
+                                            bIsMonthDayValid	= true;
+                                    else
+                                    {
+                                            if (*pPointerToScheduleToken == '\0')
+                                                    break;
+                                    }
+                            }
+                            while (!bIsMonthDayValid);
+
+                            /* PRIMA (strtok_r annidate non funzionano con windows)
+                            Boolean_t		bIsMonthDayValid;
+                            long			lValue;
+
+
+                            bIsMonthDayStar			= false;
+
+                            // comma separator
+                            if ((pFieldToken = strtok_r (pField, ",", &pFieldTokenLast)) ==
+                                    (char *) NULL)
+                            {
+                                    Error err = SchedulerErrors (__FILE__, __LINE__,
+                                            SCH_CALENDARSCHEDULE_WRONG);
+
+                                    return err;
+                            }
+
+                            bIsMonthDayValid		= false;
+                            do
+                            {
+                                    lValue			= atol (pFieldToken);
+
+                                    if (lValue == tmNextExpirationDateTime. tm_mday)
+                                            bIsMonthDayValid	= true;
+                                    else
+                                    {
+                                            if ((pFieldToken = strtok_r ((char *) NULL, ",",
+                                                    &pFieldTokenLast)) == (char *) NULL)
+                                                    break;
+                                    }
+                            }
+                            while (!bIsMonthDayValid);
+                            */
+
+                            if (!bIsMonthDayValid)
+                            {
+                                    bIsNecessaryAddDayForMonthDay		= true;
+                            }
+                    }
+                    else if (strchr (pScheduleToken, '-') != (char *) NULL)
+                    {
+                            // values range
+                            long			lValueFrom;
+                            long			lValueTo;
+                            char			pNumber [SCH_MAXSCHEDULELENGTH];
+                            long			lNumberLength;
+
+
+                            bIsMonthDayStar			= false;
+
+                            lNumberLength		= strchr (pScheduleToken, '-') -
+                                    pScheduleToken;
+
+                            strncpy (pNumber, pScheduleToken, lNumberLength);
+
+                            pNumber [lNumberLength]				= '\0';
+
+                            lValueFrom			= atol (pNumber);
+
+                            strcpy (pNumber, pScheduleToken + lNumberLength + 1);
+
+                            lValueTo			= atol (pNumber);
+
+                            /* PRIMA (strtok_r annidate non funzionano con windows)
+                            bIsMonthDayStar			= false;
+
+                            // dash separator
+                            if ((pFieldToken = strtok_r (pField, "-", &pFieldTokenLast)) ==
+                                    (char *) NULL)
+                            {
+                                    Error err = SchedulerErrors (__FILE__, __LINE__,
+                                            SCH_CALENDARSCHEDULE_WRONG);
+
+                                    return err;
+                            }
+
+                            lValueFrom		 = atol (pFieldToken);
+
+                            if ((pFieldToken = strtok_r ((char *) NULL, "-",
+                                    &pFieldTokenLast)) == (char *) NULL)
+                            {
+                                    Error err = SchedulerErrors (__FILE__, __LINE__,
+                                            SCH_CALENDARSCHEDULE_WRONG);
+
+                                    return err;
+                            }
+
+                            lValueTo		 = atol (pFieldToken);
+                            */
+
+                            if (!(lValueFrom <= tmNextExpirationDateTime. tm_mday &&
+                                    tmNextExpirationDateTime. tm_mday <= lValueTo))
+                            {
+                                    bIsNecessaryAddDayForMonthDay		= true;
+                            }
+                    }
+                    else
+                    {	// single value or '*'
+
+                            if (pScheduleToken [0] != '*')
+                            {
+                                    long			lMonthDay;
+
+
+                                    bIsMonthDayStar			= false;
+
+                                    lMonthDay		= atol (pScheduleToken);
+
+                                    if (lMonthDay != tmNextExpirationDateTime. tm_mday)
+                                    {
+                                            bIsNecessaryAddDayForMonthDay		= true;
+                                    }
+                            }
+                            else
+                                    bIsMonthDayStar			= true;
+                    }
+
+                    // weekday
+                    if ((pScheduleToken = strtok_r ((char *) NULL, " ",
+                            &pScheduleTokenLast)) == (char *) NULL)
+                    {
+                        throw runtime_error(string("strtok_r failed"));
+                    }
+
+                    if (strchr (pScheduleToken, ',') != (char *) NULL)
+                    {
+                            Boolean_t		bIsWeekDayValid;
+                            long			lValue;
+                            char			pNumber [SCH_MAXSCHEDULELENGTH];
+                            char			*pPointerToScheduleToken;
+                            long			lNumberLength;
+
+
+                            pPointerToScheduleToken			= pScheduleToken;
+
+                            bIsWeekDayStar			= false;
+
+                            bIsWeekDayValid			= false;
+                            do
+                            {
+                                    if (strchr (pPointerToScheduleToken, ',') ==
+                                            (char *) NULL)
+                                            lNumberLength		=
+                                                    strlen (pPointerToScheduleToken);
+                                    else
+                                            lNumberLength		=
+                                                    strchr (pPointerToScheduleToken, ',') -
+                                                    pPointerToScheduleToken;
+
+                                    strncpy (pNumber, pPointerToScheduleToken,
+                                            lNumberLength);
+
+                                    pNumber [lNumberLength]				= '\0';
+
+                                    if (strchr (pPointerToScheduleToken, ',') ==
+                                            (char *) NULL)
+                                            pPointerToScheduleToken				+=
+                                                    lNumberLength;
+                                    else
+                                            pPointerToScheduleToken				+=
+                                                    (lNumberLength + 1);
+
+                                    lValue			= atol (pNumber);
+
+                                    if (lValue == tmNextExpirationDateTime. tm_wday)
+                                            bIsWeekDayValid	= true;
+                                    else
+                                    {
+                                            if (*pPointerToScheduleToken == '\0')
+                                                    break;
+                                    }
+                            }
+                            while (!bIsWeekDayValid);
+
+                            /* PRIMA (strtok_r annidate non funzionano con windows)
+                            Boolean_t		bIsWeekDayValid;
+                            long			lValue;
+
+
+                            bIsWeekDayStar			= false;
+
+                            // comma separator
+                            if ((pFieldToken = strtok_r (pField, ",", &pFieldTokenLast)) ==
+                                    (char *) NULL)
+                            {
+                                    Error err = SchedulerErrors (__FILE__, __LINE__,
+                                            SCH_CALENDARSCHEDULE_WRONG);
+
+                                    return err;
+                            }
+
+                            bIsWeekDayValid		= false;
+                            do
+                            {
+                                    lValue			= atol (pFieldToken);
+
+                                    if (lValue == tmNextExpirationDateTime. tm_wday)
+                                            bIsWeekDayValid	= true;
+                                    else
+                                    {
+                                            if ((pFieldToken = strtok_r ((char *) NULL, ",",
+                                                    &pFieldTokenLast)) == (char *) NULL)
+                                                    break;
+                                    }
+                            }
+                            while (!bIsWeekDayValid);
+                            */
+
+                            if (!bIsWeekDayValid)
+                            {
+                                    bIsNecessaryAddDayForWeekDay		= true;
+                            }
+                    }
+                    else if (strchr (pScheduleToken, '-') != (char *) NULL)
+                    {
+                            // values range
+                            long			lValueFrom;
+                            long			lValueTo;
+                            char			pNumber [SCH_MAXSCHEDULELENGTH];
+                            long			lNumberLength;
+
+
+                            bIsWeekDayStar			= false;
+
+                            lNumberLength		= strchr (pScheduleToken, '-') -
+                                    pScheduleToken;
+
+                            strncpy (pNumber, pScheduleToken, lNumberLength);
+
+                            pNumber [lNumberLength]				= '\0';
+
+                            lValueFrom			= atol (pNumber);
+
+                            strcpy (pNumber, pScheduleToken + lNumberLength + 1);
+
+                            lValueTo			= atol (pNumber);
+
+                            /* PRIMA (strtok_r annidate non funzionano con windows)
+                            bIsWeekDayStar			= false;
+
+                            // dash separator
+                            if ((pFieldToken = strtok_r (pField, "-", &pFieldTokenLast)) ==
+                                    (char *) NULL)
+                            {
+                                    Error err = SchedulerErrors (__FILE__, __LINE__,
+                                            SCH_CALENDARSCHEDULE_WRONG);
+
+                                    return err;
+                            }
+
+                            lValueFrom		 = atol (pFieldToken);
+
+                            if ((pFieldToken = strtok_r ((char *) NULL, "-",
+                                    &pFieldTokenLast)) == (char *) NULL)
+                            {
+                                    Error err = SchedulerErrors (__FILE__, __LINE__,
+                                            SCH_CALENDARSCHEDULE_WRONG);
+
+                                    return err;
+                            }
+
+                            lValueTo		 = atol (pFieldToken);
+                            */
+
+                            if (!(lValueFrom <= tmNextExpirationDateTime. tm_wday &&
+                                    tmNextExpirationDateTime. tm_wday <= lValueTo))
+                            {
+                                    bIsNecessaryAddDayForWeekDay		= true;
+                            }
+                    }
+                    else
+                    {	// single value or '*'
+
+                            if (pScheduleToken [0] != '*')
+                            {
+                                    long			lWeekDay;
+
+
+                                    bIsWeekDayStar			= false;
+
+                                    lWeekDay		= atol (pScheduleToken);
+
+                                    if (lWeekDay != tmNextExpirationDateTime. tm_wday)
+                                    {
+                                            bIsNecessaryAddDayForWeekDay		= true;
+                                    }
+                            }
+                            else
+                                    bIsWeekDayStar			= true;
+                    }
+
+                    if (bIsMonthDayStar && bIsWeekDayStar)
+                            bIsNecessaryAddDay		= false;
+                    else if (!bIsMonthDayStar && bIsWeekDayStar)
+                    {
+                            if (bIsNecessaryAddDayForMonthDay)
+                                    bIsNecessaryAddDay		= true;
+                            else
+                                    bIsNecessaryAddDay		= false;
+                    }
+                    else if (bIsMonthDayStar && !bIsWeekDayStar)
+                    {
+                            if (bIsNecessaryAddDayForWeekDay)
+                                    bIsNecessaryAddDay		= true;
+                            else
+                                    bIsNecessaryAddDay		= false;
+                    }
+                    else
+                    {		// !bIsMonthDayStar && !bIsWeekDayStar
+                            if (bIsNecessaryAddDayForMonthDay &&
+                                    bIsNecessaryAddDayForWeekDay)
+                                    bIsNecessaryAddDay		= true;
+                            else
+                                    bIsNecessaryAddDay		= false;
+                    }
+
+                    if (bIsNecessaryAddDay)
+                    {
+                            // add 1 day
+                            {
+                                    time_t				lUtcTime;
+
+                                    tmNextExpirationDateTime. tm_hour		= 0;
+                                    tmNextExpirationDateTime. tm_min		= 0;
+                                    tmNextExpirationDateTime. tm_sec		= 0;
+
+                                    //	A negative value for tm_isdst causes mktime() to attempt
+                                    //	to determine whether Daylight Saving Time is in effect
+                                    //	for the specified time.
+                                    tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                    lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+                                    lUtcTime		+= (60 * 60 * 24);
+
+                                    #if defined(__hpux) && defined(_CMA__HP)
+                                            if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
+                                    #else
+                                            if (localtime_r (&lUtcTime,
+                                                    &tmNextExpirationDateTime) == (struct tm *) NULL)
+                                    #endif
+                                    {
+                                        throw runtime_error(string("localtime_r failed"));
+                                    }
+
+                                    // gestione ora legale
+                                    switch (tmNextExpirationDateTime. tm_hour)
+                                    {
+                                            case 0:
+                                                    // OK
+
+                                                    break;
+                                            case 23:
+                                                    //	gestione ora legale: 3 -> 2.
+                                                    //	Anche se si sommano 24 ore,
+                                                    //	in pratica se ne sommano 23
+                                                    lUtcTime		+= (60 * 60);
+
+                                                    #if defined(__hpux) && defined(_CMA__HP)
+                                                            if (localtime_r (&lUtcTime,
+                                                                    &tmNextExpirationDateTime))
+                                                    #else
+                                                            if (localtime_r (&lUtcTime,
+                                                                    &tmNextExpirationDateTime) ==
+                                                                    (struct tm *) NULL)
+                                                    #endif
+                                                    {
+                                                        throw runtime_error(string("localtime_r failed"));
+                                                    }
+
+                                                    break;
+                                            case 1:
+                                                    //	gestione ora legale: 2 -> 3.
+                                                    //	Anche se si sommano 24 ore,
+                                                    //	in pratica se ne sommano 25
+
+                                                    lUtcTime		-= (60 * 60);
+
+                                                    #if defined(__hpux) && defined(_CMA__HP)
+                                                            if (localtime_r (&lUtcTime,
+                                                                    &tmNextExpirationDateTime))
+                                                    #else
+                                                            if (localtime_r (&lUtcTime,
+                                                                    &tmNextExpirationDateTime) ==
+                                                                    (struct tm *) NULL)
+                                                    #endif
+                                                    {
+                                                        throw runtime_error(string("localtime_r failed"));
+                                                    }
+
+                                                    break;
+                                            default:
+                                                throw runtime_error(string("localtime_r failed"));
+                                    }
+                            }
+
+                            continue;
+                    }
+            }
+
+            // hour
+            if ((pScheduleToken = strtok_r ((char *) NULL, " ",
+                    &pScheduleTokenLast)) == (char *) NULL)
+            {
+                throw runtime_error(string("strtok_r failed"));
+            }
+
+            if (strchr (pScheduleToken, ',') != (char *) NULL)
+            {
+                    Boolean_t		bIsHourValid;
+                    long			lValue;
+                    char			pNumber [SCH_MAXSCHEDULELENGTH];
+                    char			*pPointerToScheduleToken;
+                    long			lNumberLength;
+
+
+                    pPointerToScheduleToken			= pScheduleToken;
+
+                    bIsHourValid		= false;
+                    do
+                    {
+                            if (strchr (pPointerToScheduleToken, ',') ==
+                                    (char *) NULL)
+                                    lNumberLength		=
+                                            strlen (pPointerToScheduleToken);
+                            else
+                                    lNumberLength		=
+                                            strchr (pPointerToScheduleToken, ',') -
+                                            pPointerToScheduleToken;
+
+                            strncpy (pNumber, pPointerToScheduleToken,
+                                    lNumberLength);
+
+                            pNumber [lNumberLength]				= '\0';
+
+                            if (strchr (pPointerToScheduleToken, ',') ==
+                                    (char *) NULL)
+                                    pPointerToScheduleToken				+=
+                                            lNumberLength;
+                            else
+                                    pPointerToScheduleToken				+=
+                                            (lNumberLength + 1);
+
+                            lValue			= atol (pNumber);
+
+                            if (lValue == tmNextExpirationDateTime. tm_hour)
+                                    bIsHourValid	= true;
+                            else
+                            {
+                                    if (*pPointerToScheduleToken == '\0')
+                                            break;
+                            }
+                    }
+                    while (!bIsHourValid);
+
+                    /* PRIMA (strtok_r annidate non funzionano con windows)
+                    Boolean_t		bIsHourValid;
+                    long			lValue;
+
+
+                    // comma separator
+                    if ((pFieldToken = strtok_r (pField, ",", &pFieldTokenLast)) ==
+                            (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    bIsHourValid		= false;
+                    do
+                    {
+                            lValue			= atol (pFieldToken);
+
+                            if (lValue == tmNextExpirationDateTime. tm_hour)
+                                    bIsHourValid	= true;
+                            else
+                            {
+                                    if ((pFieldToken = strtok_r ((char *) NULL, ",",
+                                            &pFieldTokenLast)) == (char *) NULL)
+                                            break;
+                            }
+                    }
+                    while (!bIsHourValid);
+                    */
+
+                    if (!bIsHourValid)
+                    {
+                            // add 1 hour
+                            {
+                                    time_t				lUtcTime;
+                                    unsigned long		ulInitialHour;
+
+                                    tmNextExpirationDateTime. tm_min		= 0;
+                                    tmNextExpirationDateTime. tm_sec		= 0;
+
+                                    //	A negative value for tm_isdst causes mktime() to attempt
+                                    //	to determine whether Daylight Saving Time is in effect
+                                    //	for the specified time.
+                                    tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                    ulInitialHour	= tmNextExpirationDateTime. tm_hour;
+
+                                    lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+                                    lUtcTime		+= (60 * 60);
+
+                                    #if defined(__hpux) && defined(_CMA__HP)
+                                            if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
+                                    #else
+                                            if (localtime_r (&lUtcTime,
+                                                    &tmNextExpirationDateTime) == (struct tm *) NULL)
+                                    #endif
+                                    {
+                                        throw runtime_error(string("localtime_r failed"));
+                                    }
+
+                                    //	gestione ora legale: 3 -> 2
+                                    if (ulInitialHour == tmNextExpirationDateTime. tm_hour)
+                                    {
+                                            //	gestione ora legale: 3 -> 2
+                                            //	se alle 2 si somma 1 ora si ottiene ancora 2
+                                            //	quindi dobbiamo sommare un'altra ora
+
+                                            lUtcTime		+= (60 * 60);
+
+                                            #if defined(__hpux) && defined(_CMA__HP)
+                                                    if (localtime_r (&lUtcTime,
+                                                            &tmNextExpirationDateTime))
+                                            #else
+                                                    if (localtime_r (&lUtcTime,
+                                                            &tmNextExpirationDateTime) ==
+                                                            (struct tm *) NULL)
+                                            #endif
+                                            {
+                                                throw runtime_error(string("localtime_r failed"));
+                                            }
+                                    }
+                            }
+
+                            continue;
+                    }
+            }
+            else if (strchr (pScheduleToken, '-') != (char *) NULL)
+            {
+                    // values range
+                    long			lValueFrom;
+                    long			lValueTo;
+                    char			pNumber [SCH_MAXSCHEDULELENGTH];
+                    long			lNumberLength;
+
+
+                    lNumberLength		= strchr (pScheduleToken, '-') -
+                            pScheduleToken;
+
+                    strncpy (pNumber, pScheduleToken, lNumberLength);
+
+                    pNumber [lNumberLength]				= '\0';
+
+                    lValueFrom			= atol (pNumber);
+
+                    strcpy (pNumber, pScheduleToken + lNumberLength + 1);
+
+                    lValueTo			= atol (pNumber);
+
+                    /* PRIMA (strtok_r annidate non funzionano con windows)
+                    // dash separator
+                    if ((pFieldToken = strtok_r (pField, "-", &pFieldTokenLast)) ==
+                            (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    lValueFrom		 = atol (pFieldToken);
+
+                    if ((pFieldToken = strtok_r ((char *) NULL, "-",
+                            &pFieldTokenLast)) == (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    lValueTo		 = atol (pFieldToken);
+                    */
+
+                    if (!(lValueFrom <= tmNextExpirationDateTime. tm_hour &&
+                            tmNextExpirationDateTime. tm_hour <= lValueTo))
+                    {
+                            // add 1 hour
+                            {
+                                    time_t				lUtcTime;
+                                    unsigned long		ulInitialHour;
+
+                                    tmNextExpirationDateTime. tm_min		= 0;
+                                    tmNextExpirationDateTime. tm_sec		= 0;
+
+                                    //	A negative value for tm_isdst causes mktime() to attempt
+                                    //	to determine whether Daylight Saving Time is in effect
+                                    //	for the specified time.
+                                    tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                    ulInitialHour	= tmNextExpirationDateTime. tm_hour;
+
+                                    lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+                                    lUtcTime		+= (60 * 60);
+
+                                    #if defined(__hpux) && defined(_CMA__HP)
+                                            if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
+                                    #else
+                                            if (localtime_r (&lUtcTime,
+                                                    &tmNextExpirationDateTime) == (struct tm *) NULL)
+                                    #endif
+                                    {
+                                        throw runtime_error(string("localtime_r failed"));
+                                    }
+
+                                    //	gestione ora legale: 3 -> 2.
+                                    //	se alle 2 si somma 1 ora si ottiene ancora 2
+                                    //	quindi dobbiamo sommare un'altra ora
+                                    if (ulInitialHour == tmNextExpirationDateTime. tm_hour)
+                                    {
+                                            lUtcTime		+= (60 * 60);
+
+                                            #if defined(__hpux) && defined(_CMA__HP)
+                                                    if (localtime_r (&lUtcTime,
+                                                            &tmNextExpirationDateTime))
+                                            #else
+                                                    if (localtime_r (&lUtcTime,
+                                                            &tmNextExpirationDateTime) ==
+                                                            (struct tm *) NULL)
+                                            #endif
+                                            {
+                                                throw runtime_error(string("localtime_r failed"));
+                                            }
+                                    }
+                            }
+
+                            continue;
+                    }
+            }
+            else
+            {	// single value or '*'
+
+                    if (pScheduleToken [0] != '*')
+                    {
+                            long			lHour;
+
+                            lHour		= atol (pScheduleToken);
+
+                            if (lHour != tmNextExpirationDateTime. tm_hour)
+                            {
+                                    // add 1 hour
+                                    {
+                                            time_t				lUtcTime;
+                                            unsigned long		ulInitialHour;
+
+                                            tmNextExpirationDateTime. tm_min		= 0;
+                                            tmNextExpirationDateTime. tm_sec		= 0;
+
+                                            //	A negative value for tm_isdst causes mktime()
+                                            //	to attempt to determine whether
+                                            //	Daylight Saving Time is in effect
+                                            //	for the specified time.
+                                            tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                            ulInitialHour	= tmNextExpirationDateTime. tm_hour;
+
+                                            lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+                                            lUtcTime		+= (60 * 60);
+
+                                            #if defined(__hpux) && defined(_CMA__HP)
+                                                    if (localtime_r (&lUtcTime,
+                                                            &tmNextExpirationDateTime))
+                                            #else
+                                                    if (localtime_r (&lUtcTime,
+                                                            &tmNextExpirationDateTime) ==
+                                                            (struct tm *) NULL)
+                                            #endif
+                                            {
+                                                throw runtime_error(string("localtime_r failed"));
+                                            }
+
+                                            //	gestione ora legale: 3 -> 2 and 2 -> 4.
+                                            //	se alle 2 si somma 1 ora si ottiene ancora 2
+                                            //	quindi dobbiamo sommare un'altra ora
+                                            if (ulInitialHour == tmNextExpirationDateTime. tm_hour)
+                                            {
+                                                    lUtcTime		+= (60 * 60);
+
+                                                    #if defined(__hpux) && defined(_CMA__HP)
+                                                            if (localtime_r (&lUtcTime,
+                                                                    &tmNextExpirationDateTime))
+                                                    #else
+                                                            if (localtime_r (&lUtcTime,
+                                                                    &tmNextExpirationDateTime) ==
+                                                                    (struct tm *) NULL)
+                                                    #endif
+                                                    {
+                                                        throw runtime_error(string("localtime_r failed"));
+                                                    }
+                                            }
+                                    }
+
+                                    continue;
+                            }
+                    }
+            }
+
+            // minute
+            if ((pScheduleToken = strtok_r ((char *) NULL, " ",
+                    &pScheduleTokenLast)) == (char *) NULL)
+            {
+                    throw runtime_error(string("strtok_r failed"));
+            }
+
+            if (strchr (pScheduleToken, ',') != (char *) NULL)
+            {
+                    Boolean_t		bIsMinuteValid;
+                    long			lValue;
+                    char			pNumber [SCH_MAXSCHEDULELENGTH];
+                    char			*pPointerToScheduleToken;
+                    long			lNumberLength;
+
+
+                    pPointerToScheduleToken			= pScheduleToken;
+
+                    bIsMinuteValid		= false;
+                    do
+                    {
+                            if (strchr (pPointerToScheduleToken, ',') ==
+                                    (char *) NULL)
+                                    lNumberLength		=
+                                            strlen (pPointerToScheduleToken);
+                            else
+                                    lNumberLength		=
+                                            strchr (pPointerToScheduleToken, ',') -
+                                            pPointerToScheduleToken;
+
+                            strncpy (pNumber, pPointerToScheduleToken,
+                                    lNumberLength);
+
+                            pNumber [lNumberLength]				= '\0';
+
+                            if (strchr (pPointerToScheduleToken, ',') ==
+                                    (char *) NULL)
+                                    pPointerToScheduleToken				+=
+                                            lNumberLength;
+                            else
+                                    pPointerToScheduleToken				+=
+                                            (lNumberLength + 1);
+
+                            lValue			= atol (pNumber);
+
+                            if (lValue == tmNextExpirationDateTime. tm_min)
+                                    bIsMinuteValid		= true;
+                            else
+                            {
+                                    if (*pPointerToScheduleToken == '\0')
+                                            break;
+                            }
+                    }
+                    while (!bIsMinuteValid);
+
+                    /* PRIMA (strtok_r annidate non funzionano con windows)
+                    Boolean_t		bIsMinuteValid;
+                    long			lValue;
+
+
+                    // comma separator
+                    if ((pFieldToken = strtok_r (pField, ",", &pFieldTokenLast)) ==
+                            (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    bIsMinuteValid		= false;
+                    do
+                    {
+                            lValue			= atol (pFieldToken);
+
+                            if (lValue == tmNextExpirationDateTime. tm_min)
+                                    bIsMinuteValid		= true;
+                            else
+                            {
+                                    if ((pFieldToken = strtok_r ((char *) NULL, ",",
+                                            &pFieldTokenLast)) == (char *) NULL)
+                                            break;
+                            }
+                    }
+                    while (!bIsMinuteValid);
+                    */
+
+                    if (!bIsMinuteValid)
+                    {
+                            // add 1 min
+                            {
+                                    time_t				lUtcTime;
+
+                                    tmNextExpirationDateTime. tm_sec		= 0;
+
+                                    //	A negative value for tm_isdst causes mktime() to attempt
+                                    //	to determine whether Daylight Saving Time is in effect
+                                    //	for the specified time.
+                                    tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                    lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+                                    lUtcTime		+= 60;
+
+                                    #if defined(__hpux) && defined(_CMA__HP)
+                                            if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
+                                    #else
+                                            if (localtime_r (&lUtcTime,
+                                                    &tmNextExpirationDateTime) == (struct tm *) NULL)
+                                    #endif
+                                    {
+                                        throw runtime_error(string("localtime_r failed"));
+                                    }
+                            }
+
+                            continue;
+                    }
+            }
+            else if (strchr (pScheduleToken, '-') != (char *) NULL)
+            {
+                    // values range
+                    long			lValueFrom;
+                    long			lValueTo;
+                    char			pNumber [SCH_MAXSCHEDULELENGTH];
+                    long			lNumberLength;
+
+
+                    lNumberLength		= strchr (pScheduleToken, '-') -
+                            pScheduleToken;
+
+                    strncpy (pNumber, pScheduleToken, lNumberLength);
+
+                    pNumber [lNumberLength]				= '\0';
+
+                    lValueFrom			= atol (pNumber);
+
+                    strcpy (pNumber, pScheduleToken + lNumberLength + 1);
+
+                    lValueTo			= atol (pNumber);
+
+                    /* PRIMA (strtok_r annidate non funzionano con windows)
+                    // dash separator
+                    if ((pFieldToken = strtok_r (pField, "-", &pFieldTokenLast)) ==
+                            (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    lValueFrom		 = atol (pFieldToken);
+
+                    if ((pFieldToken = strtok_r ((char *) NULL, "-",
+                            &pFieldTokenLast)) == (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    lValueTo		 = atol (pFieldToken);
+                    */
+
+                    if (!(lValueFrom <= tmNextExpirationDateTime. tm_min &&
+                            tmNextExpirationDateTime. tm_min <= lValueTo))
+                    {
+                            // add 1 minute
+                            {
+                                    time_t				lUtcTime;
+
+                                    tmNextExpirationDateTime. tm_sec		= 0;
+
+                                    //	A negative value for tm_isdst causes mktime() to attempt
+                                    //	to determine whether Daylight Saving Time is in effect
+                                    //	for the specified time.
+                                    tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                    lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+                                    lUtcTime		+= 60;
+
+                                    #if defined(__hpux) && defined(_CMA__HP)
+                                            if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
+                                    #else
+                                            if (localtime_r (&lUtcTime,
+                                                    &tmNextExpirationDateTime) == (struct tm *) NULL)
+                                    #endif
+                                    {
+                                        throw runtime_error(string("localtime_r failed"));
+                                    }
+                            }
+
+                            continue;
+                    }
+            }
+            else
+            {	// single value or '*'
+
+                    if (pScheduleToken [0] != '*')
+                    {
+                            long			lMinute;
+
+
+                            lMinute			= atol (pScheduleToken);
+
+                            if (lMinute != tmNextExpirationDateTime. tm_min)
+                            {
+                                    // add 1 minute
+                                    {
+                                            time_t				lUtcTime;
+
+                                            tmNextExpirationDateTime. tm_sec		= 0;
+
+                                            //	A negative value for tm_isdst causes mktime()
+                                            //	to attempt to determine whether
+                                            //	Daylight Saving Time is in effect
+                                            //	for the specified time.
+                                            tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                            lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+                                            lUtcTime		+= 60;
+
+                                            #if defined(__hpux) && defined(_CMA__HP)
+                                                    if (localtime_r (&lUtcTime,
+                                                            &tmNextExpirationDateTime))
+                                            #else
+                                                    if (localtime_r (&lUtcTime,
+                                                            &tmNextExpirationDateTime) ==
+                                                            (struct tm *) NULL)
+                                            #endif
+                                            {
+                                                throw runtime_error(string("localtime_r failed"));
+                                            }
+                                    }
+
+                                    continue;
+                            }
+                    }
+            }
+
+            // second
+            if ((pScheduleToken = strtok_r ((char *) NULL, " ",
+                    &pScheduleTokenLast)) == (char *) NULL)
+            {
+                throw runtime_error(string("strtok_r failed"));
+            }
+
+            if (strchr (pScheduleToken, ',') != (char *) NULL)
+            {
+                    Boolean_t		bIsSecondValid;
+                    long			lValue;
+                    char			pNumber [SCH_MAXSCHEDULELENGTH];
+                    char			*pPointerToScheduleToken;
+                    long			lNumberLength;
+
+
+                    pPointerToScheduleToken			= pScheduleToken;
+
+                    bIsSecondValid		= false;
+                    do
+                    {
+                            if (strchr (pPointerToScheduleToken, ',') ==
+                                    (char *) NULL)
+                                    lNumberLength		=
+                                            strlen (pPointerToScheduleToken);
+                            else
+                                    lNumberLength		=
+                                            strchr (pPointerToScheduleToken, ',') -
+                                            pPointerToScheduleToken;
+
+                            strncpy (pNumber, pPointerToScheduleToken,
+                                    lNumberLength);
+
+                            pNumber [lNumberLength]				= '\0';
+
+                            if (strchr (pPointerToScheduleToken, ',') ==
+                                    (char *) NULL)
+                                    pPointerToScheduleToken				+=
+                                            lNumberLength;
+                            else
+                                    pPointerToScheduleToken				+=
+                                            (lNumberLength + 1);
+
+                            lValue			= atol (pNumber);
+
+                            if (lValue == tmNextExpirationDateTime. tm_sec)
+                                    bIsSecondValid		= true;
+                            else
+                            {
+                                    if (*pPointerToScheduleToken == '\0')
+                                            break;
+                            }
+                    }
+                    while (!bIsSecondValid);
+
+                    /* PRIMA (strtok_r annidate non funzionano con windows)
+                    Boolean_t		bIsSecondValid;
+                    long			lValue;
+
+
+                    // comma separator
+                    if ((pFieldToken = strtok_r (pField, ",", &pFieldTokenLast)) ==
+                            (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    bIsSecondValid		= false;
+                    do
+                    {
+                            lValue			= atol (pFieldToken);
+
+                            if (lValue == tmNextExpirationDateTime. tm_sec)
+                                    bIsSecondValid		= true;
+                            else
+                            {
+                                    if ((pFieldToken = strtok_r ((char *) NULL, ",",
+                                            &pFieldTokenLast)) == (char *) NULL)
+                                            break;
+                            }
+                    }
+                    while (!bIsSecondValid);
+                    */
+
+                    if (!bIsSecondValid)
+                    {
+                            // add 1 second
+                            {
+                                    time_t				lUtcTime;
+
+                                    //	A negative value for tm_isdst causes mktime() to attempt
+                                    //	to determine whether Daylight Saving Time is in effect
+                                    //	for the specified time.
+                                    tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                    lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+                                    lUtcTime		+= 1;
+
+                                    #if defined(__hpux) && defined(_CMA__HP)
+                                            if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
+                                    #else
+                                            if (localtime_r (&lUtcTime,
+                                                    &tmNextExpirationDateTime) == (struct tm *) NULL)
+                                    #endif
+                                    {
+                                        throw runtime_error(string("localtime_r failed"));
+                                    }
+                            }
+
+                            continue;
+                    }
+            }
+            else if (strchr (pScheduleToken, '-') != (char *) NULL)
+            {
+                    // values range
+                    long			lValueFrom;
+                    long			lValueTo;
+                    char			pNumber [SCH_MAXSCHEDULELENGTH];
+                    long			lNumberLength;
+
+
+                    lNumberLength		= strchr (pScheduleToken, '-') -
+                            pScheduleToken;
+
+                    strncpy (pNumber, pScheduleToken, lNumberLength);
+
+                    pNumber [lNumberLength]				= '\0';
+
+                    lValueFrom			= atol (pNumber);
+
+                    strcpy (pNumber, pScheduleToken + lNumberLength + 1);
+
+                    lValueTo			= atol (pNumber);
+
+                    /* PRIMA (strtok_r annidate non funzionano con windows)
+                    // dash separator
+                    if ((pFieldToken = strtok_r (pField, "-", &pFieldTokenLast)) ==
+                            (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    lValueFrom		 = atol (pFieldToken);
+
+                    if ((pFieldToken = strtok_r ((char *) NULL, "-",
+                            &pFieldTokenLast)) == (char *) NULL)
+                    {
+                            Error err = SchedulerErrors (__FILE__, __LINE__,
+                                    SCH_CALENDARSCHEDULE_WRONG);
+
+                            return err;
+                    }
+
+                    lValueTo		 = atol (pFieldToken);
+                    */
+
+                    if (!(lValueFrom <= tmNextExpirationDateTime. tm_sec &&
+                            tmNextExpirationDateTime. tm_sec <= lValueTo))
+                    {
+                            // add 1 second
+                            {
+                                    time_t				lUtcTime;
+
+                                    //	A negative value for tm_isdst causes mktime() to attempt
+                                    //	to determine whether Daylight Saving Time is in effect
+                                    //	for the specified time.
+                                    tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                    lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+                                    lUtcTime		+= 1;
+
+                                    #if defined(__hpux) && defined(_CMA__HP)
+                                            if (localtime_r (&lUtcTime, &tmNextExpirationDateTime))
+                                    #else
+                                            if (localtime_r (&lUtcTime,
+                                                    &tmNextExpirationDateTime) == (struct tm *) NULL)
+                                    #endif
+                                    {
+                                        throw runtime_error(string("localtime_r failed"));
+                                    }
+                            }
+
+                            continue;
+                    }
+            }
+            else
+            {	// single value or '*'
+
+                    if (pScheduleToken [0] != '*')
+                    {
+                            long			lSecond;
+
+
+                            lSecond		= atol (pScheduleToken);
+
+                            if (lSecond != tmNextExpirationDateTime. tm_sec)
+                            {
+                                    // add 1 sec
+                                    {
+                                            time_t				lUtcTime;
+
+                                            //	A negative value for tm_isdst causes mktime()
+                                            //	to attempt to determine whether
+                                            //	Daylight Saving Time is in effect
+                                            //	for the specified time.
+                                            tmNextExpirationDateTime. tm_isdst	= -1;
+
+                                            lUtcTime		= mktime (&tmNextExpirationDateTime);
+
+                                            lUtcTime		+= 1;
+
+                                            #if defined(__hpux) && defined(_CMA__HP)
+                                                    if (localtime_r (&lUtcTime,
+                                                            &tmNextExpirationDateTime))
+                                            #else
+                                                    if (localtime_r (&lUtcTime,
+                                                            &tmNextExpirationDateTime) ==
+                                                            (struct tm *) NULL)
+                                            #endif
+                                            {
+                                                throw runtime_error(string("localtime_r failed"));
+                                            }
+                                    }
+
+                                    continue;
+                            }
+                    }
+            }
+
+            bIsDateTimeValid		= true;
+    }
+
+    sprintf (_pNextExpirationDateTime,
+            "%04lu-%02lu-%02lu %02lu:%02lu:%02lu:%04lu",
+            (unsigned long) (tmNextExpirationDateTime. tm_year + 1900),
+            (unsigned long) (tmNextExpirationDateTime. tm_mon + 1),
+            (unsigned long) (tmNextExpirationDateTime. tm_mday),
+            (unsigned long) (tmNextExpirationDateTime. tm_hour),
+            (unsigned long) (tmNextExpirationDateTime. tm_min),
+            (unsigned long) (tmNextExpirationDateTime. tm_sec),
+            ulMilliSeconds);
+
+    _bNextDaylightSavingTime		= tmNextExpirationDateTime. tm_isdst;
+
 }
 

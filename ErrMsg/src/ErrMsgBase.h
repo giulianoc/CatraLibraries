@@ -30,24 +30,11 @@
 
 
 	#ifndef Boolean_t
-		typedef long    Boolean_t;
+		typedef bool    Boolean_t;
 	#endif
 
 	#ifndef Boolean_p
-		typedef long    *Boolean_p;
-	#endif
-
-	// It seems Visual Studio 2012 already have defined false/true
-	// and it generates errors
-	#ifdef WIN32
-	#else
-		#ifndef false
-			#define false   0L
-		#endif
-
-		#ifndef true
-			#define true    1L
-		#endif
+		typedef bool    *Boolean_p;
 	#endif
 
 	#define ERRMSGBASE_MAXFILENAMELENGTH	(128 + 1)
@@ -140,7 +127,7 @@
 
 			operator const char *();
 
-			long operator ==(const ErrMsgBase *perErrMsgBase);
+			Boolean_t operator ==(const ErrMsgBase *perErrMsgBase);
 
 			long operator !=(const ErrMsgBase *perErrMsgBase);
 

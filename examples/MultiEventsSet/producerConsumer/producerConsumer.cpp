@@ -103,7 +103,7 @@ public:
     void operator ()(MultiEventsSet& multiEventsSet) 
     {
         bool blocking = true;
-        chrono::milliseconds milliSecondsToBlock(1000);
+        chrono::milliseconds milliSecondsToBlock(100);
         
         cout << "consumer thread started" << endl;
 

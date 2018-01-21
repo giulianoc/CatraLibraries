@@ -30,8 +30,6 @@
 
 using namespace std;
 
-#define SCH_MAXCLASSNAMELENGTH			(256 + 1)
-
 #define SCH_MAXDATELENGTH				(24 + 1)
 
 #define SCH_MAXSCHEDULELENGTH			(256 + 1)
@@ -85,7 +83,7 @@ using namespace std;
                 saranno persi in quanto quella notte non si verifichera
                 mai ad esempio le 2:30, e cosi' via.
 */
-typedef class Times2
+class Times2
 {
 private:
     typedef enum TimesType {
@@ -95,7 +93,6 @@ private:
 
 protected:
     typedef enum TimesStatus {
-        SCHTIMES_BUILDED,
         SCHTIMES_INITIALIZED,
         SCHTIMES_STARTED
     } TimesStatus_t, *TimesStatus_p;
@@ -105,20 +102,20 @@ private:
         Aggiorna il prossimo timeout dell'oggetto
         tenendo conto del periodo.
     */
-    Error updateNextPeriodicExpirationDateTime (void);
+    Error updateNextPeriodicExpirationDateTime ();
 
     /**
         Aggiorna il prossimo timeout dell'oggetto
         tenendo conto del calendario specificato dallo schedule.
     */
-    Error updateNextCalendarExpirationDateTime (void);
+    void updateNextCalendarExpirationDateTime (bool &lastTimeout);
 
 protected:
     // mutex for the next private and protected variables
     mutex				_mtTimesMutex;
     TimesStatus_t			_schTimesStatus;
     TimesType_t				_ttTimesType;
-    char					_pClassName [SCH_MAXCLASSNAMELENGTH];
+    string				_className;
 
     unsigned long			_ulPeriodInMilliSeconds;
     char					_pCalendarSchedule [SCH_MAXSCHEDULELENGTH];
@@ -130,26 +127,13 @@ protected:
     char			_pCurrentExpirationDateTime [SCH_MAXDATELENGTH];
 
 
-    Times2 (const Times2 &t);
-
 public:
-    /**
-        Costrutore
-    */
-    Times2 (void);
-
-    /**
-        Distruttore
-    */
-    virtual ~Times2 (void);
-
     /**
         Viene inizializzato un times periodico.
         Inizializza l'oggetto specificando il periodo tra due timeout.
         Il parametro lPeriod e' espresso in secondi.
     */
-    Error init (unsigned long ulPeriodInMilliSeconds = 0,
-            const char *pClassName = (const char *) NULL);
+    Times2 (unsigned long ulPeriodInMilliSeconds = 0, string pClassName = "");
 
     /**
         Viene inizializzato un times 'calendario'.
@@ -200,10 +184,12 @@ public:
             In questo caso si verifica un timeout l'1 ed il 15
             di ogni mese e ogni lunedi' dell'anno 2000.
     */
-    Error init (const char *pSchedule,
-            const char *pClassName = (const char *) NULL);
+    Times2 (string schedule, string className = "");
 
-    virtual Error finish (void);
+    /**
+        Distruttore
+    */
+    virtual ~Times2 (void);
 
     /**
         Il metodo start fa si che lo scheduler gestisce gli eventuali
@@ -292,12 +278,12 @@ public:
             delete this;
             return errAnError;
     */
-    virtual Error handleTimeOut (void) = 0;
+    virtual void handleTimeOut (void) = 0;
 
     /**
         Ritorna il nome della classe dell'oggetto di tipo Times.
     */
-    Error getClassName (char *pClassName);
+    string getClassName ();
 
     /**
         Ritorna una copia della variabile _pNextExpirationDateTime.
@@ -316,7 +302,7 @@ public:
         cambiato automaticamente da SCHTIMES_STARTED a
         SCHTIMES_INITIALIZED.
     */
-    Error updateNextExpirationDateTime (void);
+    Error updateNextExpirationDateTime (bool &lastTimeout);
 
     /**
         Metodo statico che permette di sommare alla data pSrcDateTime
@@ -333,6 +319,6 @@ public:
         const char *pSrcDateTime, long lSrcDaylightSavingTime,
         unsigned long ulMilliSeconds);
 
-} Times2_t, *Times2_p;
+};
 
 #endif

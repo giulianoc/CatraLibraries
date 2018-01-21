@@ -50,4 +50,4 @@ if (APPLE)
 endif()
 
 install (TARGETS Configuration DESTINATION lib)
-install (FILES ${HEADERS} DESTINATION include)
+install (FILES ${HEADERS} DESTINATION ${INSTALL_INCLUDE_DIRECTORY})

@@ -31,22 +31,6 @@
 
 	#define CFGFILE_MAXPATHNAMELENGTH		(1024 + 1)
 
-	#ifndef Boolean_t
-		typedef long	Boolean_t;
-	#endif
-
-	#ifndef Boolean_p
-		typedef long	*Boolean_p;
-	#endif
-
-	#ifndef false
-		#define false	0L
-	#endif
-
-	#ifndef true
-		#define true	1L
-	#endif
-
 	/**
 		La classe ConfigurationFile eredita dalla class Config e
 		rappresenta una configurazione gestita all'interno di un file.

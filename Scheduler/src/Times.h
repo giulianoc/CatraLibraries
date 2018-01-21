@@ -30,23 +30,6 @@
 	#include "SchedulerErrors.h"
 
 
-	#ifndef Boolean_t
-		typedef long	Boolean_t;
-	#endif
-
-	#ifndef Boolean_p
-		typedef long	*Boolean_p;
-	#endif
-
-	#ifndef false
-		#define false	0L
-	#endif
-
-	#ifndef true
-		#define true	1L
-	#endif
-
-
 	#define SCH_MAXCLASSNAMELENGTH			(256 + 1)
 
 	// YYYY-MM-DD HH:MI:SS:MILL
@@ -178,7 +161,7 @@
 				formato:
 					year month monthday weekday hour minute second
 			
-				Con questo tipo di schedule, la granularità si ferma ai secondi
+				Con questo tipo di schedule, la granularitï¿½ si ferma ai secondi
 				e non vengono usati i millisecondi.
 			
 				I valori dei precedenti elementi costituenti il contenuto

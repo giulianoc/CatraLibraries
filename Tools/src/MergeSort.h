@@ -27,21 +27,12 @@
 
 	#include <iostream>		// altrimenti non riconosce NULL
 
-
 	#ifndef Boolean_t
-		typedef long	Boolean_t;
+		typedef bool    Boolean_t;
 	#endif
 
 	#ifndef Boolean_p
-		typedef long	*Boolean_p;
-	#endif
-
-	#ifndef false
-		#define false	0L
-	#endif
-
-	#ifndef true
-		#define true	1L
+		typedef bool    *Boolean_p;
 	#endif
 
 

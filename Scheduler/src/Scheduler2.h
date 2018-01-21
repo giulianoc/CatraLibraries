@@ -83,21 +83,15 @@ private:
     unsigned long		_ulThreadSleepInMilliSecs;
     SchedulerStatus_t		_schedulerStatus;
 
-    Error getTimesPointerIndex (shared_ptr<Times2> pTimes, long *plTimesPointerIndex);
+    long getTimesPointerIndex (shared_ptr<Times2> pTimes);
 
 
 protected:
+
     // mutex for the private and protected variables
     recursive_mutex			_mtSchedulerMutex;
     vector<shared_ptr<Times2>>           _timesList;
 
-
-    /**
-        In questo metodo viene realizzato il corpo principale
-        dello scheduler.
-        Esso chiama il metodo handleTimes per la gestione degli eventi.
-    */
-    void operator()();
 
     /**
         Il metodo gestisce tutti i Times attivati all'interno dello
@@ -113,7 +107,7 @@ protected:
                         chiama il metodo updateNextExpirationDateTime
                         al Times
     */
-    virtual Error handleTimes (void);
+    virtual void handleTimes (void);
 
 
 public:
@@ -130,6 +124,13 @@ public:
         Distruttore
     */
     ~Scheduler2 (void);
+
+    /**
+        In questo metodo viene realizzato il corpo principale
+        dello scheduler.
+        Esso chiama il metodo handleTimes per la gestione degli eventi.
+    */
+    void operator()();
 
     /**
         Sospende il funzionamento dello scheduler.
@@ -164,7 +165,7 @@ public:
         Il metodo permette di disattivare un Times attivato dal
         metodo activeTimes.
     */
-    Error deactiveTimes (long lTimesPointerIndex);
+    void deactiveTimes (long lTimesPointerIndex);
 
     /**
         Ritorna il numero di Times correntemente gestiti
