@@ -23,38 +23,36 @@
 
 
 #ifndef System_h
-	#define System_h
+#define System_h
 
-	#include "ToolsErrors.h"
-	#ifdef WIN32
-	#else
-	#endif
+#include <string>
+#include "ToolsErrors.h"
 
+using namespace std;
 
-	/**
-		The System class is a collection of static methods just
-		to hide the differences to retrieve information between
-		different operative system.
-	*/
-	typedef class System
+/**
+    The System class is a collection of static methods just
+    to hide the differences to retrieve information between
+    different operative system.
+*/
+typedef class System
+{
 
-	{
+private:
+    System (const System &);
 
-		private:
-			System (const System &);
+    System &operator = (const System &);
 
-			System &operator = (const System &);
+public:
+    /**
+            Costruttore.
+    */
+    System ();
 
-		public:
-			/**
-				Costruttore.
-			*/
-			System ();
-
-			/**
-				Distruttore.
-			*/
-			~System ();
+    /**
+            Distruttore.
+    */
+    ~System ();
 
 /*
 metodi completi ma non ancora pubblicati
@@ -64,18 +62,20 @@ int GetProcessorNum()
 BOOL GetLocalHostName(char *name)
 */
 
-			/**
-				Return the host name of the machine.
-			*/
-			static Error getHostName (
-				char *pHostName,
-				unsigned long ulHostNameBufferLength);
+    /**
+            Return the host name of the machine.
+    */
+    static Error getHostName (
+            char *pHostName,
+            unsigned long ulHostNameBufferLength);
 
-			static Error getHomeDirectory (
-				char *pHomeDirectory,
-				unsigned long ulBufferLength);
+    static string getHostName ();
 
-	} System_t, *System_p;
+    static Error getHomeDirectory (
+            char *pHomeDirectory,
+            unsigned long ulBufferLength);
+
+} System_t, *System_p;
 
 #endif
 

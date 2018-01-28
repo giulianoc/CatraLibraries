@@ -765,6 +765,20 @@ Error FileIO:: isDirectoryExisting (const char *pDirectoryPathName,
 	return errNoError;
 }
 
+bool FileIO:: directoryExisting (string directoryPathName)
+{
+    Error errFileIO;
+    bool bExist;
+    
+    if ((errFileIO = FileIO::isDirectoryExisting (directoryPathName.c_str(),
+	&bExist)) != errNoError)
+    {
+        throw runtime_error(string("FileIO::isDirectoryExisting failed: ")
+                + (const char *) errFileIO);
+    }
+    
+    return bExist;
+}
 
 Error FileIO:: getDirectoryEntryType (const char *pPathName,
 	DirectoryEntryType_p pdetDirectoryEntryType)
@@ -815,6 +829,22 @@ Error FileIO:: getDirectoryEntryType (const char *pPathName,
 
 
 	return errNoError;
+}
+
+FileIO::DirectoryEntryType_t FileIO:: getDirectoryEntryType (string pathName)
+
+{
+    Error errFileIO;
+    DirectoryEntryType_t detDirectoryEntryType;
+    
+    if ((errFileIO = FileIO:: getDirectoryEntryType (pathName.c_str(),
+	&detDirectoryEntryType)) != errNoError)
+    {
+        throw runtime_error(string("FileIO::getDirectoryEntryType failed: ")
+                + (const char *) errFileIO);
+    }
+
+    return detDirectoryEntryType;
 }
 
 
@@ -922,6 +952,22 @@ Error FileIO:: getFileSystemInfo (const char *pPathName,
 	return errNoError;
 }
 
+void FileIO:: getFileSystemInfo (string pathName,
+	unsigned long long *pullUsedInKB,
+	unsigned long long *pullAvailableInKB,
+	long *plPercentUsed)
+
+{
+    Error errFileIO;
+
+    if ((errFileIO = FileIO:: getFileSystemInfo (pathName.c_str(),
+	pullUsedInKB, pullAvailableInKB, plPercentUsed)) != errNoError)
+    {
+        throw runtime_error(string("FileIO::getFileSystemInfo failed: ")
+                + (const char *) errFileIO);
+    }
+}
+
 
 Error FileIO:: getDirectorySizeInBytes (const char *pDirectoryPathName,
 	unsigned long long *pullDirectorySizeInBytes)
@@ -931,6 +977,21 @@ Error FileIO:: getDirectorySizeInBytes (const char *pDirectoryPathName,
 		pullDirectorySizeInBytes);
 }
 
+
+unsigned long long FileIO:: getDirectorySizeInBytes (string directoryPathName)
+{
+    Error errFileIO;
+    unsigned long long  ullDirectorySizeInBytes;
+    
+    if ((errFileIO = FileIO:: getDirectorySizeInBytes (directoryPathName.c_str(),
+	&ullDirectorySizeInBytes)) != errNoError)
+    {
+        throw runtime_error(string("FileIO::getDirectorySizeInBytes failed: ")
+                + (const char *) errFileIO);
+    }
+    
+    return ullDirectorySizeInBytes;
+}
 
 Error FileIO:: getDirectoryUsage (const char *pDirectoryPathName,
 	unsigned long long *pullDirectoryUsageInBytes)
@@ -1329,6 +1390,24 @@ Error FileIO:: getDirectoryUsage (const char *pDirectoryPathName,
 	return errNoError;
 }
 
+unsigned long long FileIO:: getDirectoryUsage (string directoryPathName)
+
+{
+    Error errFileIO;
+    unsigned long long  ullDirectorySizeInBytes;
+    
+    if ((errFileIO = FileIO:: getDirectoryUsage (directoryPathName.c_str(),
+	&ullDirectorySizeInBytes)) != errNoError)
+    {
+        if ((unsigned long) errFileIO == TOOLS_FILEIO_DIRECTORYNOTEXISTING)
+            throw DirectoryNotExisting();
+        else
+            throw runtime_error(string("FileIO::getDirectoryUsage failed: ")
+                + (const char *) errFileIO);
+    }
+    
+    return ullDirectorySizeInBytes;
+}
 
 Error FileIO:: moveDirectory (const char *pSrcPathName,
 	const char *pDestPathName, int mDirectoryMode)
@@ -2109,6 +2188,21 @@ Error FileIO:: moveDirectory (const char *pSrcPathName,
 }
 
 
+void FileIO:: moveDirectory (string srcPathName,
+	string destPathName, int mDirectoryMode)
+{
+    
+    Error errFileIO;
+    
+    if ((errFileIO = FileIO:: moveDirectory (srcPathName.c_str(),
+	destPathName.c_str(), mDirectoryMode)) != errNoError)
+    {
+        throw runtime_error(string("FileIO::moveDirectory failed: ")
+                + (const char *) errFileIO);
+    }
+}
+
+
 Error FileIO:: copyDirectory (const char *pSrcPathName,
 	const char *pDestPathName, int mDirectoryMode)
 
@@ -2861,6 +2955,18 @@ Error FileIO:: copyDirectory (const char *pSrcPathName,
 	return errNoError;
 }
 
+void FileIO:: copyDirectory (string srcPathName,
+	string destPathName, int mDirectoryMode)
+{
+    Error errFileIO;
+    
+    if ((errFileIO = FileIO:: copyDirectory (srcPathName.c_str(),
+	destPathName.c_str(), mDirectoryMode)) != errNoError)
+    {
+        throw runtime_error(string("FileIO::copyDirectory failed: ")
+                + (const char *) errFileIO);
+    }
+}
 
 #ifdef WIN32
 #else
@@ -3190,6 +3296,18 @@ Error FileIO:: createDirectory (const char *pPathName,
 	return errNoError;
 }
 
+void FileIO:: createDirectory (string pathName,
+	int mMode, bool bNoErrorIfExists, bool bRecursive)
+{
+    Error       errFileIO;
+    
+    if ((errFileIO = FileIO::createDirectory (pathName.c_str(),
+	mMode, bNoErrorIfExists, bRecursive)) != errNoError)
+    {
+        throw runtime_error(string("FileIO::createDirectory failed: ")
+                + (const char *) errFileIO);
+    }
+}
 
 Error FileIO:: removeDirectory (const char *pPathName,
 	Boolean_t bRemoveRecursively)
@@ -3639,6 +3757,16 @@ Error FileIO:: removeDirectory (const char *pPathName,
 	return errNoError;
 }
 
+void FileIO:: removeDirectory (string pathName, bool removeRecursively)
+{
+    Error errFileIO;
+    
+    if ((errFileIO = FileIO:: removeDirectory (pathName.c_str(), removeRecursively)) != errNoError)
+    {
+        throw runtime_error(string("FileIO::removeDirectory failed: ")
+                + (const char *) errFileIO);
+    }
+}
 
 #ifdef USEGZIPLIB
 	Error FileIO:: gzip (const char *pUnCompressedPathName,
@@ -4007,6 +4135,21 @@ Error FileIO:: getFileSizeInBytes (const char *pPathName,
 	return errNoError;
 }
 
+unsigned long FileIO:: getFileSizeInBytes (string pathName,
+	bool inCaseOfLinkHasItToBeRead)
+{
+    Error errFileIO;
+    unsigned long   ulFileSize;
+    
+    if ((errFileIO = FileIO:: getFileSizeInBytes (pathName.c_str(),
+	&ulFileSize, inCaseOfLinkHasItToBeRead)) != errNoError)
+    {
+        throw runtime_error(string("FileIO::getFileSizeInBytes failed: ")
+                + (const char *) errFileIO);
+    }
+    
+    return ulFileSize;
+}
 
 Error FileIO:: isFileExisting (const char *pPathName, Boolean_p pbExist)
 
@@ -4468,6 +4611,19 @@ Error FileIO:: copyFile (const char *pSrcPathName,
 	return errNoError;
 }
 
+void FileIO:: copyFile (string srcPathName,
+	string destPath,
+	unsigned long ulBufferSizeToBeUsed)
+{
+    Error errFileIO;
+    
+    if ((errFileIO = FileIO:: copyFile (srcPathName.c_str(),
+	destPath.c_str(), ulBufferSizeToBeUsed)) != errNoError)
+    {
+        throw runtime_error(string("FileIO::copyFile failed: ")
+                + (const char *) errFileIO);
+    }
+}
 
 Error FileIO:: moveFile (const char *pSrcPathName,
 	const char *pDestPathName)
@@ -4685,6 +4841,16 @@ Error FileIO:: moveFile (const char *pSrcPathName,
 	return errNoError;
 }
 
+void FileIO:: moveFile (string srcPathName, string destPathName)
+{
+    Error errFileIO;
+    
+    if ((errFileIO = moveFile (srcPathName.c_str(), destPathName.c_str())) != errNoError)
+    {
+        throw runtime_error(string("FileIO::isDirectoryExisting failed: ")
+                + (const char *) errFileIO);
+    }
+}
 
 #ifdef WIN32
 #else
@@ -5258,6 +5424,16 @@ Error FileIO:: remove (const char *pPathName)
 	return errNoError;
 }
 
+void FileIO:: remove (string pathName)
+{
+    Error errFileIO;
+    
+    if ((errFileIO = FileIO:: remove (pathName.c_str())) != errNoError)
+    {
+        throw runtime_error(string("FileIO::remove failed: ")
+                + (const char *) errFileIO);
+    }
+}
 
 #ifdef WIN32
 	Error FileIO:: seek (int iFileDescriptor, __int64 llBytes, int iWhence,

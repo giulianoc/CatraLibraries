@@ -553,6 +553,21 @@ Error System:: getHostName (
 	return errNoError;
 }
 
+string System:: getHostName ()
+
+{
+    char pHostName [128];
+    Error errSystem;
+
+    if ((errSystem = System:: getHostName (pHostName, 128)) != errNoError)
+    {
+        throw runtime_error(string("System:: getHostName failed: ")
+                + (const char *) errSystem);
+    }
+
+    return string(pHostName);
+}
+
 
 Error System:: getHomeDirectory (
 	char *pHomeDirectory,
