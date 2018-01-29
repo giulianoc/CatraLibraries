@@ -302,6 +302,20 @@ Error FileIO:: openDirectory (const char *pDirectoryPathName,
 	return errNoError;
 }
 
+shared_ptr<FileIO::Directory> FileIO::openDirectory (string directoryPathName)
+{
+    Error errFileIO;
+    shared_ptr<Directory> directory = make_shared<Directory>();
+    
+    if ((errFileIO = FileIO:: openDirectory (directoryPathName.c_str(),
+	directory.get())) != errNoError)
+    {
+        throw runtime_error(string("FileIO::openDirectory failed: ")
+                + (const char *) errFileIO);
+    }
+    
+    return directory;    
+}
 
 Error FileIO:: readDirectory (Directory_p pdDirectory,
 	Buffer_p pbDirectoryEntry,
@@ -575,6 +589,26 @@ Error FileIO:: readDirectory (Directory_p pdDirectory,
 	return errNoError;
 }
 
+string FileIO:: readDirectory (shared_ptr<Directory> directory,
+    DirectoryEntryType_p pdetDirectoryEntryType)
+
+{
+    Error errFileIO;
+    Buffer_t directoryEntry;
+    
+    
+    if ((errFileIO = FileIO:: readDirectory (directory.get(),
+	&directoryEntry, pdetDirectoryEntryType)) != errNoError)
+    {
+        if ((long) errFileIO == TOOLS_FILEIO_DIRECTORYFILESFINISHED)
+            throw DirectoryListFinished();
+        else
+            throw runtime_error(string("FileIO::readDirectory failed: ")
+                + (const char *) errFileIO);
+    }
+    
+    return string(directoryEntry.str());
+}
 
 Error FileIO:: closeDirectory (Directory_p pdDirectory)
 
@@ -623,6 +657,17 @@ Error FileIO:: closeDirectory (Directory_p pdDirectory)
 	return errNoError;
 }
 
+void FileIO:: closeDirectory (shared_ptr<Directory> directory)
+
+{
+    Error errFileIO;
+    
+    if ((errFileIO = FileIO:: closeDirectory (directory.get())) != errNoError)
+    {
+        throw runtime_error(string("FileIO::closeDirectory failed: ")
+            + (const char *) errFileIO);
+    }    
+}
 
 Error FileIO:: getWorkingDirectory (char *pWorkingDirectory,
 	unsigned long ulBufferLength)

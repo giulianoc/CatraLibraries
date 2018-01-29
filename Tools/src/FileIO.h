@@ -48,6 +48,14 @@ struct DirectoryNotExisting : std::exception
     }; 
 };
 
+struct DirectoryListFinished : std::exception 
+{ 
+    char const* what() const throw() 
+    {
+        return "Directory list is finished";
+    }; 
+};
+
 /**
         The FileIO class is a collection of static methods just
         to hide the differences to access a File/Directory between
@@ -60,12 +68,18 @@ typedef class FileIO
 public:
     typedef struct Directory
     {
-            char					*_pPathName;
-            #ifdef WIN32
-                    long				_lIdentifier;
-            #else
-                    DIR					*_pdDir;
-            #endif
+        char					*_pPathName;
+        #ifdef WIN32
+                long				_lIdentifier;
+        #else
+                DIR					*_pdDir;
+        #endif
+
+        ~Directory()
+        {
+            if (_pPathName != (char *) NULL)
+                FileIO::closeDirectory(this);
+        }
     } Directory_t, *Directory_p;
 
     typedef enum DirectoryEntryType
@@ -101,11 +115,18 @@ public:
     static Error openDirectory (const char *pDirectoryPathName,
             Directory_p pdDirectory);
 
+    static shared_ptr<FileIO::Directory> openDirectory (string directoryPathName);
+
     static Error readDirectory (Directory_p pdDirectory,
             Buffer_p pbDirectoryEntry,
             DirectoryEntryType_p pdetDirectoryEntryType);
 
+    static string readDirectory (shared_ptr<Directory> directory,
+        DirectoryEntryType_p pdetDirectoryEntryType);
+
     static Error closeDirectory (Directory_p pdDirectory);
+
+    static void closeDirectory (shared_ptr<Directory> directory);
 
     static Error getWorkingDirectory (char *pWorkingDirectory,
             unsigned long ulBufferLength);
