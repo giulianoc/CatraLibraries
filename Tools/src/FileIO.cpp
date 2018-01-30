@@ -46,6 +46,8 @@
 	#include <zlib.h>
 #endif
 
+//using namespace std;
+//#include <iostream>
 
 FileIO:: FileIO (void)
 
@@ -780,6 +782,9 @@ Error FileIO:: isDirectoryExisting (const char *pDirectoryPathName,
 		Error_t				errDir;
 
 
+//                cout << "idDirectoryExisting"
+//                        << ", pDirectoryPathName: " << pDirectoryPathName
+//                        << endl;
 		if ((errDir = FileIO:: openDirectory (pDirectoryPathName,
 			&dDirectory)) != errNoError)
 		{
@@ -3210,6 +3215,10 @@ Error FileIO:: createDirectory (const char *pPathName,
 
 {
 
+//    cout << "createDirectory"
+//            << ", pPathName: " << pPathName
+//            << endl;
+            
 	if (pPathName == (const char *) NULL)
 	{
 		Error err = ToolsErrors (__FILE__, __LINE__,
@@ -3245,6 +3254,9 @@ Error FileIO:: createDirectory (const char *pPathName,
 				return err;
 			}
 
+//    cout << "isDirectoryExisting"
+//            << ", bPreviousDirectory: " << (const char *) bPreviousDirectory
+//            << endl;
 			if ((errFileIO = FileIO:: isDirectoryExisting (
 				(const char *) bPreviousDirectory, &bIsExist)) != errNoError)
 			{
@@ -3260,6 +3272,9 @@ Error FileIO:: createDirectory (const char *pPathName,
 				return errFileIO;
 			}
 
+//    cout << "isDirectoryExisting"
+//            << ", bIsExist: " << bIsExist
+//            << endl;
 			if (!bIsExist)
 			{
 				if ((errFileIO = FileIO:: createDirectory (

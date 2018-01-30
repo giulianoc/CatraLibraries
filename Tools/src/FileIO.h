@@ -75,6 +75,16 @@ public:
                 DIR					*_pdDir;
         #endif
 
+        Directory()
+        {
+            _pPathName = (char *) NULL;
+            
+            #ifdef WIN32
+                    _lIdentifier    = -1;
+            #else
+                    _pdDir          = (DIR*) NULL;
+            #endif
+        }
         ~Directory()
         {
             if (_pPathName != (char *) NULL)
