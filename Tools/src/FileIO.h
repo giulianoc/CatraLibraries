@@ -25,6 +25,7 @@
 #ifndef FileIO_h
 #define FileIO_h
 
+#include <memory>
 #include <string>
 #include "ToolsErrors.h"
 #include "Buffer.h"
