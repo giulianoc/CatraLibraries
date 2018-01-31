@@ -4110,6 +4110,34 @@ Error FileIO:: getFileTime (const char *pPathName,
 	return errNoError;
 }
 
+time_t FileIO:: getFileTime (string pathName)
+
+{
+    time_t tLastModificationTime;
+    Error errFileIO;
+    
+    if ((errFileIO = FileIO::getFileTime (pathName.c_str(), &tLastModificationTime)) != errNoError)
+    {
+        int			iErrno;
+        unsigned long		ulUserDataBytes;
+
+
+        errFileIO. getUserData (&iErrno, &ulUserDataBytes);
+        if (iErrno != ENOENT)	// ENOENT: file not found
+        {
+            throw FileNotExisting();
+        }   
+        else
+        {
+            throw runtime_error(string ("FileIO::getFileTime failed")
+                    + ", iErrno: " + to_string(iErrno)
+                    );
+        }
+    }
+    
+    return tLastModificationTime;
+}
+
 
 Error FileIO:: getFileSizeInBytes (const char *pPathName,
 	unsigned long *pulFileSize, Boolean_t bInCaseOfLinkHasItToBeRead)

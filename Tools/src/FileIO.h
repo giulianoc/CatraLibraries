@@ -49,6 +49,14 @@ struct DirectoryNotExisting : std::exception
     }; 
 };
 
+struct FileNotExisting : std::exception 
+{ 
+    char const* what() const throw() 
+    {
+        return "File not existing";
+    }; 
+};
+
 struct DirectoryListFinished : std::exception 
 { 
     char const* what() const throw() 
@@ -263,6 +271,8 @@ public:
     */
     static Error getFileTime (const char *pPathName,
             time_t *ptLastModificationTime);
+
+    static time_t getFileTime (string pathName);
 
     /**
      * It returns the size of the file. In case the path name is a link,
