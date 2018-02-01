@@ -26,6 +26,7 @@
 #define FileIO_h
 
 #include <memory>
+#include <chrono>
 #include <string>
 #include "ToolsErrors.h"
 #include "Buffer.h"
@@ -272,7 +273,7 @@ public:
     static Error getFileTime (const char *pPathName,
             time_t *ptLastModificationTime);
 
-    static time_t getFileTime (string pathName);
+    static chrono::system_clock::time_point getFileTime (string pathName);
 
     /**
      * It returns the size of the file. In case the path name is a link,

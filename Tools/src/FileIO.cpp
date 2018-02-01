@@ -4110,7 +4110,7 @@ Error FileIO:: getFileTime (const char *pPathName,
 	return errNoError;
 }
 
-time_t FileIO:: getFileTime (string pathName)
+chrono::system_clock::time_point FileIO:: getFileTime (string pathName)
 
 {
     time_t tLastModificationTime;
@@ -4135,7 +4135,7 @@ time_t FileIO:: getFileTime (string pathName)
         }
     }
     
-    return tLastModificationTime;
+    return chrono::system_clock::from_time_t(tLastModificationTime);
 }
 
 
