@@ -55,7 +55,7 @@ void EventsFactory::addEventType (
     EventsTypeHashMap::const_iterator itEventType = _ethmEvents.find(eventTypeIdentifier);
     if (itEventType != _ethmEvents.end())
     {
-        throw invalid_argument(string("Event Type is already present")
+        throw runtime_error(string("Event Type is already present")
                 + ", eventTypeIdentifier: " + to_string(eventTypeIdentifier));
     }
 

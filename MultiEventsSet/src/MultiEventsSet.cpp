@@ -51,7 +51,7 @@ void MultiEventsSet:: addEvent (shared_ptr<Event>& event)
         itDestinations	= _esmMultiEventsSetHashMap.find(destination);
         if (itDestinations == _esmMultiEventsSetHashMap.end ())
         {
-            throw invalid_argument(string("Error adding the destination")
+            throw runtime_error(string("Error adding the destination")
                 + ", destination: " + destination
                     );
         }
@@ -98,7 +98,7 @@ void MultiEventsSet::deleteEvent (shared_ptr<Event>& event)
             _esmMultiEventsSetHashMap.find(event->getDestination());
     if (itDestinations == _esmMultiEventsSetHashMap.end ())
     {
-        throw invalid_argument(string("Destination was not found")
+        throw runtime_error(string("Destination was not found")
                 + ", event->getDestination(): " + event->getDestination()
                 );
     }
@@ -124,7 +124,7 @@ void MultiEventsSet::deleteEvent (shared_ptr<Event>& event)
     {
         time_t  tExpirationTimePoint =  chrono::system_clock::to_time_t(event->getExpirationTimePoint());
         
-        throw invalid_argument(string("Event was not found")
+        throw runtime_error(string("Event was not found")
                 + ", event->getExpirationTimePoint(): " + ctime(&tExpirationTimePoint)
                 );
     }
@@ -152,7 +152,7 @@ shared_ptr<Event> MultiEventsSet:: getFirstEvent (
         itDestinations		= _esmMultiEventsSetHashMap.find (destination);
         if (itDestinations == _esmMultiEventsSetHashMap.end ())
         {
-            throw invalid_argument(string("Error adding the destination")
+            throw runtime_error(string("Error adding the destination")
                 + ", destination: " + destination
                     );
         }
@@ -171,7 +171,7 @@ shared_ptr<Event> MultiEventsSet:: getFirstEvent (
                 // time expired
                         
                 return nullptr;
-//                throw invalid_argument(string("No events found (time expired)")
+//                throw runtime_error(string("No events found (time expired)")
 //                        + ", destination: " + destination
 //                        + ", milliSecondsToBlock: " + to_string(milliSecondsToBlock.count())
 //                        );
@@ -182,7 +182,7 @@ shared_ptr<Event> MultiEventsSet:: getFirstEvent (
 
                 if ((destinationEvents->_eventsMultiMap).empty())
                 {
-                    throw invalid_argument(string("getFirstEvent failed, event has to be present")
+                    throw runtime_error(string("getFirstEvent failed, event has to be present")
                             + ", destination: " + destination
                             + ", milliSecondsToBlock: " + to_string(milliSecondsToBlock.count())
                             );
@@ -192,7 +192,7 @@ shared_ptr<Event> MultiEventsSet:: getFirstEvent (
         else
         {
             return nullptr;
-//            throw invalid_argument(string("No events found")
+//            throw runtime_error(string("No events found")
 //                    + ", destination: " + destination
 //                    );
         }
@@ -230,7 +230,7 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
         itDestinations		= _esmMultiEventsSetHashMap.find (destination);
         if (itDestinations == _esmMultiEventsSetHashMap.end ())
         {
-            throw invalid_argument(string("Error adding the destination")
+            throw runtime_error(string("Error adding the destination")
                 + ", destination: " + destination
                     );
         }
@@ -248,7 +248,7 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
                 // time expired
                         
                 return nullptr;
-//                throw invalid_argument(string("No events found (time expired)")
+//                throw runtime_error(string("No events found (time expired)")
 //                        + ", destination: " + destination
 //                        + ", milliSecondsToBlock: " + to_string(milliSecondsToBlock.count())
 //                        );
@@ -259,7 +259,7 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
 
                 if ((destinationEvents->_eventsMultiMap).empty())
                 {
-                    throw invalid_argument(string("getAndRemoveFirstEvent failed, event has to be present")
+                    throw runtime_error(string("getAndRemoveFirstEvent failed, event has to be present")
                             + ", destination: " + destination
                             + ", milliSecondsToBlock: " + to_string(milliSecondsToBlock.count())
                             );
@@ -269,7 +269,7 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
         else
         {
             return nullptr;
-//            throw invalid_argument(string("No events found")
+//            throw runtime_error(string("No events found")
 //                    + ", destination: " + destination
 //                    );
         }
@@ -290,7 +290,7 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
             if (itEvents == (destinationEvents->_eventsMultiMap).end())
             {
                 return nullptr;
-//                throw invalid_argument(string("No events found")
+//                throw runtime_error(string("No events found")
 //                        + ", destination: " + destination
 //                        );
             }
@@ -311,7 +311,7 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
                         // blocking time expired
 
                         return nullptr;
-//                        throw invalid_argument(string("Event not expired yet"));
+//                        throw runtime_error(string("Event not expired yet"));
                     }
 
                     if (expirationTimePoint - now <= remainingTimeInMilliSecs)
@@ -336,7 +336,7 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
                 else
                 {
                     return nullptr;
-//                    throw invalid_argument(string("Event not expired yet")
+//                    throw runtime_error(string("Event not expired yet")
 //                            + ", destination: " + destination
 //                            );
                 }
@@ -363,7 +363,7 @@ void MultiEventsSet:: addDestination (string destination)
     itDestinations  = _esmMultiEventsSetHashMap.find (destinationEvents->_destination);
     if (itDestinations != _esmMultiEventsSetHashMap.end ())
     {
-        throw invalid_argument(string("Destination is already present")
+        throw runtime_error(string("Destination is already present")
                 + ", destination: " + destination
                 );
     }

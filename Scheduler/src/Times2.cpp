@@ -69,7 +69,7 @@ Times2:: Times2 (string schedule, string className)
 		{
 			if (lScheduleLength > SCH_MAXSCHEDULELENGTH - 1)
 			{
-                            throw invalid_argument(string("Wrong parameter"));
+                            throw runtime_error(string("Wrong parameter"));
 			}
 		}
 
@@ -94,7 +94,7 @@ Times2:: Times2 (string schedule, string className)
 							{
 								if (schedule [lScheduleIndex] != ' ')
 								{
-                                                                    throw invalid_argument(string("Wrong parameter"));
+                                                                    throw runtime_error(string("Wrong parameter"));
 								}
 								else
 								{
@@ -108,7 +108,7 @@ Times2:: Times2 (string schedule, string className)
 
 			if (lSpacesNumber != 6)
 			{
-                            throw invalid_argument(string("Wrong parameter"));
+                            throw runtime_error(string("Wrong parameter"));
 			}
 		}
 
@@ -127,7 +127,7 @@ Times2:: Times2 (string schedule, string className)
 			if ((pScheduleToken = strtok_r (pScheduleCopy, " ",
 				&pScheduleTokenLast)) == (char *) NULL)
 			{
-                            throw invalid_argument(string("Wrong parameter"));
+                            throw runtime_error(string("Wrong parameter"));
 			}
 
 			strcpy (pYear, pScheduleToken);
@@ -139,7 +139,7 @@ Times2:: Times2 (string schedule, string className)
 			if ((pScheduleToken = strtok_r ((char *) NULL, " ",
 				&pScheduleTokenLast)) == (char *) NULL)
 			{
-                            throw invalid_argument(string("Wrong parameter"));
+                            throw runtime_error(string("Wrong parameter"));
 			}
 
 			if (strchr (pScheduleToken, ',') != (char *) NULL)
@@ -180,7 +180,7 @@ Times2:: Times2 (string schedule, string className)
 
 					if (lValue < 1 || lValue > 12)
 					{
-                                            throw invalid_argument(string("Wrong parameter"));
+                                            throw runtime_error(string("Wrong parameter"));
 					}
 				}
 				while (*pPointerToScheduleToken != '\0');
@@ -264,12 +264,12 @@ Times2:: Times2 (string schedule, string className)
 
 				if (lValueFrom < 1 || lValueFrom > lValueTo)
 				{
-                                    throw invalid_argument(string("Wrong parameter"));
+                                    throw runtime_error(string("Wrong parameter"));
 				}
 
 				if (lValueTo > 12)
 				{
-                                    throw invalid_argument(string("Wrong parameter"));
+                                    throw runtime_error(string("Wrong parameter"));
 				}
 			}
 			else
@@ -281,7 +281,7 @@ Times2:: Times2 (string schedule, string className)
 
 					if (lMonth < 1 || lMonth > 12)
 					{
-                                            throw invalid_argument(string("Wrong parameter"));
+                                            throw runtime_error(string("Wrong parameter"));
 					}
 				}
 			}
@@ -290,7 +290,7 @@ Times2:: Times2 (string schedule, string className)
 			if ((pScheduleToken = strtok_r ((char *) NULL, " ",
 				&pScheduleTokenLast)) == (char *) NULL)
 			{
-                            throw invalid_argument(string("Wrong parameter"));
+                            throw runtime_error(string("Wrong parameter"));
 			}
 
 			if (strchr (pScheduleToken, ',') != (char *) NULL)
@@ -334,7 +334,7 @@ Times2:: Times2 (string schedule, string className)
 
 					if (lValue < 1 || lValue > 31)
 					{
-                                            throw invalid_argument(string("Wrong parameter"));
+                                            throw runtime_error(string("Wrong parameter"));
 					}
 
 					if (lValue <= 30)
@@ -386,7 +386,7 @@ Times2:: Times2 (string schedule, string className)
 				// we have a loop
 				if (!strcmp (pYear, "*") && lMonth == 2 && !bIsLessThan30)
 				{
-                                    throw invalid_argument(string("Wrong parameter"));
+                                    throw runtime_error(string("Wrong parameter"));
 				}
 			}
 			else if (strchr (pScheduleToken, '-') != (char *) NULL)
@@ -438,12 +438,12 @@ Times2:: Times2 (string schedule, string className)
 
 				if (lValueFrom < 1 || lValueFrom > lValueTo)
 				{
-                                    throw invalid_argument(string("Wrong parameter"));
+                                    throw runtime_error(string("Wrong parameter"));
 				}
 
 				if (lValueTo > 31)
 				{
-                                    throw invalid_argument(string("Wrong parameter"));
+                                    throw runtime_error(string("Wrong parameter"));
 				}
 
 				// if year is *, month is february and day is 30 or 31
@@ -451,7 +451,7 @@ Times2:: Times2 (string schedule, string className)
 				if (!strcmp (pYear, "*") && lMonth == 2 && lValueFrom == 30 &&
 					lValueTo == 31)
 				{
-                                    throw invalid_argument(string("Wrong parameter"));
+                                    throw runtime_error(string("Wrong parameter"));
 				}
 			}
 			else
@@ -465,14 +465,14 @@ Times2:: Times2 (string schedule, string className)
 
 					if (lMonthDay < 1 || lMonthDay > 31)
 					{
-                                            throw invalid_argument(string("Wrong parameter"));
+                                            throw runtime_error(string("Wrong parameter"));
 					}
 
 					// if year is *, month is february and day is 30 or 31
 					// we have a loop
 					if (!strcmp (pYear, "*") && lMonth == 2 && lMonthDay == 30)
 					{
-                                            throw invalid_argument(string("Wrong parameter"));
+                                            throw runtime_error(string("Wrong parameter"));
 					}
 				}
 			}
@@ -481,7 +481,7 @@ Times2:: Times2 (string schedule, string className)
 			if ((pScheduleToken = strtok_r ((char *) NULL, " ",
 				&pScheduleTokenLast)) == (char *) NULL)
 			{
-                            throw invalid_argument(string("Wrong parameter"));
+                            throw runtime_error(string("Wrong parameter"));
 			}
 
 			if (strchr (pScheduleToken, ',') != (char *) NULL)
@@ -522,7 +522,7 @@ Times2:: Times2 (string schedule, string className)
 
 					if (lValue < 0 || lValue > 6)
 					{
-                                            throw invalid_argument(string("Wrong parameter"));
+                                            throw runtime_error(string("Wrong parameter"));
 					}
 				}
 				while (*pPointerToScheduleToken != '\0');
@@ -610,12 +610,12 @@ Times2:: Times2 (string schedule, string className)
 
 				if (lValueFrom < 0 || lValueFrom > lValueTo)
 				{
-                                    throw invalid_argument(string("Wrong parameter"));
+                                    throw runtime_error(string("Wrong parameter"));
 				}
 
 				if (lValueTo > 6)
 				{
-                                    throw invalid_argument(string("Wrong parameter"));
+                                    throw runtime_error(string("Wrong parameter"));
 				}
 			}
 			else
@@ -630,7 +630,7 @@ Times2:: Times2 (string schedule, string className)
 
 					if (lWeekDay < 0 || lWeekDay > 6)
 					{
-                                            throw invalid_argument(string("Wrong parameter"));
+                                            throw runtime_error(string("Wrong parameter"));
 					}
 				}
 			}
@@ -639,7 +639,7 @@ Times2:: Times2 (string schedule, string className)
 			if ((pScheduleToken = strtok_r ((char *) NULL, " ",
 				&pScheduleTokenLast)) == (char *) NULL)
 			{
-                            throw invalid_argument(string("Wrong parameter"));
+                            throw runtime_error(string("Wrong parameter"));
 			}
 
 			if (strchr (pScheduleToken, ',') != (char *) NULL)
@@ -680,7 +680,7 @@ Times2:: Times2 (string schedule, string className)
 
 					if (lValue < 0 || lValue > 23)
 					{
-                                            throw invalid_argument(string("Wrong parameter"));
+                                            throw runtime_error(string("Wrong parameter"));
 					}
 				}
 				while (*pPointerToScheduleToken != '\0');
@@ -767,12 +767,12 @@ Times2:: Times2 (string schedule, string className)
 
 				if (lValueFrom < 0 || lValueFrom > lValueTo)
 				{
-                                    throw invalid_argument(string("Wrong parameter"));
+                                    throw runtime_error(string("Wrong parameter"));
 				}
 
 				if (lValueTo > 23)
 				{
-                                    throw invalid_argument(string("Wrong parameter"));
+                                    throw runtime_error(string("Wrong parameter"));
 				}
 			}
 			else
@@ -787,7 +787,7 @@ Times2:: Times2 (string schedule, string className)
 
 					if (lHour < 0 || lHour > 23)
 					{
-                                            throw invalid_argument(string("Wrong parameter"));
+                                            throw runtime_error(string("Wrong parameter"));
 					}
 				}
 			}
@@ -796,7 +796,7 @@ Times2:: Times2 (string schedule, string className)
 			if ((pScheduleToken = strtok_r ((char *) NULL, " ",
 				&pScheduleTokenLast)) == (char *) NULL)
 			{
-                            throw invalid_argument(string("Wrong parameter"));
+                            throw runtime_error(string("Wrong parameter"));
 			}
 
 			if (strchr (pScheduleToken, ',') != (char *) NULL)
@@ -837,7 +837,7 @@ Times2:: Times2 (string schedule, string className)
 
 					if (lValue < 0 || lValue > 59)
 					{
-                                            throw invalid_argument(string("Wrong parameter"));
+                                            throw runtime_error(string("Wrong parameter"));
 					}
 				}
 				while (*pPointerToScheduleToken != '\0');
@@ -925,12 +925,12 @@ Times2:: Times2 (string schedule, string className)
 
 				if (lValueFrom < 0 || lValueFrom > lValueTo)
 				{
-                                    throw invalid_argument(string("Wrong parameter"));
+                                    throw runtime_error(string("Wrong parameter"));
 				}
 
 				if (lValueTo > 59)
 				{
-                                    throw invalid_argument(string("Wrong parameter"));
+                                    throw runtime_error(string("Wrong parameter"));
 				}
 			}
 			else
@@ -945,7 +945,7 @@ Times2:: Times2 (string schedule, string className)
 
 					if (lMinute < 0 || lMinute > 59)
 					{
-                                            throw invalid_argument(string("Wrong parameter"));
+                                            throw runtime_error(string("Wrong parameter"));
 					}
 				}
 			}
@@ -954,7 +954,7 @@ Times2:: Times2 (string schedule, string className)
 			if ((pScheduleToken = strtok_r ((char *) NULL, " ",
 				&pScheduleTokenLast)) == (char *) NULL)
 			{
-                            throw invalid_argument(string("Wrong parameter"));
+                            throw runtime_error(string("Wrong parameter"));
 			}
 
 			if (strchr (pScheduleToken, ',') != (char *) NULL)
@@ -995,7 +995,7 @@ Times2:: Times2 (string schedule, string className)
 
 					if (lValue < 0 || lValue > 59)
 					{
-                                            throw invalid_argument(string("Wrong parameter"));
+                                            throw runtime_error(string("Wrong parameter"));
 					}
 				}
 				while (*pPointerToScheduleToken != '\0');
@@ -1083,12 +1083,12 @@ Times2:: Times2 (string schedule, string className)
 
 				if (lValueFrom < 0 || lValueFrom > lValueTo)
 				{
-                                    throw invalid_argument(string("Wrong parameter"));
+                                    throw runtime_error(string("Wrong parameter"));
 				}
 
 				if (lValueTo > 59)
 				{
-                                    throw invalid_argument(string("Wrong parameter"));
+                                    throw runtime_error(string("Wrong parameter"));
 				}
 			}
 			else
@@ -1103,7 +1103,7 @@ Times2:: Times2 (string schedule, string className)
 
 					if (lSecond < 0 || lSecond > 59)
 					{
-                                            throw invalid_argument(string("Wrong parameter"));
+                                            throw runtime_error(string("Wrong parameter"));
 					}
 				}
 			}

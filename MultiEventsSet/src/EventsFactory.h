@@ -86,7 +86,7 @@ public:
             itEventType = _ethmEvents.find(eventTypeIdentifier);
             if (itEventType == _ethmEvents.end())
             {
-                throw invalid_argument(string("Error adding the Event Type identifier") 
+                throw runtime_error(string("Error adding the Event Type identifier") 
                         + ", eventTypeIdentifier: " + to_string(eventTypeIdentifier));
             }
         }
@@ -140,7 +140,7 @@ public:
         EventsTypeHashMap::const_iterator itEventType = _ethmEvents.find(event->getEventKey().first);
         if (itEventType == _ethmEvents.end())
         {
-            throw invalid_argument(string("Event Type was not found") 
+            throw runtime_error(string("Event Type was not found") 
                     + ", eventTypeIdentifier: " + to_string(event->getEventKey().first));
         }
 
@@ -152,7 +152,7 @@ public:
         UsedEventsMap::const_iterator itEvent = usedEvents.find(make_pair(event->getEventKey().first, event->getEventKey().second));
         if (itEvent == usedEvents.end())
         {
-            throw invalid_argument(string("Event was not found") 
+            throw runtime_error(string("Event was not found") 
                     + ", event->getEventKey().first: " + to_string(event->getEventKey().first)
                     + ", event->getEventKey().second: " + to_string(event->getEventKey().second)
                     );

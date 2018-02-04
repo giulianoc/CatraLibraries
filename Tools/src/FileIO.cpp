@@ -4376,6 +4376,20 @@ Boolean_t FileIO:: isFileExisting (const char *pPathName)
 
 }
 
+bool FileIO:: fileExisting (string pathName)
+
+{
+	Boolean_t			bExist;
+
+
+	bExist		= false;
+
+	FileIO:: isFileExisting (pathName.c_str(), &bExist);
+
+
+	return bExist ? true : false;
+
+}
 
 Error FileIO:: copyFile (const char *pSrcPathName,
 	const char *pDestPath,

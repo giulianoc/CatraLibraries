@@ -290,6 +290,8 @@ public:
             Boolean_p pbExist);
 
     static Boolean_t isFileExisting (const char *pPathName);
+    
+    static bool fileExisting (string pathName);
 
     /*
      *

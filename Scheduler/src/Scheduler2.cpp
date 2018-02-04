@@ -48,7 +48,7 @@ void Scheduler2:: suspend (void)
 
     if (_schedulerStatus != SCHEDULER_STARTED)
     {
-        throw invalid_argument(string("Scheduler is not started"));
+        throw runtime_error(string("Scheduler is not started"));
     }
 
     _schedulerStatus			= SCHEDULER_SUSPENDED;
@@ -60,7 +60,7 @@ void Scheduler2:: resume (void)
 
     if (_schedulerStatus != SCHEDULER_SUSPENDED)
     {
-        throw invalid_argument(string("Scheduler is not suspended"));
+        throw runtime_error(string("Scheduler is not suspended"));
     }
 
     _schedulerStatus		= SCHEDULER_STARTED;
@@ -72,7 +72,7 @@ void Scheduler2:: cancel (void)
 
     if (_schedulerStatus == SCHEDULER_INITIALIZED)
     {
-        throw invalid_argument(string("Scheduler is already stopped"));
+        throw runtime_error(string("Scheduler is already stopped"));
     }
 
     _schedulerStatus			= SCHEDULER_INITIALIZED;
@@ -180,7 +180,7 @@ Error Scheduler2:: activeTimes (shared_ptr<Times2> pTimes)
     {
         lTimesPointerIndex = getTimesPointerIndex (pTimes);
     }
-    catch(const invalid_argument &ia)
+    catch(const runtime_error &ia)
     {
         // we should have this exception in the 'normal scenario'
     }
@@ -216,7 +216,7 @@ void Scheduler2:: deactiveTimes (long lTimesPointerIndex)
     if (lTimesPointerIndex < 0 ||
             lTimesPointerIndex >= _timesList.size())
     {
-        throw invalid_argument(string("Wrong parameter")
+        throw runtime_error(string("Wrong parameter")
                 + ", lTimesPointerIndex: " + to_string(lTimesPointerIndex)
                 + ", _timesList.size: " + to_string(_timesList.size())
                 );
@@ -246,7 +246,7 @@ shared_ptr<Times2> Scheduler2:: getTimes (unsigned long ulTimesIndex)
 
     if (ulTimesIndex >= _timesList.size())
     {
-        throw invalid_argument(string("Wrong parameter")
+        throw runtime_error(string("Wrong parameter")
                 + ", ulTimesIndex: " + to_string(ulTimesIndex)
                 );
     }
@@ -268,7 +268,7 @@ long Scheduler2:: getTimesPointerIndex (shared_ptr<Times2> pTimes)
 	
     if (lTimesPointerIndex == _timesList.size())
     {
-        throw invalid_argument(string("Wrong parameter, pTimes was not found")
+        throw runtime_error(string("Wrong parameter, pTimes was not found")
                 );
     }
 
