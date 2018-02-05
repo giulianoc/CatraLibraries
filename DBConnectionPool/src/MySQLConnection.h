@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- #include "ConnectionPool.h"
+ #include "DBConnectionPool.h"
 #include <string>
 #include "mysql_connection.h"
 #include <cppconn/driver.h>
@@ -22,7 +22,7 @@
 #include <cppconn/statement.h>
 
 
-class MySQLConnection : public Connection {
+class MySQLConnection : public DBConnection {
 
 public:
     shared_ptr<sql::Connection> _sqlConnection;
@@ -40,7 +40,7 @@ public:
 };
 
 
-class MySQLConnectionFactory : public ConnectionFactory {
+class MySQLConnectionFactory : public DBConnectionFactory {
 
 private:
     string _dbServer;
@@ -58,7 +58,7 @@ public:
     };
 
     // Any exceptions thrown here should be caught elsewhere
-    shared_ptr<Connection> create() {
+    shared_ptr<DBConnection> create() {
 
         sql::Driver *driver;
         driver = get_driver_instance();
@@ -70,7 +70,7 @@ public:
         shared_ptr<MySQLConnection>     mySqlConnection = make_shared<MySQLConnection>();
         mySqlConnection->_sqlConnection = connectionFromDriver;
 
-        return static_pointer_cast<Connection>(mySqlConnection);
+        return static_pointer_cast<DBConnection>(mySqlConnection);
     };
 
 };

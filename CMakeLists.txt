@@ -64,7 +64,7 @@ add_subdirectory(ErrMsg/src)
 add_subdirectory(Tools/src)
 
 add_subdirectory(md5/src)
-add_subdirectory(connectionPool/src)
+add_subdirectory(DBConnectionPool/src)
 
 add_subdirectory(PThread/src)
 add_subdirectory(Socket/src)

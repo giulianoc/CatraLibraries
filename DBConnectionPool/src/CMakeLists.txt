@@ -21,7 +21,7 @@
 # with the authors.
 
 SET (HEADERS
-	ConnectionPool.h
+	DBConnectionPool.h
 	MySQLConnection.h
 )
 

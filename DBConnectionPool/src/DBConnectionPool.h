@@ -40,7 +40,7 @@
 
 using namespace std;
 
-struct ConnectionUnavailable : std::exception 
+struct ConnectionUnavailable : exception 
 { 
     char const* what() const throw() 
     {
@@ -48,39 +48,39 @@ struct ConnectionUnavailable : std::exception
     }; 
 };
 
-class Connection {
+class DBConnection {
 
 public:
-    Connection(){};
-    virtual ~Connection(){};
+    DBConnection(){};
+    virtual ~DBConnection(){};
 
 };
 
-class ConnectionFactory {
+class DBConnectionFactory {
 
 public:
-    virtual shared_ptr<Connection> create()=0;
+    virtual shared_ptr<DBConnection> create()=0;
 };
 
-struct ConnectionPoolStats 
+struct DBConnectionPoolStats 
 {
     size_t _poolSize;
     size_t _borrowedSize;
 };
 
 template<class T>
-class ConnectionPool {
+class DBConnectionPool {
 
 protected:
-    shared_ptr<ConnectionFactory>       _factory;
+    shared_ptr<DBConnectionFactory>       _factory;
     size_t                              _poolSize;
-    deque<shared_ptr<Connection> >      _connectionPool;
-    set<shared_ptr<Connection> >        _connectionBorrowed;
+    deque<shared_ptr<DBConnection> >      _connectionPool;
+    set<shared_ptr<DBConnection> >        _connectionBorrowed;
     mutex _connectionPoolMutex;
 
 public:
 
-    ConnectionPool(size_t poolSize, shared_ptr<ConnectionFactory> factory)
+    DBConnectionPool(size_t poolSize, shared_ptr<DBConnectionFactory> factory)
     {
         _poolSize=poolSize;
         _factory=factory;
@@ -92,7 +92,7 @@ public:
         }
     };
 
-    ~ConnectionPool() 
+    ~DBConnectionPool() 
     {
     };
 
@@ -112,7 +112,7 @@ public:
         if(_connectionPool.size()==0)
         {
             // Are there any crashed connections listed as "borrowed"?
-            for(set<shared_ptr<Connection> >::iterator it = _connectionBorrowed.begin(); it != _connectionBorrowed.end(); ++it)
+            for(set<shared_ptr<DBConnection> >::iterator it = _connectionBorrowed.begin(); it != _connectionBorrowed.end(); ++it)
             {
                 // generally use_count is 2, one because of borrowed set and one because it is used for sql statements.
                 // If it is 1, it means this connection has been abandoned
@@ -124,7 +124,7 @@ public:
                         // If we are able to create a new connection, return it
                         _DEBUG("Creating new connection to replace discarded connection");
 
-                        shared_ptr<Connection> sqlConnection=_factory->create();
+                        shared_ptr<DBConnection> sqlConnection=_factory->create();
 
                         _connectionBorrowed.erase(it);
                         _connectionBorrowed.insert(sqlConnection);
@@ -144,7 +144,7 @@ public:
         }
 
         // Take one off the front
-        shared_ptr<Connection>sqlConnection = _connectionPool.front();
+        shared_ptr<DBConnection>sqlConnection = _connectionPool.front();
         _connectionPool.pop_front();
 
         // Add it to the borrowed list
@@ -164,18 +164,18 @@ public:
         lock_guard<mutex> locker(_connectionPoolMutex);
 
         // Push onto the pool
-        _connectionPool.push_back(static_pointer_cast<Connection>(sqlConnection));
+        _connectionPool.push_back(static_pointer_cast<DBConnection>(sqlConnection));
 
         // Unborrow
         _connectionBorrowed.erase(sqlConnection);
     };
 
-    ConnectionPoolStats get_stats() 
+    DBConnectionPoolStats get_stats() 
     {
         lock_guard<mutex> locker(_connectionPoolMutex);
 
         // Get stats
-        ConnectionPoolStats stats;
+        DBConnectionPoolStats stats;
         stats._poolSize=_connectionPool.size();
         stats._borrowedSize=_connectionBorrowed.size();			
 
