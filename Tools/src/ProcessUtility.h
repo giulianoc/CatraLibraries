@@ -25,11 +25,13 @@
 #ifndef ProcessUtility_h
 	#define ProcessUtility_h
 
+        #include <string>
 	#include "ToolsErrors.h"
 	#ifdef WIN32
 	#else
 	#endif
 
+        using namespace std;
 
 	/**
 		The ProcessUtility class is a collection of static methods just
@@ -74,7 +76,9 @@
 			static Error execute (const char *pCommand,
 				int *piReturnedStatus);
 
-			/**
+                        static int execute (string command);
+
+                        /**
 				Set the user and group ID of the current process.
 			*/
 			#ifdef WIN32

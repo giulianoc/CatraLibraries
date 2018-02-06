@@ -145,6 +145,20 @@ Error ProcessUtility:: execute (const char *pCommand,
 	return errNoError;
 }
 
+int ProcessUtility:: execute (string command)
+{
+    int returnedStatus;
+    
+    Error errProcess;
+    
+    if ((errProcess = ProcessUtility::execute (command.c_str(), &returnedStatus)) != errNoError)
+    {
+        throw runtime_error(string("ProcessUtility::execute failed: ")
+                + (const char *) errProcess);
+    }
+    
+    return returnedStatus;
+}
 
 #ifdef WIN32
 #else
