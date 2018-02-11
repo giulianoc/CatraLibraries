@@ -5526,13 +5526,14 @@ Error FileIO:: remove (const char *pPathName)
 	return errNoError;
 }
 
-void FileIO:: remove (string pathName)
+void FileIO:: remove (string pathName, bool exceptionInCaseOfError)
 {
     Error errFileIO;
     
     if ((errFileIO = FileIO:: remove (pathName.c_str())) != errNoError)
     {
-        throw runtime_error(string("FileIO::remove failed: ")
+        if (exceptionInCaseOfError)
+            throw runtime_error(string("FileIO::remove failed: ")
                 + (const char *) errFileIO);
     }
 }

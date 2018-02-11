@@ -389,7 +389,7 @@ public:
     */
     static Error remove (const char *pPathName);
 
-    static void remove (string pathName);
+    static void remove (string pathName, bool exceptionInCaseOfError = true);
 
     #ifdef WIN32
             static Error seek (int iFileDescriptor, __int64 llBytes,
