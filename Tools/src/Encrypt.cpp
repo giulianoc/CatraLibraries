@@ -1190,6 +1190,7 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 
 #else
 
+        #include <memory>
 	#include <string.h>
 	#include <stdio.h>
 	#ifdef __APPLE__
@@ -1603,3 +1604,60 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 
 #endif
 
+string encrypt(string stringToBeEncrypted)
+{
+    
+    long lBufferCryptedLength = Encrypt::getCryptedBufferLength (stringToBeEncrypted.c_str());
+
+    char *pBufferCrypted;
+    if ((pBufferCrypted = new char [lBufferCryptedLength + 1]) == nullptr)
+    {
+        throw runtime_error(string("new failed"));
+    }
+
+    strcpy (pBufferCrypted, "");
+    if (Encrypt::encrypt (stringToBeEncrypted.c_str(), pBufferCrypted,
+        lBufferCryptedLength + 1) != 0)
+    {
+        delete [] pBufferCrypted;
+
+        throw runtime_error(string("Encrypt::encrypt failed"));
+    }
+
+    string cryptedBuffer (pBufferCrypted);
+
+    delete [] pBufferCrypted;
+    
+    
+    return cryptedBuffer;
+}
+
+string decrypt(string stringToBeDecrypted)
+{
+    
+    char			*pDecryptedBuffer;
+    long			lDecryptedBufferLength;
+
+
+    lDecryptedBufferLength = Encrypt::getDecryptedBufferLength(stringToBeDecrypted.c_str());
+
+    if ((pDecryptedBuffer = new char [lDecryptedBufferLength + 1]) == nullptr)
+    {
+        throw runtime_error(string("new failed"));
+    }
+
+    strcpy (pDecryptedBuffer, "");
+    if (Encrypt:: decrypt (stringToBeDecrypted.c_str(), pDecryptedBuffer,
+            lDecryptedBufferLength + 1) != 0)
+    {
+        delete [] pDecryptedBuffer;
+
+        throw runtime_error(string("Encrypt::encrypt failed"));
+    }
+
+    string decryptedBuffer(pDecryptedBuffer);
+
+    delete [] pDecryptedBuffer;
+
+    return decryptedBuffer;
+}

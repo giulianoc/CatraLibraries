@@ -36,7 +36,7 @@
 
 		#define SERVICE_PROVIDER		"Microsoft Base Cryptographic Provider v1.0"
 		#define KEY_CONTAINER			"Metallica"
-		#define NUMBER_ENCRYPT_STRING	"´o¸sçPQ]"
+		#define NUMBER_ENCRYPT_STRING	"ï¿½oï¿½sï¿½PQ]"
 
 		class clsCryptography
 		{
@@ -261,7 +261,9 @@
 		Q_DECLARE_OPERATORS_FOR_FLAGS(SimpleCrypt::CryptoFlags)
 
 	#else
-		#include "string.h"
+		#include <string>
+
+                using namespace std;
 	#endif
 
 	typedef class Encrypt {
@@ -276,7 +278,17 @@
 
 			~Encrypt ();
 
-			/**
+                        /*
+                         * C++11 method encapsulating all the stuff to encrypt
+                         */
+                        static string encrypt(string stringToBeEncrypted);
+
+                        /*
+                         * C++11 method encapsulating all the stuff to decrypt
+                         */
+                        static string decrypt(string stringToBeDecrypted);
+
+                        /**
 				crypta un buffer di una qualsiasi lunghezza 
 				input: buffer to encrypt
 				output: buffer cryptato
