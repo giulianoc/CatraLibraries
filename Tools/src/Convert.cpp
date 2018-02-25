@@ -22,6 +22,9 @@
 */
 
 #include "Convert.h"
+#include <vector>
+#include <stdexcept>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -62,8 +65,47 @@ Convert &Convert:: operator = (const Convert &)
 	return *this;
 }
 
+string Convert::base64_encode(const string &in) 
+{
 
-Error Convert:: binaryToBase16 (
+    string out;
+
+    int val=0, valb=-6;
+    for (unsigned char c : in) {
+        val = (val<<8) + c;
+        valb += 8;
+        while (valb>=0) {
+            out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(val>>valb)&0x3F]);
+            valb-=6;
+        }
+    }
+    if (valb>-6) out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val<<8)>>(valb+8))&0x3F]);
+    while (out.size()%4) out.push_back('=');
+    return out;
+}
+
+string Convert::base64_decode(const string &in) 
+{
+
+    string out;
+
+    vector<int> T(256,-1);
+    for (int i=0; i<64; i++) T["ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[i]] = i; 
+
+    int val=0, valb=-8;
+    for (unsigned char c : in) {
+        if (T[c] == -1) break;
+        val = (val<<6) + T[c];
+        valb += 6;
+        if (valb>=0) {
+            out.push_back(char((val>>valb)&0xFF));
+            valb-=8;
+        }
+    }
+    return out;
+}
+
+void Convert:: binaryToBase16 (
 	const unsigned char *pucSrcBinaryData, unsigned long ulSrcBinaryDataSize,
 	char *pDestBase16Data, unsigned long ulDestBase16DataSize)
 
@@ -77,10 +119,7 @@ Error Convert:: binaryToBase16 (
 		pDestBase16Data == (char *) NULL ||
 		ulSrcBinaryDataSize * 2 + 1 != ulDestBase16DataSize)
 	{
-		Error err = ToolsErrors (__FILE__, __LINE__,
-			TOOLS_ACTIVATION_WRONG);
-
-		return err;
+            throw runtime_error(string("Invalid argument"));
 	}
 
 	memset ((void *) pDestBase16Data, 0, ulDestBase16DataSize);
@@ -93,13 +132,10 @@ Error Convert:: binaryToBase16 (
 			pucSrcBinaryData [ulSrcIndex]);
 		ulDestIndex				+= 2;
 	}
-
-
-	return errNoError;
 }
 
 
-Error Convert:: base16ToBinary (
+void Convert:: base16ToBinary (
 	const char *pSrcBase16Data, unsigned long ulSrcBase16DataSize,
 	unsigned char *pucDestBinaryData, unsigned long ulDestBinaryDataSize)
 
@@ -114,10 +150,7 @@ Error Convert:: base16ToBinary (
 		pSrcBase16Data == (const char *) NULL ||
 		ulDestBinaryDataSize * 2 + 1 != ulSrcBase16DataSize)
 	{
-		Error err = ToolsErrors (__FILE__, __LINE__,
-			TOOLS_ACTIVATION_WRONG);
-
-		return err;
+            throw runtime_error(string("Invalid argument"));
 	}
 
 	memset ((void *) pucDestBinaryData, 0, ulDestBinaryDataSize);
@@ -134,13 +167,10 @@ Error Convert:: base16ToBinary (
 			(unsigned char) strtol (pBuffer, (char **) NULL, 16);
 		ulDestIndex				+= 1;
 	}
-
-
-	return errNoError;
 }
 
 
-Error Convert:: stringToBase16 (const char *pSrcStringData,
+void Convert:: stringToBase16 (const char *pSrcStringData,
 	char *pDestBase16Data, unsigned long ulDestBase16DataSize)
 
 {
@@ -153,20 +183,14 @@ Error Convert:: stringToBase16 (const char *pSrcStringData,
 	if (pSrcStringData == (const char *) NULL ||
 		pDestBase16Data == (char *) NULL)
 	{
-		Error err = ToolsErrors (__FILE__, __LINE__,
-			TOOLS_ACTIVATION_WRONG);
-
-		return err;
+            throw runtime_error(string("Invalid argument"));
 	}
 
 	ulSrcStringDataSize			= strlen (pSrcStringData);
 
 	if (ulDestBase16DataSize < ulSrcStringDataSize * 2 + 1)
 	{
-		Error err = ToolsErrors (__FILE__, __LINE__,
-			TOOLS_ACTIVATION_WRONG);
-
-		return err;
+            throw runtime_error(string("Invalid argument"));
 	}
 
 	memset ((void *) pDestBase16Data, 0, ulDestBase16DataSize);
@@ -179,13 +203,10 @@ Error Convert:: stringToBase16 (const char *pSrcStringData,
 			pSrcStringData [ulSrcIndex]);
 		ulDestIndex				+= 2;
 	}
-
-
-	return errNoError;
 }
 
 
-Error Convert:: base16ToString (const char *pSrcBase16Data, 
+void Convert:: base16ToString (const char *pSrcBase16Data, 
 	char *pDestStringData, unsigned long ulDestStringDataSize)
 
 {
@@ -199,10 +220,7 @@ Error Convert:: base16ToString (const char *pSrcBase16Data,
 	if (pDestStringData == (char *) NULL ||
 		pSrcBase16Data == (const char *) NULL)
 	{
-		Error err = ToolsErrors (__FILE__, __LINE__,
-			TOOLS_ACTIVATION_WRONG);
-
-		return err;
+            throw runtime_error(string("Invalid argument"));
 	}
 
 	ulSrcBase16DataSize		= strlen (pSrcBase16Data);
@@ -210,10 +228,7 @@ Error Convert:: base16ToString (const char *pSrcBase16Data,
 	if (ulSrcBase16DataSize == 0 ||
 		ulDestStringDataSize < ulSrcBase16DataSize / 2 + 1)
 	{
-		Error err = ToolsErrors (__FILE__, __LINE__,
-			TOOLS_ACTIVATION_WRONG);
-
-		return err;
+            throw runtime_error(string("Invalid argument"));
 	}
 
 	memset ((void *) pDestStringData, 0, ulDestStringDataSize);
@@ -230,8 +245,5 @@ Error Convert:: base16ToString (const char *pSrcBase16Data,
 			(unsigned char) strtol (pBuffer, (char **) NULL, 16);
 		ulDestIndex				+= 1;
 	}
-
-
-	return errNoError;
 }
 

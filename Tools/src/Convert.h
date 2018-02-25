@@ -24,62 +24,67 @@
 
 
 #ifndef Convert_h
-	#define Convert_h
+#define Convert_h
 
-	#include "ToolsErrors.h"
+#include <string>
 
+using namespace std;
 
-	typedef class Convert {
+typedef class Convert {
 
-		private:
-			Convert (const Convert &);
+private:
+    Convert (const Convert &);
 
-			Convert &operator = (const Convert &);
+    Convert &operator = (const Convert &);
 
-		public:
-			Convert ();
+public:
+    Convert ();
 
-			~Convert ();
+    ~Convert ();
 
-			/**
-				pDestBase16Data must be already allocated:
-				pDestBase16Data = new unsigned char [ulSrcBinaryDataSize * 2 + 1]
-				ulSrcBinaryDataSize does not include '\0'
-				ulDestBase16DataSize includes the '\0'
-			*/
-			static Error binaryToBase16 (
-				const unsigned char *pucSrcBinaryData,
-				unsigned long ulSrcBinaryDataSize,
-				char *pDestBase16Data, unsigned long ulDestBase16DataSize);
+    static string base64_encode(const string &in);
 
-			/**
-				pucDestBinaryData must be already allocated:
-				pucDestBinaryData = new unsigned char [ulSrcBase16DataSize / 2]
-				ulSrcBase16DataSize includes the '\0'
-				ulDestBinaryDataSize does not include '\0'
-			*/
-			static Error base16ToBinary (
-				const char *pSrcBase16Data, unsigned long ulSrcBase16DataSize,
-				unsigned char *pucDestBinaryData,
-				unsigned long ulDestBinaryDataSize);
+    static string base64_decode(const string &in);
 
-			/**
-				pDestBase16Data must be already allocated:
-				the size of pDestBase16Data must be at least
-					(SizeOfSrc * 2 + 1)
-			*/
-			static Error stringToBase16 (const char *pSrcStringData,
-				char *pDestBase16Data, unsigned long ulDestBase16DataSize);
+    /**
+            pDestBase16Data must be already allocated:
+            pDestBase16Data = new unsigned char [ulSrcBinaryDataSize * 2 + 1]
+            ulSrcBinaryDataSize does not include '\0'
+            ulDestBase16DataSize includes the '\0'
+    */
+    static void binaryToBase16 (
+            const unsigned char *pucSrcBinaryData,
+            unsigned long ulSrcBinaryDataSize,
+            char *pDestBase16Data, unsigned long ulDestBase16DataSize);
 
-			/**
-				pDestStringData must be already allocated:
-				the size of pDestStringData must be at least
-					(SizeOfSrc / 2 + 1) characters
-			*/
-			static Error base16ToString (const char *pSrcBase16Data,
-				char *pDestStringData, unsigned long ulDestStringDataSize);
+    /**
+            pucDestBinaryData must be already allocated:
+            pucDestBinaryData = new unsigned char [ulSrcBase16DataSize / 2]
+            ulSrcBase16DataSize includes the '\0'
+            ulDestBinaryDataSize does not include '\0'
+    */
+    static void base16ToBinary (
+            const char *pSrcBase16Data, unsigned long ulSrcBase16DataSize,
+            unsigned char *pucDestBinaryData,
+            unsigned long ulDestBinaryDataSize);
 
-	} Convert_t, *Convert_p;
+    /**
+            pDestBase16Data must be already allocated:
+            the size of pDestBase16Data must be at least
+                    (SizeOfSrc * 2 + 1)
+    */
+    static void stringToBase16 (const char *pSrcStringData,
+            char *pDestBase16Data, unsigned long ulDestBase16DataSize);
+
+    /**
+            pDestStringData must be already allocated:
+            the size of pDestStringData must be at least
+                    (SizeOfSrc / 2 + 1) characters
+    */
+    static void base16ToString (const char *pSrcBase16Data,
+            char *pDestStringData, unsigned long ulDestStringDataSize);
+
+} Convert_t, *Convert_p;
 
 #endif
 
