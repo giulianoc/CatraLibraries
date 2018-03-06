@@ -32,7 +32,7 @@
 #include <map>
 #include <chrono>
 #include "EventsFactory.h"
-#include "Event.h"
+#include "Event2.h"
 
 using namespace std;
 
@@ -54,7 +54,7 @@ using namespace std;
 class MultiEventsSet
 {
 protected:
-    using EventsMultiMap = multimap<chrono::system_clock::time_point, shared_ptr<Event> >;
+    using EventsMultiMap = multimap<chrono::system_clock::time_point, shared_ptr<Event2> >;
 
     struct DestinationEvents
     {
@@ -127,7 +127,7 @@ public:
         L'MultiEventsSet non supporta chiavi duplicate per cui
         non possono coesistere due eventi con la stessa chiave
     */
-    virtual void addEvent (shared_ptr<Event>& event);
+    virtual void addEvent (shared_ptr<Event2>& event);
 
     /**
         Rimuove il puntatore all'evento indicato dal parametro
@@ -136,7 +136,7 @@ public:
         Nota bene che l'evento non viene de-allocato, ma viene
         semplicemente rimosso il puntatore all'evento, dall'insieme.
     */
-    void deleteEvent (shared_ptr<Event>& event);
+    void deleteEvent (shared_ptr<Event2>& event);
 
     /**
         Questo metodo ritorna il puntatore al primo evento.
@@ -149,7 +149,7 @@ public:
         I parametri ulSecondsToBlock e ulAdditionalMilliSecondsToBlock
         vengono considerati nel caso che bBlocking sia true.
     */
-    shared_ptr<Event> getFirstEvent (
+    shared_ptr<Event2> getFirstEvent (
         string destination, bool blocking,
         chrono::milliseconds milliSecondsToBlock,
         bool &eventExpired);
@@ -172,7 +172,7 @@ public:
             I parametri ulSecondsToBlock e ulAdditionalMilliSecondsToBlock
             vengono considerati nel caso che bBlocking sia true.
     */
-    shared_ptr<Event> getAndRemoveFirstEvent (
+    shared_ptr<Event2> getAndRemoveFirstEvent (
         string destination, bool blocking,
         chrono::milliseconds milliSecondsToBlock);
 };

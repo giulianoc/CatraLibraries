@@ -31,14 +31,14 @@
 #include <mutex>
 #include <iostream>
 #include <memory>
-#include "Event.h"
+#include "Event2.h"
 
 using namespace std;
 
 class EventsFactory
 {
 private:
-    using UsedEventsMap = map<pair<long,long>, shared_ptr<Event>>;
+    using UsedEventsMap = map<pair<long,long>, shared_ptr<Event2>>;
 
     struct EventTypeInfo
     {
@@ -47,7 +47,7 @@ private:
         long                _maxEventsNumberToBeAllocated;
 
         long                _currentEventsNumber;
-        deque<shared_ptr<Event>>    _freeEvents;
+        deque<shared_ptr<Event2>>    _freeEvents;
         UsedEventsMap       _usedEvents;
     };
 
@@ -92,7 +92,7 @@ public:
         }
 
         const shared_ptr<EventTypeInfo>& eventTypeInfo = itEventType->second;
-        deque<shared_ptr<Event>>& freeEvents = eventTypeInfo->_freeEvents;
+        deque<shared_ptr<Event2>>& freeEvents = eventTypeInfo->_freeEvents;
 
         if (freeEvents.size() == 0)
         {
@@ -107,7 +107,7 @@ public:
 
             for (int eventIndex = 0; eventIndex < eventTypeInfo->_blockEventsNumber; eventIndex++)
             {
-                shared_ptr<Event>   event   = make_shared<T>();
+                shared_ptr<Event2>   event   = make_shared<T>();
 
                 event->setEventKey(make_pair(eventTypeInfo->_eventTypeIdentifier, eventTypeInfo->_currentEventsNumber));
 
@@ -146,7 +146,7 @@ public:
 
         const shared_ptr<EventTypeInfo>& eventTypeInfo = itEventType->second;
 
-        deque<shared_ptr<Event>> &freeEvents = eventTypeInfo->_freeEvents;
+        deque<shared_ptr<Event2>> &freeEvents = eventTypeInfo->_freeEvents;
         UsedEventsMap   &usedEvents  = eventTypeInfo->_usedEvents;
 
         UsedEventsMap::const_iterator itEvent = usedEvents.find(make_pair(event->getEventKey().first, event->getEventKey().second));
@@ -158,7 +158,7 @@ public:
                     );
         }
 
-        freeEvents.push_back(dynamic_pointer_cast<Event>(event));
+        freeEvents.push_back(dynamic_pointer_cast<Event2>(event));
         usedEvents.erase(itEvent);
     }
 } ;

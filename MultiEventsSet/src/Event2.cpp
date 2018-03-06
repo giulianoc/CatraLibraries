@@ -22,9 +22,9 @@
 */
 
 #include <iostream>
-#include "Event.h"
+#include "Event2.h"
 
-ostream& operator << (ostream& os, const Event& event)
+ostream& operator << (ostream& os, const Event2& event)
 {
     time_t tExpirationTimePoint = chrono::system_clock::to_time_t(event._expirationTimePoint);
     time_t tStartProcessingTime = chrono::system_clock::to_time_t(event._startProcessingTime);

@@ -21,12 +21,12 @@
 # with the authors.
 
 SET (SOURCES
-	Event.cpp
+	Event2.cpp
 	EventsFactory.cpp
 	MultiEventsSet.cpp
 )
 SET (HEADERS
-	Event.h
+	Event2.h
 	EventsFactory.h
 	MultiEventsSet.h
 )

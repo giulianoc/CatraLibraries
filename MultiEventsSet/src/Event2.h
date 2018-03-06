@@ -21,8 +21,8 @@
  with the authors.
 */
 
-#ifndef Event_h
-#define Event_h
+#ifndef Event2_h
+#define Event2_h
 
 #include <string>
 #include <chrono>
@@ -49,7 +49,7 @@ using namespace std;
     Gli eventi vengono gestiti esclusivamente in memoria ed il loro
     identificativo unico e' rappresentato dal puntatore all'evento.
 */
-class Event
+class Event2
 {
 private:
     // _typeIdentifier, _identifier
@@ -61,7 +61,7 @@ private:
     chrono::system_clock::time_point   _startProcessingTime;
 
 public:
-    friend ostream& operator << (ostream& os, const Event& event);
+    friend ostream& operator << (ostream& os, const Event2& event);
 
     /**
         Questo metodo inizializza l'evento.
@@ -79,9 +79,9 @@ public:
                         rappresenta la chiave usata per l'ordinamento
                         degli eventi.
     */
-    Event () { };
+    Event2 () { };
 
-    virtual ~Event (void) {  };
+    virtual ~Event2 (void) {  };
 
     pair<long, long> getEventKey() const {
         return _eventKey;

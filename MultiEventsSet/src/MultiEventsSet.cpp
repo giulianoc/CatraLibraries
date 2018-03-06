@@ -34,7 +34,7 @@ MultiEventsSet:: ~MultiEventsSet (void)
 
 }
 
-void MultiEventsSet:: addEvent (shared_ptr<Event>& event)
+void MultiEventsSet:: addEvent (shared_ptr<Event2>& event)
 {
     string destination =      event->getDestination();
     chrono::system_clock::time_point expirationTimePoint = event->getExpirationTimePoint();
@@ -59,7 +59,7 @@ void MultiEventsSet:: addEvent (shared_ptr<Event>& event)
 
     shared_ptr<DestinationEvents> destinationEvents	= itDestinations->second;
     chrono::system_clock::time_point expirationTimePointOfHeadEvent;
-    shared_ptr<Event> headEvent;
+    shared_ptr<Event2> headEvent;
     
     if ((destinationEvents->_eventsMultiMap).begin() != (destinationEvents->_eventsMultiMap).end())
     {
@@ -90,7 +90,7 @@ void MultiEventsSet:: addEvent (shared_ptr<Event>& event)
     }
 }
 
-void MultiEventsSet::deleteEvent (shared_ptr<Event>& event)
+void MultiEventsSet::deleteEvent (shared_ptr<Event2>& event)
 {
     lock_guard<mutex> locker(_evSetMutex);
 
@@ -133,7 +133,7 @@ void MultiEventsSet::deleteEvent (shared_ptr<Event>& event)
 
 }
 
-shared_ptr<Event> MultiEventsSet:: getFirstEvent (
+shared_ptr<Event2> MultiEventsSet:: getFirstEvent (
     string destination, bool blocking,
     chrono::milliseconds milliSecondsToBlock,
     bool &eventExpired)
@@ -199,7 +199,7 @@ shared_ptr<Event> MultiEventsSet:: getFirstEvent (
     }
 
     EventsMultiMap:: iterator itEvents  = (destinationEvents->_eventsMultiMap).begin ();
-    shared_ptr<Event> event		= itEvents -> second;
+    shared_ptr<Event2> event		= itEvents -> second;
 
     chrono::system_clock::time_point expirationTimePoint    = event->getExpirationTimePoint();
     if (chrono::system_clock::now() < expirationTimePoint)
@@ -210,7 +210,7 @@ shared_ptr<Event> MultiEventsSet:: getFirstEvent (
     return event;
 }
 
-shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
+shared_ptr<Event2> MultiEventsSet:: getAndRemoveFirstEvent (
     string destination, bool blocking,
     chrono::milliseconds milliSecondsToBlock)
 
@@ -282,7 +282,7 @@ shared_ptr<Event> MultiEventsSet:: getAndRemoveFirstEvent (
         bool foundExpiredEvent  = false;
         chrono::milliseconds    remainingTimeInMilliSecs;
         EventsMultiMap:: iterator itEvents;
-        shared_ptr<Event> event;
+        shared_ptr<Event2> event;
 
         while (!foundExpiredEvent)
         {

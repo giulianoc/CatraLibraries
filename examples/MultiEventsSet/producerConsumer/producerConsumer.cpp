@@ -42,7 +42,7 @@ using namespace std;
 #define EVENT_TYPE          1
 #define ENDEVENT_TYPE       2
 
-class GetDataEvent: public Event {
+class GetDataEvent: public Event2 {
 private:
     int     dataId;
     
@@ -75,7 +75,7 @@ public:
     }
 };
 
-class EndEvent: public Event {
+class EndEvent: public Event2 {
 private:
 
     friend ostream& operator << (ostream& os, EndEvent &event)
@@ -111,7 +111,7 @@ public:
         while(!endEvent)
         {
             // cout << "Calling getAndRemoveFirstEvent" << endl;
-            shared_ptr<Event> event = multiEventsSet.getAndRemoveFirstEvent(DESTINATION, blocking, milliSecondsToBlock);
+            shared_ptr<Event2> event = multiEventsSet.getAndRemoveFirstEvent(DESTINATION, blocking, milliSecondsToBlock);
             if (event == nullptr)
             {
                 cout << "No event found or event not yet expired" << endl;
@@ -142,7 +142,7 @@ public:
                 {
                     cout << "getAndRemoveFirstEvent: EVENT_TYPE (" << event->getEventKey().first << ", " << event->getEventKey().second << ")" << endl << endl;
                     
-                    multiEventsSet.getEventsFactory()->releaseEvent<Event>(event);
+                    multiEventsSet.getEventsFactory()->releaseEvent<Event2>(event);
 
                 }
                 break;
@@ -177,14 +177,14 @@ public:
                     getDataEvent->setSource(SOURCE);
                     getDataEvent->setDataId(counter);
                     
-                    shared_ptr<Event>    event = dynamic_pointer_cast<Event>(getDataEvent);
+                    shared_ptr<Event2>    event = dynamic_pointer_cast<Event2>(getDataEvent);
                     cout << "addEvent: GETDATAEVENT_TYPE (" << event->getEventKey().first << ", " << event->getEventKey().second << ")" << endl;
                     multiEventsSet.addEvent(event);
                 }
                 break;
                 case EVENT_TYPE:
                 {
-                    shared_ptr<Event>    event = multiEventsSet.getEventsFactory()->getFreeEvent<Event>(EVENT_TYPE);
+                    shared_ptr<Event2>    event = multiEventsSet.getEventsFactory()->getFreeEvent<Event2>(EVENT_TYPE);
                     
                     event->setDestination(DESTINATION);
                     event->setExpirationTimePoint(chrono::system_clock::now() + chrono::minutes(1));
@@ -209,7 +209,7 @@ public:
             endEvent->setExpirationTimePoint(chrono::system_clock::now() + chrono::minutes(1));
             endEvent->setSource(SOURCE);
 
-            shared_ptr<Event>    event = dynamic_pointer_cast<Event>(endEvent);
+            shared_ptr<Event2>    event = dynamic_pointer_cast<Event2>(endEvent);
             multiEventsSet.addEvent(event);
 
             cout << "addEvent: ENDEVENT_TYPE (" << event->getEventKey().first << ", " << event->getEventKey().second << ")" << endl;

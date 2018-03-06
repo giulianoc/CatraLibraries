@@ -84,13 +84,13 @@ ostream& operator << (ostream& os, const EventsFactory& eventsFactory)
                 << endl;
 
         cout << "Event free (" << eventTypeInfo->_freeEvents.size() << "): " << endl;
-        for (const shared_ptr<Event>& event: eventTypeInfo->_freeEvents)
+        for (const shared_ptr<Event2>& event: eventTypeInfo->_freeEvents)
         {
             cout << *event << endl;
         }
 
         cout << "Event used (" << eventTypeInfo->_usedEvents.size() << "): " << endl;
-        for (const pair<pair<long,long>, shared_ptr<Event>>& itEvent: eventTypeInfo->_usedEvents)
+        for (const pair<pair<long,long>, shared_ptr<Event2>>& itEvent: eventTypeInfo->_usedEvents)
         {
             cout << *(itEvent.second) << endl;
         }
