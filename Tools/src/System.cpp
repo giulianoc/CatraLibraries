@@ -22,6 +22,7 @@
 */
 
 
+#include <stdexcept>
 #include "System.h"
 #ifdef WIN32
 	// #include <process.h>

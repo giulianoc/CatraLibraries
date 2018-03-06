@@ -22,6 +22,7 @@
 */
 
 
+#include <stdexcept>
 #ifdef WIN32
 	#include <process.h>
 	#include <Winsock2.h>
