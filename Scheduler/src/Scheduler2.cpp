@@ -100,7 +100,7 @@ void Scheduler2::operator()()
             handleTimes();
         }
 
-        this_thread::sleep_for(_ulThreadSleepInMilliSecs * 1ms);
+        this_thread::sleep_for(chrono::milliseconds(_ulThreadSleepInMilliSecs));
 
         {
             lock_guard<recursive_mutex>     locker(_mtSchedulerMutex);
