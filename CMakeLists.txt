@@ -142,6 +142,7 @@ add_subdirectory(examples/WebTools/parseURL)
 
 add_subdirectory(examples/Tools/GetCpuUsage)
 add_subdirectory(examples/Tools/appendBuffer)
+add_subdirectory(examples/Tools/base64)
 add_subdirectory(examples/Tools/buffer)
 add_subdirectory(examples/Tools/copyFile)
 add_subdirectory(examples/Tools/createDirectory)
