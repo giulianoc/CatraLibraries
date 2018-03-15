@@ -308,7 +308,7 @@ public:
             string destPath,
             unsigned long ulBufferSizeToBeUsed = 0);
 
-    void concatFile (string destPathName,
+    static void concatFile (string destPathName,
 	string srcPathName, bool removeSrcFileAfterConcat,
 	unsigned long ulBufferSizeToBeUsed = 0);
 
