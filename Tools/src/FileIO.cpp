@@ -4727,6 +4727,98 @@ void FileIO:: copyFile (string srcPathName,
     }
 }
 
+void FileIO:: concatFile (string destPathName,
+	string srcPathName,
+	unsigned long ulBufferSizeToBeUsed)
+{
+    char* buffer = nullptr;
+    
+    try
+    {
+    	unsigned long				ulLocalBufferSizeToBeUsed;
+
+        if (!FileIO::fileExisting(destPathName))
+            throw runtime_error(string("File does not exist")
+                + ", destPathName: " + destPathName);
+        else if (!FileIO::fileExisting(srcPathName))
+            throw runtime_error(string("File does not exist")
+                + ", srcPathName: " + srcPathName);
+        
+        if (ulBufferSizeToBeUsed == 0)
+        {
+            unsigned long				ulFileSize;
+
+
+            ulFileSize = FileIO::getFileSizeInBytes (pSrcPathName,
+                &ulFileSize, false);
+
+            if (ulFileSize >= 5 * 1000 * 1024)	// 5MB
+                ulLocalBufferSizeToBeUsed			= 5 * 1000 * 1024;
+            else if (ulFileSize == 0)
+                ulLocalBufferSizeToBeUsed			= 8;	// it cannot be 0
+            else
+                ulLocalBufferSizeToBeUsed			= ulFileSize;
+        }
+        else
+        {
+            ulLocalBufferSizeToBeUsed			= ulBufferSizeToBeUsed;
+        }
+
+        buffer = new char [ulLocalBufferSizeToBeUsed];
+
+        bool inCaseOfLinkHasItToBeRead = true;
+        unsigned long srcFileSize = FileIO::getFileSizeInBytes (
+            srcPathName, inCaseOfLinkHasItToBeRead);
+
+        ifstream isSrcStream(srcPathName);
+        ofstream osDestStream(destPathName, ofstream::binary | ofstream::app);
+        
+        unsigned long bytesToBeRead;
+        unsigned long totalRead = 0;
+        while (totalRead < srcFileSize)
+        {
+            if (srcFileSize - totalRead >= ulLocalBufferSizeToBeUsed)
+                bytesToBeRead = ulLocalBufferSizeToBeUsed;
+            else
+                bytesToBeRead = srcFileSize - totalRead;
+
+            isSrcPathName.read(buffer, bytesToBeRead);
+            
+            currentRead = isSrcPathName.gcount();
+
+            if (currentRead != bytesToBeRead)
+            {
+                // this should never happen
+                throw runtime_error(string("Error reading the binary")
+                    + ", srcFileSize: " + to_string(srcFileSize)
+                    + ", totalRead: " + to_string(totalRead)
+                    + ", bytesToBeRead: " + to_string(bytesToBeRead)
+                    + ", currentRead: " + to_string(currentRead)
+                );
+            }
+
+            totalRead   += currentRead;
+
+            osDestStream.write(buffer, currentRead); 
+        }
+    }
+    catch(exception e)
+    {
+        if (buffer != nullptr)
+            delete [] buffer;
+        
+    }
+
+    Error errFileIO;
+    
+    if ((errFileIO = FileIO:: copyFile (srcPathName.c_str(),
+	destPath.c_str(), ulBufferSizeToBeUsed)) != errNoError)
+    {
+        throw runtime_error(string("FileIO::copyFile failed: ")
+                + (const char *) errFileIO);
+    }
+}
+
 Error FileIO:: moveFile (const char *pSrcPathName,
 	const char *pDestPathName)
 
