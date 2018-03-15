@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <fstream>
 #ifdef WIN32
 	#include <io.h>
 	#include <direct.h>
@@ -4728,7 +4729,7 @@ void FileIO:: copyFile (string srcPathName,
 }
 
 void FileIO:: concatFile (string destPathName,
-	string srcPathName,
+	string srcPathName, bool removeSrcFileAfterConcat,
 	unsigned long ulBufferSizeToBeUsed)
 {
     char* buffer = nullptr;
@@ -4744,20 +4745,18 @@ void FileIO:: concatFile (string destPathName,
             throw runtime_error(string("File does not exist")
                 + ", srcPathName: " + srcPathName);
         
+        bool inCaseOfLinkHasItToBeRead = false;
+        unsigned long srcFileSize = FileIO::getFileSizeInBytes (srcPathName,
+            inCaseOfLinkHasItToBeRead);
+        
         if (ulBufferSizeToBeUsed == 0)
         {
-            unsigned long				ulFileSize;
-
-
-            ulFileSize = FileIO::getFileSizeInBytes (pSrcPathName,
-                &ulFileSize, false);
-
-            if (ulFileSize >= 5 * 1000 * 1024)	// 5MB
+            if (srcFileSize >= 5 * 1000 * 1024)	// 5MB
                 ulLocalBufferSizeToBeUsed			= 5 * 1000 * 1024;
-            else if (ulFileSize == 0)
+            else if (srcFileSize == 0)
                 ulLocalBufferSizeToBeUsed			= 8;	// it cannot be 0
             else
-                ulLocalBufferSizeToBeUsed			= ulFileSize;
+                ulLocalBufferSizeToBeUsed			= srcFileSize;
         }
         else
         {
@@ -4766,15 +4765,12 @@ void FileIO:: concatFile (string destPathName,
 
         buffer = new char [ulLocalBufferSizeToBeUsed];
 
-        bool inCaseOfLinkHasItToBeRead = true;
-        unsigned long srcFileSize = FileIO::getFileSizeInBytes (
-            srcPathName, inCaseOfLinkHasItToBeRead);
-
-        ifstream isSrcStream(srcPathName);
-        ofstream osDestStream(destPathName, ofstream::binary | ofstream::app);
+        ifstream isSrcStream(srcPathName.c_str());
+        ofstream osDestStream(destPathName.c_str(), ofstream::binary | ofstream::app);
         
         unsigned long bytesToBeRead;
         unsigned long totalRead = 0;
+        unsigned long currentRead;
         while (totalRead < srcFileSize)
         {
             if (srcFileSize - totalRead >= ulLocalBufferSizeToBeUsed)
@@ -4782,14 +4778,13 @@ void FileIO:: concatFile (string destPathName,
             else
                 bytesToBeRead = srcFileSize - totalRead;
 
-            isSrcPathName.read(buffer, bytesToBeRead);
-            
-            currentRead = isSrcPathName.gcount();
+            isSrcStream.read(buffer, bytesToBeRead);
+            currentRead = isSrcStream.gcount();
 
             if (currentRead != bytesToBeRead)
             {
                 // this should never happen
-                throw runtime_error(string("Error reading the binary")
+                throw runtime_error(string("Error reading the source binary")
                     + ", srcFileSize: " + to_string(srcFileSize)
                     + ", totalRead: " + to_string(totalRead)
                     + ", bytesToBeRead: " + to_string(bytesToBeRead)
@@ -4797,25 +4792,47 @@ void FileIO:: concatFile (string destPathName,
                 );
             }
 
-            totalRead   += currentRead;
+            totalRead += currentRead;
 
             osDestStream.write(buffer, currentRead); 
         }
+        isSrcStream.close();
+        osDestStream.close();
+        
+        delete [] buffer;
+        
+        if (removeSrcFileAfterConcat)
+        {
+            bool exceptionInCaseOfError = true;
+            
+            FileIO::remove(srcPathName, exceptionInCaseOfError);
+        }
+    }
+    catch(runtime_error e)
+    {
+        if (buffer != nullptr)
+            delete [] buffer;
+        
+        throw runtime_error(string("FileIO:: concatFile failed")
+            + ", destPathName: " + destPathName
+            + ", srcPathName: " + srcPathName
+                + ", removeSrcFileAfterConcat: " + to_string(removeSrcFileAfterConcat)
+                + ", ulBufferSizeToBeUsed: " + to_string(ulBufferSizeToBeUsed)
+                + ", e.what(): " + e.what()
+        );
     }
     catch(exception e)
     {
         if (buffer != nullptr)
             delete [] buffer;
         
-    }
-
-    Error errFileIO;
-    
-    if ((errFileIO = FileIO:: copyFile (srcPathName.c_str(),
-	destPath.c_str(), ulBufferSizeToBeUsed)) != errNoError)
-    {
-        throw runtime_error(string("FileIO::copyFile failed: ")
-                + (const char *) errFileIO);
+        throw runtime_error(string("FileIO:: concatFile failed")
+            + ", destPathName: " + destPathName
+            + ", srcPathName: " + srcPathName
+                + ", removeSrcFileAfterConcat: " + to_string(removeSrcFileAfterConcat)
+                + ", ulBufferSizeToBeUsed: " + to_string(ulBufferSizeToBeUsed)
+                + ", e.what(): " + e.what()
+        );
     }
 }
 

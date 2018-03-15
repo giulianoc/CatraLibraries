@@ -308,6 +308,10 @@ public:
             string destPath,
             unsigned long ulBufferSizeToBeUsed = 0);
 
+    void concatFile (string destPathName,
+	string srcPathName, bool removeSrcFileAfterConcat,
+	unsigned long ulBufferSizeToBeUsed);
+
     /**
             * pSrcPathName has to refer a file
             * pDestPathName could refer a file or a directory
