@@ -310,7 +310,7 @@ public:
 
     void concatFile (string destPathName,
 	string srcPathName, bool removeSrcFileAfterConcat,
-	unsigned long ulBufferSizeToBeUsed);
+	unsigned long ulBufferSizeToBeUsed = 0);
 
     /**
             * pSrcPathName has to refer a file
