@@ -22,6 +22,7 @@
 */
 
 #include "Service.h"
+#include <fstream>
 #include "ProcessUtility.h"
 #include "FileIO.h"
 #include "DateTime.h"
@@ -180,6 +181,76 @@ Service:: ~Service (void)
 
 
 		return errNoError;
+	}
+    
+	void Service::launchUnixDaemon (string pidFilePathName)
+	{
+		/* Our process ID and Session ID */
+		pid_t				pid, sid;
+
+
+		/* Fork off the parent process */
+		pid			= fork();
+		if (pid < 0)
+		{
+			exit (EXIT_FAILURE);
+		}
+
+		/* If we got a good PID, then
+			we can exit the parent process. */
+		if (pid > 0)
+		{
+			exit (EXIT_SUCCESS);
+		}
+
+		/*
+			In order to write to any files (including logs) created
+			by the daemon, the file mode mask (umask) must be changed
+			to ensure that they can be written to or read from properly.
+			umask default value: 0x022
+		*/
+		umask (0x002);
+
+		/*
+			From here, the child process must get a unique SID from the kernel
+			in order to operate. Otherwise, the child process becomes
+			an orphan in the system.
+		*/
+		sid			= setsid ();
+		if (sid < 0)
+		{
+			/* Log the failure */
+
+			exit (EXIT_FAILURE);
+		}
+
+		/*
+			The current working directory should be changed to some place
+			that is guaranteed to always be there.
+		*/
+		if ((chdir("/")) < 0)
+		{
+			/* Log the failure */
+
+			exit (EXIT_FAILURE);
+		}
+
+		/* Close out the standard file descriptors */
+		/*
+			Since a daemon cannot use the terminal, it is better to close
+			the standard file descriptors (STDIN, STDOUT, STDERR) that
+			are redundant and potential security hazard.
+		*/
+		close (STDIN_FILENO);
+		close (STDOUT_FILENO);
+		// close (STDERR_FILENO);
+
+		{
+			long processIdentifier = ProcessUtility::getCurrentProcessIdentifier();
+
+            ofstream of(pidFilePathName.c_str(), ofstream::trunc);
+            of << processIdentifier;
+		}
 	}
 #endif
 

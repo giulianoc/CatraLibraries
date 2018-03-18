@@ -33,6 +33,7 @@
 		#define WIN32_LEAN_AND_MEAN
 	#endif
 
+        #include <string>
 	#include "Buffer.h"
 	#include "ToolsErrors.h"
 	#ifdef WIN32
@@ -62,6 +63,8 @@
 	*/
 	#define TOOLS_SERVICE_MAXSERVICEDEBUGLOG				(128 + 1)
 
+        using namespace std;
+        
 	/**
 		This class represent a service.
 		Here are the steps to create a service class:
@@ -261,6 +264,7 @@
 			#else
 				static Error launchUnixDaemon (
 					const char *pPIDFilePathName);
+                        	static void launchUnixDaemon (string pidFilePathName);
 			#endif
 
 			/**

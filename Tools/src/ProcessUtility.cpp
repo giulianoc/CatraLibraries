@@ -101,6 +101,14 @@ Error ProcessUtility:: getCurrentProcessIdentifier (long *plProcessIdentifier)
 	return errNoError;
 }
 
+long ProcessUtility:: getCurrentProcessIdentifier ()
+{
+	#ifdef WIN32
+		return _getpid ();
+	#else
+		return getpid ();
+	#endif    
+}
 
 Error ProcessUtility:: execute (const char *pCommand,
 	int *piReturnedStatus)

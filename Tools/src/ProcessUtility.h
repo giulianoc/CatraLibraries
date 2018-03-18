@@ -63,6 +63,7 @@
 			*/
 			static Error getCurrentProcessIdentifier (
 				long *plProcessIdentifier);
+			static long getCurrentProcessIdentifier();
 
 			/**
 				Executes a command specified in pCommand and
