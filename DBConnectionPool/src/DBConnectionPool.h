@@ -54,6 +54,9 @@ public:
     DBConnection(){};
     virtual ~DBConnection(){};
 
+    virtual void checkConnection(bool resetInCaseOfFailure)
+    {
+    };
 };
 
 class DBConnectionFactory {

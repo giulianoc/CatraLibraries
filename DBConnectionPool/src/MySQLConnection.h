@@ -37,10 +37,6 @@ public:
             _sqlConnection.reset(); 	// Release and destruct
         }
     };
-
-    virtual void checkConnection(bool resetInCaseOfFailure)
-    {
-    };
 };
 
 
@@ -69,6 +65,8 @@ public:
 
         // server like "tcp://127.0.0.1:3306"
         shared_ptr<sql::Connection> connectionFromDriver (driver->connect(_dbServer, _dbUsername, _dbPassword));
+	bool reconnect_state = true;
+	connectionFromDriver->setClientOption("OPT_RECONNECT", &reconnect_state);    
         connectionFromDriver->setSchema(_dbName);
 
         shared_ptr<MySQLConnection>     mySqlConnection = make_shared<MySQLConnection>();
