@@ -37,6 +37,10 @@ public:
             _sqlConnection.reset(); 	// Release and destruct
         }
     };
+
+    virtual void checkConnection(bool resetInCaseOfFailure)
+    {
+    };
 };
 
 

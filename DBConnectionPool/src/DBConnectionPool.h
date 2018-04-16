@@ -150,6 +150,9 @@ public:
         // Add it to the borrowed list
         _connectionBorrowed.insert(sqlConnection);
 
+	bool resetInCaseOfFailure = true;
+	sqlConnection->checkConnection(resetInCaseOfFailure);
+
         return static_pointer_cast<T>(sqlConnection);
     };
 
