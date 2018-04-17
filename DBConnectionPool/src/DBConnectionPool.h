@@ -54,8 +54,9 @@ public:
     DBConnection(){};
     virtual ~DBConnection(){};
 
-    virtual void checkConnection(bool resetInCaseOfFailure)
+    virtual bool connectionValid()
     {
+	return true;
     };
 };
 
@@ -150,11 +151,14 @@ public:
         shared_ptr<DBConnection>sqlConnection = _connectionPool.front();
         _connectionPool.pop_front();
 
-        // Add it to the borrowed list
-        _connectionBorrowed.insert(sqlConnection);
+	if (!sqlConnection->connectionValid())
+	{
+		// we will create a new connection. The previous connection will be deleted by the shared_ptr
+		sqlConnection=_factory->create();
+	}
 
-	bool resetInCaseOfFailure = true;
-	sqlConnection->checkConnection(resetInCaseOfFailure);
+       	// Add it to the borrowed list
+       	_connectionBorrowed.insert(sqlConnection);
 
         return static_pointer_cast<T>(sqlConnection);
     };
