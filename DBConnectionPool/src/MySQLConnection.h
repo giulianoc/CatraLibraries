@@ -27,6 +27,10 @@ class MySQLConnection : public DBConnection {
 public:
     shared_ptr<sql::Connection> _sqlConnection;
 
+    MySQLConnection(string selectTestingConnection): DBConnection(selectTestingConnection) 
+    {
+	}
+
     ~MySQLConnection() 
     {
         if(_sqlConnection) 
@@ -37,6 +41,39 @@ public:
             _sqlConnection.reset(); 	// Release and destruct
         }
     };
+
+	virtual bool connectionValid()
+	{
+		bool connectionValid = true;
+
+		if (_selectTestingConnection != "")
+		{
+			try
+			{
+				shared_ptr<sql::PreparedStatement> preparedStatement (
+						_sqlConnection->prepareStatement(_selectTestingConnection));
+				shared_ptr<sql::ResultSet> resultSet (preparedStatement->executeQuery());
+				if (resultSet->next())
+				{
+					int count     = resultSet->getInt(1);
+				}
+				else
+				{
+					connectionValid = false;
+				}
+			}
+			catch(sql::SQLException se)
+			{
+				connectionValid = false;
+			}
+			catch(exception e)
+			{
+				connectionValid = false;
+			}
+		}
+
+		return connectionValid;
+	}
 };
 
 
@@ -47,14 +84,17 @@ private:
     string _dbUsername;
     string _dbPassword;
     string _dbName;
+	string _selectTestingConnection;
 
 public:
-    MySQLConnectionFactory(string dbServer, string dbUsername, string dbPassword, string dbName) 
+    MySQLConnectionFactory(string dbServer, string dbUsername, string dbPassword, string dbName,
+			string selectTestingConnection) 
     {
         _dbServer = dbServer;
         _dbUsername = dbUsername;
         _dbPassword = dbPassword;
         _dbName = dbName;
+		_selectTestingConnection = selectTestingConnection;
     };
 
     // Any exceptions thrown here should be caught elsewhere
@@ -69,7 +109,8 @@ public:
 	connectionFromDriver->setClientOption("OPT_RECONNECT", &reconnect_state);    
         connectionFromDriver->setSchema(_dbName);
 
-        shared_ptr<MySQLConnection>     mySqlConnection = make_shared<MySQLConnection>();
+        shared_ptr<MySQLConnection>     mySqlConnection = make_shared<MySQLConnection>(
+				_selectTestingConnection);
         mySqlConnection->_sqlConnection = connectionFromDriver;
 
         return static_pointer_cast<DBConnection>(mySqlConnection);

@@ -601,7 +601,7 @@ string FileIO:: readDirectory (shared_ptr<Directory> directory,
     
     
     if ((errFileIO = FileIO:: readDirectory (directory.get(),
-	&directoryEntry, pdetDirectoryEntryType)) != errNoError)
+        &directoryEntry, pdetDirectoryEntryType)) != errNoError)
     {
         if ((long) errFileIO == TOOLS_FILEIO_DIRECTORYFILESFINISHED)
             throw DirectoryListFinished();

@@ -50,13 +50,19 @@ struct ConnectionUnavailable : exception
 
 class DBConnection {
 
+protected:
+	string _selectTestingConnection;
+
 public:
-    DBConnection(){};
+    DBConnection(string selectTestingConnection)
+	{
+		_selectTestingConnection	= selectTestingConnection;
+	};
     virtual ~DBConnection(){};
 
     virtual bool connectionValid()
     {
-	return true;
+		return true;
     };
 };
 
@@ -112,7 +118,7 @@ public:
     {
         lock_guard<mutex> locker(_connectionPoolMutex);
 
-        // Check for a free connection
+		// Check for a free connection
         if(_connectionPool.size()==0)
         {
             // Are there any crashed connections listed as "borrowed"?
@@ -129,6 +135,8 @@ public:
                         _DEBUG("Creating new connection to replace discarded connection");
 
                         shared_ptr<DBConnection> sqlConnection=_factory->create();
+						if (sqlConnection == nullptr)
+							throw std::exception();
 
                         _connectionBorrowed.erase(it);
                         _connectionBorrowed.insert(sqlConnection);
@@ -151,11 +159,12 @@ public:
         shared_ptr<DBConnection>sqlConnection = _connectionPool.front();
         _connectionPool.pop_front();
 
-	if (!sqlConnection->connectionValid())
-	{
-		// we will create a new connection. The previous connection will be deleted by the shared_ptr
-		sqlConnection=_factory->create();
-	}
+		// shared_ptr<T> customSqlConnection = static_pointer_cast<T>(sqlConnection);
+		if (sqlConnection != nullptr && !(sqlConnection->connectionValid()))
+		{
+			// we will create a new connection. The previous connection will be deleted by the shared_ptr
+			sqlConnection=_factory->create();
+		}
 
        	// Add it to the borrowed list
        	_connectionBorrowed.insert(sqlConnection);
@@ -171,6 +180,9 @@ public:
      */
     void unborrow(shared_ptr<T> sqlConnection) 
     {
+		if (sqlConnection == nullptr)
+			throw std::exception();
+
         lock_guard<mutex> locker(_connectionPoolMutex);
 
         // Push onto the pool
