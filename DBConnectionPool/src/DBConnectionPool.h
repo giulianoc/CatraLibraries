@@ -157,15 +157,15 @@ public:
 
         // Take one off the front
         shared_ptr<DBConnection>sqlConnection = _connectionPool.front();
-        _connectionPool.pop_front();
 
 		// shared_ptr<T> customSqlConnection = static_pointer_cast<T>(sqlConnection);
-		if (sqlConnection != nullptr && !(sqlConnection->connectionValid()))
+		if (sqlConnection == nullptr || !(sqlConnection->connectionValid()))
 		{
 			// we will create a new connection. The previous connection will be deleted by the shared_ptr
 			sqlConnection=_factory->create();
 		}
 
+        _connectionPool.pop_front();
        	// Add it to the borrowed list
        	_connectionBorrowed.insert(sqlConnection);
 
