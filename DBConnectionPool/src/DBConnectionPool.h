@@ -54,6 +54,10 @@ protected:
 	string _selectTestingConnection;
 
 public:
+    DBConnection()
+	{
+		_selectTestingConnection	= "";
+	};
     DBConnection(string selectTestingConnection)
 	{
 		_selectTestingConnection	= selectTestingConnection;

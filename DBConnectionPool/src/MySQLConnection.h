@@ -27,6 +27,10 @@ class MySQLConnection : public DBConnection {
 public:
     shared_ptr<sql::Connection> _sqlConnection;
 
+    MySQLConnection(): DBConnection() 
+    {
+    }
+
     MySQLConnection(string selectTestingConnection): DBConnection(selectTestingConnection) 
     {
 	}
@@ -46,29 +50,34 @@ public:
 	{
 		bool connectionValid = true;
 
-		if (_selectTestingConnection != "")
+		if (_sqlConnection == nullptr)
+			connectionValid = false;
+		else
 		{
-			try
+			if (_selectTestingConnection != "" && _sqlConnection != nullptr)
 			{
-				shared_ptr<sql::PreparedStatement> preparedStatement (
-						_sqlConnection->prepareStatement(_selectTestingConnection));
-				shared_ptr<sql::ResultSet> resultSet (preparedStatement->executeQuery());
-				if (resultSet->next())
+				try
 				{
-					int count     = resultSet->getInt(1);
+					shared_ptr<sql::PreparedStatement> preparedStatement (
+						_sqlConnection->prepareStatement(_selectTestingConnection));
+					shared_ptr<sql::ResultSet> resultSet (preparedStatement->executeQuery());
+					if (resultSet->next())
+					{
+						int count     = resultSet->getInt(1);
+					}
+					else
+					{
+						connectionValid = false;
+					}
 				}
-				else
+				catch(sql::SQLException se)
 				{
 					connectionValid = false;
 				}
-			}
-			catch(sql::SQLException se)
-			{
-				connectionValid = false;
-			}
-			catch(exception e)
-			{
-				connectionValid = false;
+				catch(exception e)
+				{
+					connectionValid = false;
+				}
 			}
 		}
 
