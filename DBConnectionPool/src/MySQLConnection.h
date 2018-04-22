@@ -24,22 +24,30 @@
 
 class MySQLConnection : public DBConnection {
 
+private:
+	shared_ptr<spdlog::logger>          _logger;
+
 public:
     shared_ptr<sql::Connection> _sqlConnection;
 
-    MySQLConnection(): DBConnection() 
+    MySQLConnection(shared_ptr<spdlog::logger> logger): DBConnection() 
     {
+		_logger = logger;
     }
 
-    MySQLConnection(string selectTestingConnection): DBConnection(selectTestingConnection) 
+    MySQLConnection(string selectTestingConnection, int connectionId, shared_ptr<spdlog::logger> logger):
+		DBConnection(selectTestingConnection, connectionId) 
     {
+		_logger = logger;
 	}
 
     ~MySQLConnection() 
     {
         if(_sqlConnection) 
         {
-            _DEBUG("MYSQL Destruct");
+			_logger->info(__FILEREF__ + "sql connection destruct"
+				", _connectionId: " + to_string(_connectionId)
+			);
 
             _sqlConnection->close();
             _sqlConnection.reset(); 	// Release and destruct
@@ -51,7 +59,12 @@ public:
 		bool connectionValid = true;
 
 		if (_sqlConnection == nullptr)
+		{
+			_logger->error(__FILEREF__ + "sql connection is null"
+				+ ", _connectionId: " + to_string(_connectionId)
+			);
 			connectionValid = false;
+		}
 		else
 		{
 			if (_selectTestingConnection != "" && _sqlConnection != nullptr)
@@ -72,10 +85,20 @@ public:
 				}
 				catch(sql::SQLException se)
 				{
+					_logger->error(__FILEREF__ + "sql connection exception"
+						+ ", _connectionId: " + to_string(_connectionId)
+						+ ", se.what(): " + se.what()
+					);
+
 					connectionValid = false;
 				}
 				catch(exception e)
 				{
+					_logger->error(__FILEREF__ + "sql connection exception"
+						+ ", _connectionId: " + to_string(_connectionId)
+						+ ", e.what(): " + e.what()
+					);
+
 					connectionValid = false;
 				}
 			}
@@ -94,33 +117,58 @@ private:
     string _dbPassword;
     string _dbName;
 	string _selectTestingConnection;
+	shared_ptr<spdlog::logger> _logger;
 
 public:
     MySQLConnectionFactory(string dbServer, string dbUsername, string dbPassword, string dbName,
-			string selectTestingConnection) 
+			string selectTestingConnection, shared_ptr<spdlog::logger> logger) 
     {
         _dbServer = dbServer;
         _dbUsername = dbUsername;
         _dbPassword = dbPassword;
         _dbName = dbName;
 		_selectTestingConnection = selectTestingConnection;
+		_logger = logger;
     };
 
     // Any exceptions thrown here should be caught elsewhere
-    shared_ptr<DBConnection> create() {
+    shared_ptr<DBConnection> create(int connectionId) {
 
         sql::Driver *driver;
         driver = get_driver_instance();
 
         // server like "tcp://127.0.0.1:3306"
         shared_ptr<sql::Connection> connectionFromDriver (driver->connect(_dbServer, _dbUsername, _dbPassword));
-	bool reconnect_state = true;
-	connectionFromDriver->setClientOption("OPT_RECONNECT", &reconnect_state);    
+		bool reconnect_state = true;
+		connectionFromDriver->setClientOption("OPT_RECONNECT", &reconnect_state);    
         connectionFromDriver->setSchema(_dbName);
 
         shared_ptr<MySQLConnection>     mySqlConnection = make_shared<MySQLConnection>(
-				_selectTestingConnection);
+				_selectTestingConnection, connectionId, _logger);
         mySqlConnection->_sqlConnection = connectionFromDriver;
+
+		bool connectionValid = mySqlConnection->connectionValid();
+		if (!connectionValid)
+		{
+			string errorMessage = string("just created sql connection is not valid")
+				+ ", _connectionId: " + to_string(mySqlConnection->getConnectionId())
+				+ ", _dbServer: " + _dbServer
+				+ ", _dbUsername: " + _dbUsername
+				+ ", _dbName: " + _dbName
+			;
+			_logger->error(__FILEREF__ + errorMessage);
+
+			return nullptr;
+		}
+		else
+		{
+			_logger->info(__FILEREF__ + "just created sql connection"
+					+ ", _connectionId: " + to_string(mySqlConnection->getConnectionId())
+					+ ", _dbServer: " + _dbServer
+					+ ", _dbUsername: " + _dbUsername
+					+ ", _dbName: " + _dbName
+					);
+		}
 
         return static_pointer_cast<DBConnection>(mySqlConnection);
     };

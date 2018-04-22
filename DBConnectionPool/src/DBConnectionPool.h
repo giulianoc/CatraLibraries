@@ -37,6 +37,15 @@
 #include <mutex>
 #include <exception>
 #include <string>
+#include "spdlog/spdlog.h"
+
+#ifndef __FILEREF__
+    #ifdef __APPLE__
+        #define __FILEREF__ string("[") + string(__FILE__).substr(string(__FILE__).find_last_of("/") + 1) + ":" + to_string(__LINE__) + "] "
+    #else
+        #define __FILEREF__ string("[") + basename(__FILE__) + ":" + to_string(__LINE__) + "] "
+    #endif
+#endif
 
 using namespace std;
 
@@ -52,17 +61,25 @@ class DBConnection {
 
 protected:
 	string _selectTestingConnection;
+	int _connectionId;
 
 public:
     DBConnection()
 	{
 		_selectTestingConnection	= "";
+		_connectionId				= -1;
 	};
-    DBConnection(string selectTestingConnection)
+    DBConnection(string selectTestingConnection, int connectionId)
 	{
 		_selectTestingConnection	= selectTestingConnection;
+		_connectionId				= connectionId;
 	};
     virtual ~DBConnection(){};
+
+	int getConnectionId()
+	{
+		return _connectionId;
+	}
 
     virtual bool connectionValid()
     {
@@ -73,7 +90,7 @@ public:
 class DBConnectionFactory {
 
 public:
-    virtual shared_ptr<DBConnection> create()=0;
+    virtual shared_ptr<DBConnection> create(int connectionId)=0;
 };
 
 struct DBConnectionPoolStats 
@@ -88,21 +105,28 @@ class DBConnectionPool {
 protected:
     shared_ptr<DBConnectionFactory>       _factory;
     size_t                              _poolSize;
+	shared_ptr<spdlog::logger>			_logger;
     deque<shared_ptr<DBConnection> >      _connectionPool;
     set<shared_ptr<DBConnection> >        _connectionBorrowed;
     mutex _connectionPoolMutex;
 
 public:
 
-    DBConnectionPool(size_t poolSize, shared_ptr<DBConnectionFactory> factory)
+    DBConnectionPool(size_t poolSize, shared_ptr<DBConnectionFactory> factory,
+			shared_ptr<spdlog::logger> logger)
     {
         _poolSize=poolSize;
         _factory=factory;
+		_logger = logger;
+
+		int lastConnectionId = 0;
 
         // Fill the pool
         while(_connectionPool.size() < _poolSize)
         {
-            _connectionPool.push_back(_factory->create());
+			shared_ptr<DBConnection> sqlConnection = _factory->create(lastConnectionId++);
+			if (sqlConnection != nullptr)
+				_connectionPool.push_back(sqlConnection);
         }
     };
 
@@ -125,6 +149,8 @@ public:
 		// Check for a free connection
         if(_connectionPool.size()==0)
         {
+			_logger->info(__FILEREF__ + "_connectionPool.size is 0, look to recover a borrowed one");
+
             // Are there any crashed connections listed as "borrowed"?
             for(set<shared_ptr<DBConnection> >::iterator it = _connectionBorrowed.begin(); it != _connectionBorrowed.end(); ++it)
             {
@@ -136,11 +162,17 @@ public:
                     try 
                     {
                         // If we are able to create a new connection, return it
-                        _DEBUG("Creating new connection to replace discarded connection");
+						_logger->info(__FILEREF__ + "Creating new connection to replace discarded connection");
 
-                        shared_ptr<DBConnection> sqlConnection=_factory->create();
+						int connectionId = (*it)->getConnectionId();
+
+                        shared_ptr<DBConnection> sqlConnection=_factory->create(connectionId);
 						if (sqlConnection == nullptr)
+						{
+							_logger->error(__FILEREF__ + "sqlConnection is null");
+
 							throw std::exception();
+						}
 
                         _connectionBorrowed.erase(it);
                         _connectionBorrowed.insert(sqlConnection);
@@ -149,24 +181,48 @@ public:
                     } 
                     catch(std::exception& e) 
                     {
+						_logger->error(__FILEREF__ + "exception");
+
                         // Error creating a replacement connection
                         throw ConnectionUnavailable();
                     }
                 }
             }
 
+			_logger->error(__FILEREF__ + "No connection available");
+
             // Nothing available
             throw ConnectionUnavailable();
         }
 
         // Take one off the front
-        shared_ptr<DBConnection>sqlConnection = _connectionPool.front();
+        shared_ptr<DBConnection> sqlConnection = _connectionPool.front();
+		if (sqlConnection->getConnectionId() == 0)
+		{
+			_connectionPool.pop_front();
+			_connectionPool.push_back(sqlConnection);
+
+			sqlConnection = _connectionPool.front();
+		}
 
 		// shared_ptr<T> customSqlConnection = static_pointer_cast<T>(sqlConnection);
-		if (sqlConnection == nullptr || !(sqlConnection->connectionValid()))
+		bool connectionValid = sqlConnection->connectionValid();
+		if (sqlConnection == nullptr || !connectionValid)
 		{
+			_logger->error(__FILEREF__ + "sqlConnection is null or is not valid"
+					", connectionValid: " + to_string(connectionValid)
+					);
+
+			int connectionId = sqlConnection->getConnectionId();
+
 			// we will create a new connection. The previous connection will be deleted by the shared_ptr
-			sqlConnection=_factory->create();
+			sqlConnection=_factory->create(connectionId);
+			if (sqlConnection == nullptr)
+			{
+				_logger->error(__FILEREF__ + "sqlConnection is null");
+
+				throw std::exception();
+			}
 		}
 
         _connectionPool.pop_front();
@@ -185,7 +241,11 @@ public:
     void unborrow(shared_ptr<T> sqlConnection) 
     {
 		if (sqlConnection == nullptr)
+		{
+			_logger->error(__FILEREF__ + "sqlConnection is null");
+
 			throw std::exception();
+		}
 
         lock_guard<mutex> locker(_connectionPoolMutex);
 
