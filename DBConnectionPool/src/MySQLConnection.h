@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- #include "DBConnectionPool.h"
+#include "DBConnectionPool.h"
 #include <string>
 #include "mysql_connection.h"
 #include <cppconn/driver.h>
@@ -24,28 +24,23 @@
 
 class MySQLConnection : public DBConnection {
 
-private:
-	shared_ptr<spdlog::logger>          _logger;
-
 public:
     shared_ptr<sql::Connection> _sqlConnection;
 
-    MySQLConnection(shared_ptr<spdlog::logger> logger): DBConnection() 
+    MySQLConnection(): DBConnection() 
     {
-		_logger = logger;
     }
 
-    MySQLConnection(string selectTestingConnection, int connectionId, shared_ptr<spdlog::logger> logger):
+    MySQLConnection(string selectTestingConnection, int connectionId):
 		DBConnection(selectTestingConnection, connectionId) 
     {
-		_logger = logger;
 	}
 
     ~MySQLConnection() 
     {
         if(_sqlConnection) 
         {
-			_logger->info(__FILEREF__ + "sql connection destruct"
+			DB_DEBUG_LOGGER(__FILEREF__ + "sql connection destruct"
 				", _connectionId: " + to_string(_connectionId)
 			);
 
@@ -60,7 +55,7 @@ public:
 
 		if (_sqlConnection == nullptr)
 		{
-			_logger->error(__FILEREF__ + "sql connection is null"
+			DB_ERROR_LOGGER(__FILEREF__ + "sql connection is null"
 				+ ", _connectionId: " + to_string(_connectionId)
 			);
 			connectionValid = false;
@@ -85,7 +80,7 @@ public:
 				}
 				catch(sql::SQLException se)
 				{
-					_logger->error(__FILEREF__ + "sql connection exception"
+					DB_ERROR_LOGGER(__FILEREF__ + "sql connection exception"
 						+ ", _connectionId: " + to_string(_connectionId)
 						+ ", se.what(): " + se.what()
 					);
@@ -94,7 +89,7 @@ public:
 				}
 				catch(exception e)
 				{
-					_logger->error(__FILEREF__ + "sql connection exception"
+					DB_ERROR_LOGGER(__FILEREF__ + "sql connection exception"
 						+ ", _connectionId: " + to_string(_connectionId)
 						+ ", e.what(): " + e.what()
 					);
@@ -117,18 +112,16 @@ private:
     string _dbPassword;
     string _dbName;
 	string _selectTestingConnection;
-	shared_ptr<spdlog::logger> _logger;
 
 public:
     MySQLConnectionFactory(string dbServer, string dbUsername, string dbPassword, string dbName,
-			string selectTestingConnection, shared_ptr<spdlog::logger> logger) 
+			string selectTestingConnection) 
     {
         _dbServer = dbServer;
         _dbUsername = dbUsername;
         _dbPassword = dbPassword;
         _dbName = dbName;
 		_selectTestingConnection = selectTestingConnection;
-		_logger = logger;
     };
 
     // Any exceptions thrown here should be caught elsewhere
@@ -144,7 +137,7 @@ public:
         connectionFromDriver->setSchema(_dbName);
 
         shared_ptr<MySQLConnection>     mySqlConnection = make_shared<MySQLConnection>(
-				_selectTestingConnection, connectionId, _logger);
+				_selectTestingConnection, connectionId);
         mySqlConnection->_sqlConnection = connectionFromDriver;
 
 		bool connectionValid = mySqlConnection->connectionValid();
@@ -156,13 +149,13 @@ public:
 				+ ", _dbUsername: " + _dbUsername
 				+ ", _dbName: " + _dbName
 			;
-			_logger->error(__FILEREF__ + errorMessage);
+			DB_ERROR_LOGGER(__FILEREF__ + errorMessage);
 
 			return nullptr;
 		}
 		else
 		{
-			_logger->info(__FILEREF__ + "just created sql connection"
+			DB_DEBUG_LOGGER(__FILEREF__ + "just created sql connection"
 					+ ", _connectionId: " + to_string(mySqlConnection->getConnectionId())
 					+ ", _dbServer: " + _dbServer
 					+ ", _dbUsername: " + _dbUsername

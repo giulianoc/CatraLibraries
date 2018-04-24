@@ -21,42 +21,67 @@
  with the authors.
 */
 
+#include <iostream>
+
+using namespace std;
+
+#define DB_DEBUG_LOGGER(x) cout << x << endl
+#define DB_ERROR_LOGGER(x) cerr << x << endl
+
+#include "MySQLConnection.h"
+
 
 int main (int iArgc, char *pArgv [])
 
 {
 
-	string dbServer("mms");
-	string dbUsername("mms");
-	string dbPassword("mms");
-	string ("mms");
-        string selectTestingConnection("select count(*) from MM_TestTable");
+	string dbServer("127.0.0.1");
+	string dbUsername("root");
+	string dbPassword("root");
+	string dbName("catracms");
+	string selectTestingConnection("select count(*) from MMS_APIKeys");
 	int dbPoolSize = 5;
 
-	logger
-	
 	shared_ptr<MySQLConnectionFactory>  mySQLConnectionFactory = 
 		make_shared<MySQLConnectionFactory>(dbServer, dbUsername, dbPassword, dbName,
-		selectTestingConnection, logger);
+		selectTestingConnection);
 
-	_connectionPool = make_shared<DBConnectionPool<MySQLConnection>>(
-		dbPoolSize, mySQLConnectionFactory, logger);
+	shared_ptr<DBConnectionPool<MySQLConnection>> connectionPool =
+		make_shared<DBConnectionPool<MySQLConnection>>(
+		dbPoolSize, mySQLConnectionFactory);
 
 	shared_ptr<MySQLConnection> conn;
 
-	for (int index = 0; index < 10; index++)
+	for (int index = 0; index < 1000; index++)
 	{
 		try
 		{
+			conn = connectionPool->borrow();	
+			connectionPool->unborrow(conn);
 		}
 		catch(sql::SQLException se)
 		{
-		string exceptionMessage(se.what());
-        
-		logger->error(__FILEREF__ + "SQL exception"
-		+ ", exceptionMessage: " + exceptionMessage
-		);
-
+			string exceptionMessage(se.what());
+ 
+			cerr <<__FILEREF__ + "SQL exception"
+				+ ", exceptionMessage: " + exceptionMessage
+				<< endl;
+		}
+		catch(runtime_error e)
+		{
+			string exceptionMessage(e.what());
+ 
+			cerr <<__FILEREF__ + "SQL exception"
+				+ ", exceptionMessage: " + exceptionMessage
+				<< endl;
+		}
+		catch(exception e)
+		{
+			string exceptionMessage(e.what());
+ 
+			cerr <<__FILEREF__ + "SQL exception"
+				+ ", exceptionMessage: " + exceptionMessage
+				<< endl;
 		}
 	}
 

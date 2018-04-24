@@ -22,7 +22,7 @@
 
 SET (HEADERS
 	DBConnectionPool.h
-	MySQLConnection.h
+	#	MySQLConnection.h
 )
 
 install (FILES ${HEADERS} DESTINATION ${INSTALL_INCLUDE_DIRECTORY})

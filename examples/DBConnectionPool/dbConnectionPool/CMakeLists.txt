@@ -27,5 +27,11 @@ SET (SOURCES
 SET (HEADERS
 )
 
+include_directories ("${PROJECT_SOURCE_DIR}/DBConnectionPool/src")
+include_directories ("/app/5/ThirdPartySoftware/mysql-connector-c++-1.1.9-linux-ubuntu16.10-x86-64bit/include")
+
+link_directories ("/app/5/ThirdPartySoftware/mysql-connector-c++-1.1.9-linux-ubuntu16.10-x86-64bit/lib")
+
 add_executable(dbConnectionPool ${SOURCES} ${HEADERS})
 
+target_link_libraries (dbConnectionPool mysqlcppconn)
