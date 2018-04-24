@@ -207,7 +207,7 @@ public:
 
 		// shared_ptr<T> customSqlConnection = static_pointer_cast<T>(sqlConnection);
 		bool connectionValid = sqlConnection->connectionValid();
-		if (sqlConnection == nullptr || !connectionValid)
+		if (!connectionValid)
 		{
 			_logger->error(__FILEREF__ + "sqlConnection is null or is not valid"
 					", connectionValid: " + to_string(connectionValid)
