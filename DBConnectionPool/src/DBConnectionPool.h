@@ -24,6 +24,14 @@
  */
 
 
+#include <deque>
+#include <set>
+#include <memory>
+#include <mutex>
+#include <exception>
+#include <string>
+#include <libgen.h>
+
 // Define your custom logging function by overriding this #define
 #ifndef DB_DEBUG_LOGGER
 	#define DB_DEBUG_LOGGER(x)
@@ -32,15 +40,6 @@
 	#define DB_ERROR_LOGGER(x)
 #endif
 
-
-
-#include <deque>
-#include <set>
-#include <memory>
-#include <mutex>
-#include <exception>
-#include <string>
-#include <libgen.h>
 
 #ifndef __FILEREF__
     #ifdef __APPLE__
@@ -124,9 +123,10 @@ public:
         // Fill the pool
         while(_connectionPool.size() < _poolSize)
         {
-			shared_ptr<DBConnection> sqlConnection = _factory->create(lastConnectionId++);
-			if (sqlConnection != nullptr)
-				_connectionPool.push_back(sqlConnection);
+			// shared_ptr<DBConnection> sqlConnection = _factory->create(lastConnectionId++);
+			// if (sqlConnection != nullptr)
+			// 	_connectionPool.push_back(sqlConnection);
+			_connectionPool.push_back(_factory->create(lastConnectionId++));
         }
     };
 
@@ -197,6 +197,7 @@ public:
 
         // Take one off the front
         shared_ptr<DBConnection> sqlConnection = _connectionPool.front();
+        _connectionPool.pop_front();
 		/*
 		if (sqlConnection->getConnectionId() == 0)
 		{
@@ -221,15 +222,18 @@ public:
 			sqlConnection=_factory->create(connectionId);
 			if (sqlConnection == nullptr)
 			{
+				// in this scenario we will lose one connection because we removed it from _connectionPool
+				// and we will not add it to _connectionBorrowed
+				// We will accept that since we were not be able to create a new connection
+
 				DB_ERROR_LOGGER(__FILEREF__ + "sqlConnection is null");
 
 				throw std::exception();
 			}
+
 		}
 
-        _connectionPool.pop_front();
-       	// Add it to the borrowed list
-       	_connectionBorrowed.insert(sqlConnection);
+		_connectionBorrowed.insert(sqlConnection);
 
 		DB_DEBUG_LOGGER(__FILEREF__ + "borrow"
 				+ ", connectionId: " + to_string(sqlConnection->getConnectionId())
