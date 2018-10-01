@@ -53,3 +53,4 @@ if (ZLIB_FOUND)
 	target_link_libraries(encrypt ${ZLIB_LIBRARIES})
 endif()
 
+install (TARGETS encrypt DESTINATION bin)
