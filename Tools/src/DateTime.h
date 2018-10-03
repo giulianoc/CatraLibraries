@@ -28,6 +28,8 @@
 	#include "ToolsErrors.h"
 
 
+	using namespace std;
+
 	typedef class DateTime
 	
 	{
@@ -77,6 +79,9 @@
 
 			static Error getTimeZoneInformation (
 				long *plTimeZoneDifferenceInHours);
+
+			static long getTimeZoneInformation(void);
+
 
 			static Error get_tm_LocalTime (
 				tm *ptmDateTime, unsigned long *pulMilliSecs);

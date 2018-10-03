@@ -22,6 +22,8 @@
 */
 
 
+#include <string>
+
 #include "DateTime.h"
 #ifdef WIN32
 	#include <Windows.h>
@@ -35,7 +37,6 @@
 #include <time.h>
 #include <assert.h>
 #include <errno.h>
-
 
 
 DateTime:: DateTime (void)
@@ -276,6 +277,23 @@ Error DateTime:: getTimeZoneInformation (long *plTimeZoneDifferenceInHours)
 
 
 	return errNoError;
+}
+
+
+long DateTime::getTimeZoneInformation (void)
+
+{
+
+	long lTimeZoneDifferenceInHours;
+	Error errDateTime;
+
+	if ((errDateTime = DateTime::getTimeZoneInformation (&lTimeZoneDifferenceInHours)) != errNoError)
+	{
+		throw runtime_error(string("DateTime:: getTimeZoneInformation failed: ")
+			+ (const char *) errDateTime);
+	}
+
+	return lTimeZoneDifferenceInHours;
 }
 
 
