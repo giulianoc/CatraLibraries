@@ -169,9 +169,11 @@ public:
                         shared_ptr<DBConnection> sqlConnection=_factory->create(connectionId);
 						if (sqlConnection == nullptr)
 						{
-							DB_ERROR_LOGGER(__FILEREF__ + "sqlConnection is null");
+                                                    string errorMessage = __FILEREF__ + "sqlConnection is null"
+                                                    ;
+                                                    DB_ERROR_LOGGER(errorMessage);
 
-							throw std::exception();
+                                                    throw runtime_error(errorMessage);                    
 						}
 
                         _connectionBorrowed.erase(it);
@@ -181,18 +183,22 @@ public:
                     } 
                     catch(std::exception& e) 
                     {
-						DB_ERROR_LOGGER(__FILEREF__ + "exception");
+                        string errorMessage = __FILEREF__ + "exception"
+                        ;
+                        DB_ERROR_LOGGER(errorMessage);
 
                         // Error creating a replacement connection
-                        throw ConnectionUnavailable();
+                        throw runtime_error(errorMessage);                    
                     }
                 }
             }
 
-			DB_ERROR_LOGGER(__FILEREF__ + "No connection available");
+            string errorMessage = __FILEREF__ + "No connection available"
+            ;
+            DB_ERROR_LOGGER(errorMessage);
 
             // Nothing available
-            throw ConnectionUnavailable();
+            throw runtime_error(errorMessage);                    
         }
 
         // Take one off the front
@@ -226,9 +232,11 @@ public:
 				// and we will not add it to _connectionBorrowed
 				// We will accept that since we were not be able to create a new connection
 
-				DB_ERROR_LOGGER(__FILEREF__ + "sqlConnection is null");
+                                string errorMessage = __FILEREF__ + "sqlConnection is null"
+                                ;
+				DB_ERROR_LOGGER(errorMessage);
 
-				throw std::exception();
+                                throw runtime_error(errorMessage);                    
 			}
 
 		}
@@ -252,9 +260,11 @@ public:
     {
 		if (sqlConnection == nullptr)
 		{
-			DB_ERROR_LOGGER(__FILEREF__ + "sqlConnection is null");
+                    string errorMessage = __FILEREF__ + "sqlConnection is null"
+                    ;
+                    DB_ERROR_LOGGER(errorMessage);
 
-			throw std::exception();
+                    throw runtime_error(errorMessage);                    
 		}
 
         lock_guard<mutex> locker(_connectionPoolMutex);
