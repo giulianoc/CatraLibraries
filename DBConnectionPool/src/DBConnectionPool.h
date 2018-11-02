@@ -150,6 +150,8 @@ public:
      */
     shared_ptr<T> borrow()
     {
+        DB_BORROW_DEBUG_LOGGER(__FILEREF__ + "Received borrow");
+
         lock_guard<mutex> locker(_connectionPoolMutex);
 
 	// Check for a free connection
