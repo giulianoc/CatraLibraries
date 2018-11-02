@@ -40,9 +40,9 @@ public:
     {
         if(_sqlConnection) 
         {
-			DB_DEBUG_LOGGER(__FILEREF__ + "sql connection destruct"
-				", _connectionId: " + to_string(_connectionId)
-			);
+            DB_DEBUG_LOGGER(__FILEREF__ + "sql connection destruct"
+                    ", _connectionId: " + to_string(_connectionId)
+            );
 
             _sqlConnection->close();
             _sqlConnection.reset(); 	// Release and destruct
@@ -143,24 +143,24 @@ public:
 		bool connectionValid = mySqlConnection->connectionValid();
 		if (!connectionValid)
 		{
-			string errorMessage = string("just created sql connection is not valid")
-				+ ", _connectionId: " + to_string(mySqlConnection->getConnectionId())
-				+ ", _dbServer: " + _dbServer
-				+ ", _dbUsername: " + _dbUsername
-				+ ", _dbName: " + _dbName
-			;
-			DB_ERROR_LOGGER(__FILEREF__ + errorMessage);
+                    string errorMessage = string("just created sql connection is not valid")
+                        + ", _connectionId: " + to_string(mySqlConnection->getConnectionId())
+                        + ", _dbServer: " + _dbServer
+                        + ", _dbUsername: " + _dbUsername
+                        + ", _dbName: " + _dbName
+                    ;
+                    DB_ERROR_LOGGER(__FILEREF__ + errorMessage);
 
-			return nullptr;
+                    return nullptr;
 		}
 		else
 		{
-			DB_DEBUG_LOGGER(__FILEREF__ + "just created sql connection"
-					+ ", _connectionId: " + to_string(mySqlConnection->getConnectionId())
-					+ ", _dbServer: " + _dbServer
-					+ ", _dbUsername: " + _dbUsername
-					+ ", _dbName: " + _dbName
-					);
+                    DB_DEBUG_LOGGER(__FILEREF__ + "just created sql connection"
+                        + ", _connectionId: " + to_string(mySqlConnection->getConnectionId())
+                        + ", _dbServer: " + _dbServer
+                        + ", _dbUsername: " + _dbUsername
+                        + ", _dbName: " + _dbName
+                        );
 		}
 
         return static_pointer_cast<DBConnection>(mySqlConnection);

@@ -33,6 +33,12 @@
 #include <libgen.h>
 
 // Define your custom logging function by overriding this #define
+#ifndef DB_BORROW_DEBUG_LOGGER
+	#define DB_BORROW_DEBUG_LOGGER(x)
+#endif
+#ifndef DB_BORROW_ERROR_LOGGER
+	#define DB_BORROW_ERROR_LOGGER(x)
+#endif
 #ifndef DB_DEBUG_LOGGER
 	#define DB_DEBUG_LOGGER(x)
 #endif
@@ -146,10 +152,10 @@ public:
     {
         lock_guard<mutex> locker(_connectionPoolMutex);
 
-		// Check for a free connection
+	// Check for a free connection
         if(_connectionPool.size()==0)
         {
-			DB_DEBUG_LOGGER(__FILEREF__ + "_connectionPool.size is 0, look to recover a borrowed one");
+            DB_BORROW_DEBUG_LOGGER(__FILEREF__ + "_connectionPool.size is 0, look to recover a borrowed one");
 
             // Are there any crashed connections listed as "borrowed"?
             for(set<shared_ptr<DBConnection> >::iterator it = _connectionBorrowed.begin(); it != _connectionBorrowed.end(); ++it)
@@ -162,19 +168,19 @@ public:
                     try 
                     {
                         // If we are able to create a new connection, return it
-						DB_DEBUG_LOGGER(__FILEREF__ + "Creating new connection to replace discarded connection");
+                        DB_BORROW_DEBUG_LOGGER(__FILEREF__ + "Creating new connection to replace discarded connection");
 
-						int connectionId = (*it)->getConnectionId();
+                        int connectionId = (*it)->getConnectionId();
 
                         shared_ptr<DBConnection> sqlConnection=_factory->create(connectionId);
-						if (sqlConnection == nullptr)
-						{
-                                                    string errorMessage = __FILEREF__ + "sqlConnection is null"
-                                                    ;
-                                                    DB_ERROR_LOGGER(errorMessage);
+                        if (sqlConnection == nullptr)
+                        {
+                            string errorMessage = __FILEREF__ + "sqlConnection is null"
+                            ;
+                            DB_BORROW_ERROR_LOGGER(errorMessage);
 
-                                                    throw runtime_error(errorMessage);                    
-						}
+                            throw runtime_error(errorMessage);                    
+                        }
 
                         _connectionBorrowed.erase(it);
                         _connectionBorrowed.insert(sqlConnection);
@@ -185,7 +191,7 @@ public:
                     {
                         string errorMessage = __FILEREF__ + "exception"
                         ;
-                        DB_ERROR_LOGGER(errorMessage);
+                        DB_BORROW_ERROR_LOGGER(errorMessage);
 
                         // Error creating a replacement connection
                         throw runtime_error(errorMessage);                    
@@ -195,7 +201,7 @@ public:
 
             string errorMessage = __FILEREF__ + "No connection available"
             ;
-            DB_ERROR_LOGGER(errorMessage);
+            DB_BORROW_ERROR_LOGGER(errorMessage);
 
             // Nothing available
             throw runtime_error(errorMessage);                    
@@ -204,48 +210,56 @@ public:
         // Take one off the front
         shared_ptr<DBConnection> sqlConnection = _connectionPool.front();
         _connectionPool.pop_front();
-		/*
-		if (sqlConnection->getConnectionId() == 0)
-		{
-			_connectionPool.pop_front();
-			_connectionPool.push_back(sqlConnection);
+        /*
+        if (sqlConnection->getConnectionId() == 0)
+        {
+                _connectionPool.pop_front();
+                _connectionPool.push_back(sqlConnection);
 
-			sqlConnection = _connectionPool.front();
-		}
-		*/
+                sqlConnection = _connectionPool.front();
+        }
+        */
 
-		// shared_ptr<T> customSqlConnection = static_pointer_cast<T>(sqlConnection);
-		bool connectionValid = sqlConnection->connectionValid();
-		if (!connectionValid)
-		{
-			DB_ERROR_LOGGER(__FILEREF__ + "sqlConnection is null or is not valid"
-					", connectionValid: " + to_string(connectionValid)
-					);
+        if (sqlConnection == nullptr)
+        {
+            string errorMessage = __FILEREF__ + "sqlConnection is null"
+            ;
+            DB_BORROW_ERROR_LOGGER(errorMessage);
 
-			int connectionId = sqlConnection->getConnectionId();
+            throw runtime_error(errorMessage);                    
+        }
 
-			// we will create a new connection. The previous connection will be deleted by the shared_ptr
-			sqlConnection=_factory->create(connectionId);
-			if (sqlConnection == nullptr)
-			{
-				// in this scenario we will lose one connection because we removed it from _connectionPool
-				// and we will not add it to _connectionBorrowed
-				// We will accept that since we were not be able to create a new connection
+        // shared_ptr<T> customSqlConnection = static_pointer_cast<T>(sqlConnection);
+        bool connectionValid = sqlConnection->connectionValid();
+        if (!connectionValid)
+        {
+            DB_BORROW_ERROR_LOGGER(__FILEREF__ + "sqlConnection is null or is not valid"
+                            ", connectionValid: " + to_string(connectionValid)
+                            );
 
-                                string errorMessage = __FILEREF__ + "sqlConnection is null"
-                                ;
-				DB_ERROR_LOGGER(errorMessage);
+            int connectionId = sqlConnection->getConnectionId();
 
-                                throw runtime_error(errorMessage);                    
-			}
+            // we will create a new connection. The previous connection will be deleted by the shared_ptr
+            sqlConnection=_factory->create(connectionId);
+            if (sqlConnection == nullptr)
+            {
+                // in this scenario we will lose one connection because we removed it from _connectionPool
+                // and we will not add it to _connectionBorrowed
+                // We will accept that since we were not be able to create a new connection
 
-		}
+                string errorMessage = __FILEREF__ + "sqlConnection is null"
+                ;
+                DB_BORROW_ERROR_LOGGER(errorMessage);
 
-		_connectionBorrowed.insert(sqlConnection);
+                throw runtime_error(errorMessage);                    
+            }
+        }
 
-		DB_DEBUG_LOGGER(__FILEREF__ + "borrow"
-				+ ", connectionId: " + to_string(sqlConnection->getConnectionId())
-				);
+        _connectionBorrowed.insert(sqlConnection);
+
+        DB_BORROW_DEBUG_LOGGER(__FILEREF__ + "borrow"
+                        + ", connectionId: " + to_string(sqlConnection->getConnectionId())
+                        );
 
         return static_pointer_cast<T>(sqlConnection);
     };
@@ -258,14 +272,14 @@ public:
      */
     void unborrow(shared_ptr<T> sqlConnection) 
     {
-		if (sqlConnection == nullptr)
-		{
-                    string errorMessage = __FILEREF__ + "sqlConnection is null"
-                    ;
-                    DB_ERROR_LOGGER(errorMessage);
+        if (sqlConnection == nullptr)
+        {
+            string errorMessage = __FILEREF__ + "sqlConnection is null"
+            ;
+            DB_ERROR_LOGGER(errorMessage);
 
-                    throw runtime_error(errorMessage);                    
-		}
+            throw runtime_error(errorMessage);                    
+        }
 
         lock_guard<mutex> locker(_connectionPoolMutex);
 
@@ -275,9 +289,9 @@ public:
         // Unborrow
         _connectionBorrowed.erase(sqlConnection);
 
-		DB_DEBUG_LOGGER(__FILEREF__ + "unborrow"
-				+ ", connectionId: " + to_string(sqlConnection->getConnectionId())
-				);
+        DB_DEBUG_LOGGER(__FILEREF__ + "unborrow"
+                        + ", connectionId: " + to_string(sqlConnection->getConnectionId())
+                        );
     };
 
     DBConnectionPoolStats get_stats() 
