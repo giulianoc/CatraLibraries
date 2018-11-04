@@ -34,7 +34,7 @@ public:
     MySQLConnection(string selectTestingConnection, int connectionId):
 		DBConnection(selectTestingConnection, connectionId) 
     {
-	}
+    }
 
     ~MySQLConnection() 
     {
@@ -49,58 +49,58 @@ public:
         }
     };
 
-	virtual bool connectionValid()
-	{
-		bool connectionValid = true;
+    virtual bool connectionValid()
+    {
+            bool connectionValid = true;
 
-		if (_sqlConnection == nullptr)
-		{
-			DB_ERROR_LOGGER(__FILEREF__ + "sql connection is null"
-				+ ", _connectionId: " + to_string(_connectionId)
-			);
-			connectionValid = false;
-		}
-		else
-		{
-			if (_selectTestingConnection != "" && _sqlConnection != nullptr)
-			{
-				try
-				{
-					shared_ptr<sql::PreparedStatement> preparedStatement (
-						_sqlConnection->prepareStatement(_selectTestingConnection));
-					shared_ptr<sql::ResultSet> resultSet (preparedStatement->executeQuery());
-					if (resultSet->next())
-					{
-						int count     = resultSet->getInt(1);
-					}
-					else
-					{
-						connectionValid = false;
-					}
-				}
-				catch(sql::SQLException se)
-				{
-					DB_ERROR_LOGGER(__FILEREF__ + "sql connection exception"
-						+ ", _connectionId: " + to_string(_connectionId)
-						+ ", se.what(): " + se.what()
-					);
+            if (_sqlConnection == nullptr)
+            {
+                    DB_ERROR_LOGGER(__FILEREF__ + "sql connection is null"
+                            + ", _connectionId: " + to_string(_connectionId)
+                    );
+                    connectionValid = false;
+            }
+            else
+            {
+                    if (_selectTestingConnection != "" && _sqlConnection != nullptr)
+                    {
+                            try
+                            {
+                                    shared_ptr<sql::PreparedStatement> preparedStatement (
+                                            _sqlConnection->prepareStatement(_selectTestingConnection));
+                                    shared_ptr<sql::ResultSet> resultSet (preparedStatement->executeQuery());
+                                    if (resultSet->next())
+                                    {
+                                            int count     = resultSet->getInt(1);
+                                    }
+                                    else
+                                    {
+                                            connectionValid = false;
+                                    }
+                            }
+                            catch(sql::SQLException se)
+                            {
+                                    DB_ERROR_LOGGER(__FILEREF__ + "sql connection exception"
+                                            + ", _connectionId: " + to_string(_connectionId)
+                                            + ", se.what(): " + se.what()
+                                    );
 
-					connectionValid = false;
-				}
-				catch(exception e)
-				{
-					DB_ERROR_LOGGER(__FILEREF__ + "sql connection exception"
-						+ ", _connectionId: " + to_string(_connectionId)
-						+ ", e.what(): " + e.what()
-					);
+                                    connectionValid = false;
+                            }
+                            catch(exception e)
+                            {
+                                    DB_ERROR_LOGGER(__FILEREF__ + "sql connection exception"
+                                            + ", _connectionId: " + to_string(_connectionId)
+                                            + ", e.what(): " + e.what()
+                                    );
 
-					connectionValid = false;
-				}
-			}
-		}
+                                    connectionValid = false;
+                            }
+                    }
+            }
 
-		return connectionValid;
-	}
+            return connectionValid;
+    }
 };
 
 
