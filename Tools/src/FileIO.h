@@ -287,11 +287,15 @@ public:
 	bool inCaseOfLinkHasItToBeRead);
 
     static Error isFileExisting (const char *pPathName,
-            Boolean_p pbExist);
+            Boolean_p pbExist,
+			long maxMillisecondsToWait = 0,
+			long milliSecondsWaitingBetweenChecks = 50);
 
-    static Boolean_t isFileExisting (const char *pPathName);
-    
-    static bool fileExisting (string pathName);
+    static Boolean_t isFileExisting (const char *pPathName,
+			long maxMillisecondsToWait = 0, long milliSecondsWaitingBetweenChecks = 50);
+
+    static bool fileExisting (string pathName,
+			long maxMillisecondsToWait = 0, long milliSecondsWaitingBetweenChecks = 50);
 
     /*
      *

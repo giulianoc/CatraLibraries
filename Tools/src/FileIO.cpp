@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <fstream>
+#include <thread>
 #ifdef WIN32
 	#include <io.h>
 	#include <direct.h>
@@ -4240,7 +4241,8 @@ unsigned long FileIO:: getFileSizeInBytes (string pathName,
     return ulFileSize;
 }
 
-Error FileIO:: isFileExisting (const char *pPathName, Boolean_p pbExist)
+Error FileIO:: isFileExisting (const char *pPathName, Boolean_p pbExist,
+	long maxMillisecondsToWait, long milliSecondsWaitingBetweenChecks)
 
 {
 
@@ -4264,6 +4266,20 @@ Error FileIO:: isFileExisting (const char *pPathName, Boolean_p pbExist)
 	else
 		*pbExist			= true;
 	*/
+
+	chrono::system_clock::time_point start =
+		chrono::system_clock::now();
+	chrono::system_clock::time_point end =
+		start + chrono::milliseconds(maxMillisecondsToWait);
+
+	bool firstCheck = true;
+
+	do
+	{
+		if (!firstCheck)
+			this_thread::sleep_for(chrono::milliseconds(milliSecondsWaitingBetweenChecks));
+		else
+			firstCheck = false;
 
 	#ifdef WIN32
 		struct _stat						sFileInfo;
@@ -4356,13 +4372,16 @@ Error FileIO:: isFileExisting (const char *pPathName, Boolean_p pbExist)
 				*pbExist			= false;
 		}
 	#endif	
+	}
+	while(!(*pbExist) && chrono::system_clock::now() < end);
 
 
 	return errNoError;
 }
 
 
-Boolean_t FileIO:: isFileExisting (const char *pPathName)
+Boolean_t FileIO:: isFileExisting (const char *pPathName,
+		long maxMillisecondsToWait, long milliSecondsWaitingBetweenChecks)
 
 {
 	Boolean_t			bExist;
@@ -4370,14 +4389,16 @@ Boolean_t FileIO:: isFileExisting (const char *pPathName)
 
 	bExist		= false;
 
-	FileIO:: isFileExisting (pPathName, &bExist);
+	FileIO:: isFileExisting (pPathName, &bExist,
+			maxMillisecondsToWait, milliSecondsWaitingBetweenChecks);
 
 
 	return bExist;
 
 }
 
-bool FileIO:: fileExisting (string pathName)
+bool FileIO:: fileExisting (string pathName,
+		long maxMillisecondsToWait, long milliSecondsWaitingBetweenChecks)
 
 {
 	Boolean_t			bExist;
@@ -4385,7 +4406,8 @@ bool FileIO:: fileExisting (string pathName)
 
 	bExist		= false;
 
-	FileIO:: isFileExisting (pathName.c_str(), &bExist);
+	FileIO:: isFileExisting (pathName.c_str(), &bExist,
+			maxMillisecondsToWait, milliSecondsWaitingBetweenChecks);
 
 
 	return bExist ? true : false;

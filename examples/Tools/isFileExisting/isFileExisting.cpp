@@ -41,8 +41,11 @@ int main (int iArgc, char *pArgv [])
 		return 1;
 	}
 
+	long maxMillisecondsToWait = 20000;
+	long milliSecondsWaitingBetweenChecks = 50;
 
-	if ((errFileIO = FileIO:: isFileExisting (pArgv [1], &bIsExist)) !=
+	if ((errFileIO = FileIO:: isFileExisting (pArgv [1], &bIsExist,
+					maxMillisecondsToWait, milliSecondsWaitingBetweenChecks)) !=
 		errNoError)
 	{
 		std:: cerr << (const char *) errFileIO << std:: endl;
