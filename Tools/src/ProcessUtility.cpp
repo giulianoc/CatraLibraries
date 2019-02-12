@@ -36,9 +36,10 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef __QTCOMPILER__
+// #ifdef __QTCOMPILER__
+	#include <sys/types.h>
 	#include <sys/wait.h>
-#endif
+// #endif
 
 
 ProcessUtility:: ProcessUtility (void)
@@ -167,6 +168,100 @@ int ProcessUtility:: execute (string command)
     }
     
     return returnedStatus;
+}
+
+void ProcessUtility::forkAndExec (
+		string programPath,
+		// first string is the program name, than we have the params
+		vector<string> argList,
+		pid_t* pPid,
+		int *piReturnedStatus
+		)
+{
+
+	/* Duplicate this process. */
+	pid_t childPid = fork();
+	if (childPid == -1)
+	{
+		// fork failed
+		string errorMessage = string("Fork failed. errno: ") + to_string(errno);
+
+		throw runtime_error(errorMessage);
+	}
+
+	if (childPid != 0)
+	{
+		// parent process
+		// Status information about the child reported by wait is more than just the exit status of the child, it also includes
+		// - normal/abnormal termination
+		//		WIFEXITED(status): child exited normally
+		//		WEXITSTATUS(status): return code when child exits
+		// - termination cause
+		//		WIFSIGNALED(status): child exited because a signal was not caught
+		//		WTERMSIG(status): gives the number of the terminating signal
+		// - exit status
+		//		WIFSTOPPED(status): child is stopped
+		//		WSTOPSIG(status): gives the number of the stop signal
+		// if we want to prints information about a signal
+		//	void psignal(unsigned sig, const char *s);
+
+		*pPid = childPid;
+
+
+		int wstatus;
+		// pid_t childPid = wait(piReturnedStatus);
+		wait(&wstatus);
+
+		if (WIFEXITED(wstatus))
+			*piReturnedStatus = WEXITSTATUS(wstatus);
+		else if (WIFSIGNALED(wstatus))
+		{
+			string errorMessage = string("Child has exit abnormally. Terminating signal: ") + to_string(WTERMSIG(wstatus));
+
+			throw runtime_error(errorMessage);
+		}
+		else if (WIFSTOPPED(wstatus))
+		{
+			string errorMessage = string("Child has exit abnormally. Stop signal: ") + to_string(WSTOPSIG(wstatus));
+
+			throw runtime_error(errorMessage);
+		}
+	}
+	else
+	{
+		/*
+		char** argListParam = new char*[argList.size() + 1];
+		for (int paramIndex = 0; paramIndex < argList.size(); paramIndex++)
+		{
+			// cout << argList[paramIndex] << endl;
+
+			argListParam[paramIndex] = new char [argList[paramIndex].size() + 1];
+			strcpy (argListParam[paramIndex], argList[paramIndex].c_str());
+		}
+		argListParam[argList.size()] = NULL;
+		*/
+
+		vector<char*> commandVector;
+		for (int paramIndex = 0; paramIndex < argList.size(); paramIndex++)
+		{
+			commandVector.push_back(const_cast<char*>(argList[paramIndex].c_str()));
+		}
+		commandVector.push_back(NULL);
+
+		// child process: execute the command
+		execv(programPath.c_str(),  &commandVector[0]);
+
+		/*
+		for (int paramIndex = 0; paramIndex < argList.size(); paramIndex++)
+			delete argListParam[paramIndex];
+		delete [] argListParam;
+		*/
+
+		/* The execv  function returns only if an error occurs.  */
+		string errorMessage = string("An error occurred in execv. errno: ") + to_string(errno);
+
+		throw runtime_error(errorMessage);
+	}
 }
 
 #ifdef WIN32

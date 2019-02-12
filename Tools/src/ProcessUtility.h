@@ -25,7 +25,8 @@
 #ifndef ProcessUtility_h
 	#define ProcessUtility_h
 
-        #include <string>
+	#include <string>
+	#include <vector>
 	#include "ToolsErrors.h"
 	#ifdef WIN32
 	#else
@@ -78,6 +79,13 @@
 				int *piReturnedStatus);
 
                         static int execute (string command);
+
+			static void forkAndExec (
+				string programPath,
+				// first string is the program name, than we have the params
+				vector<string> argList,
+				pid_t* pPid,
+				int *piReturnedStatus);
 
                         /**
 				Set the user and group ID of the current process.
