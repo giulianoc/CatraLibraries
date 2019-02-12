@@ -52,10 +52,6 @@ int main (int iArgc, char *pArgv [])
 	{
 		cerr << "Runtime_error: " << e.what() << endl;
 	}
-	catch(exception e)
-	{
-		cerr << "Exception: " << e.what() << endl;
-	}
 
 
 

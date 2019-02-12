@@ -39,6 +39,7 @@
 // #ifdef __QTCOMPILER__
 	#include <sys/types.h>
 	#include <sys/wait.h>
+	#include <signal.h>
 // #endif
 
 
@@ -263,6 +264,18 @@ void ProcessUtility::forkAndExec (
 		throw runtime_error(errorMessage);
 	}
 }
+
+
+void ProcessUtility::killProcess (pid_t pid)
+{
+	if(kill(pid, SIGTERM) == -1)
+	{
+		string errorMessage = string("kill failed. errno: ") + to_string(errno);
+
+		throw runtime_error(errorMessage);
+	}
+}
+
 
 #ifdef WIN32
 #else
