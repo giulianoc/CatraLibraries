@@ -83,7 +83,7 @@
 			static void forkAndExec (
 				string programPath,
 				// first string is the program name, than we have the params
-				vector<string> argList,
+				vector<string>& argList,
 				string redirectionPathName,
 				bool redirectionStdOutput,
 				bool redirectionStdError,

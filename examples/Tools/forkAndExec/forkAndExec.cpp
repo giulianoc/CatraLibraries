@@ -39,6 +39,7 @@ int main (int iArgc, char *pArgv [])
 		argList.push_back("script.csh");
 		argList.push_back("param1=value1");
 		argList.push_back("param2=value2");
+		argList.push_back("-i param2value2");
 
 		string programPath = "/app/7/DevelopmentWorkingArea/CatraLibraries/examples/Tools/forkAndExec/script.csh";
 

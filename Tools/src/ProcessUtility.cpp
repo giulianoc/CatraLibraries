@@ -179,7 +179,7 @@ int ProcessUtility:: execute (string command)
 void ProcessUtility::forkAndExec (
 		string programPath,
 		// first string is the program name, than we have the params
-		vector<string> argList,
+		vector<string>& argList,
 		string redirectionPathName,
 		bool redirectionStdOutput,
 		bool redirectionStdError,
@@ -273,15 +273,22 @@ void ProcessUtility::forkAndExec (
 
 			// redirect out, copy the file descriptor fd into standard output/error
 			if (redirectionStdOutput)
+			{
+				close(STDOUT_FILENO);
 				dup2(fd, STDOUT_FILENO); 
+			}
 			if (redirectionStdError)
+			{
+				close(STDERR_FILENO);
 				dup2(fd, STDERR_FILENO); 
+			}
 
-			close (fd); // close the file descriptor as we don't need it more
+			// close (fd); // close the file descriptor as we don't need it more
 		}
 
 		// child process: execute the command
 		execv(programPath.c_str(),  &commandVector[0]);
+		// execv(programPath.c_str(),  argListParam);
 
 		/*
 		for (int paramIndex = 0; paramIndex < argList.size(); paramIndex++)
