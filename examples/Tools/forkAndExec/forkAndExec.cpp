@@ -42,9 +42,14 @@ int main (int iArgc, char *pArgv [])
 
 		string programPath = "/app/7/DevelopmentWorkingArea/CatraLibraries/examples/Tools/forkAndExec/script.csh";
 
+		string redirectionPathName = "/app/7/DevelopmentWorkingArea/CatraLibraries/examples/Tools/forkAndExec/redirect.txt";
+        bool redirectionStdOutput = true;
+        bool redirectionStdError = true;
 		pid_t	childPid;
 
-		ProcessUtility::forkAndExec (programPath, argList, &childPid, &iReturnedStatus);
+		ProcessUtility::forkAndExec (programPath, argList, 
+				redirectionPathName, redirectionStdOutput, redirectionStdError,
+				&childPid, &iReturnedStatus);
 
 		cout << "Returned status: " << iReturnedStatus << endl;
 	}

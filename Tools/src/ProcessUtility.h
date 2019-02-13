@@ -84,6 +84,9 @@
 				string programPath,
 				// first string is the program name, than we have the params
 				vector<string> argList,
+				string redirectionPathName,
+				bool redirectionStdOutput,
+				bool redirectionStdError,
 				pid_t* pPid,
 				int *piReturnedStatus);
 

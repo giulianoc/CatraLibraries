@@ -22,12 +22,16 @@
 */
 
 
+#include <sys/types.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <stdexcept>
 #ifdef WIN32
 	#include <process.h>
 	#include <Winsock2.h>
 #else
 	#include <unistd.h>
+	#include <sys/vfs.h>
 	#include <sys/utsname.h>
 #endif
 #include "StringTokenizer.h"
@@ -37,10 +41,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 // #ifdef __QTCOMPILER__
-	#include <sys/types.h>
 	#include <sys/wait.h>
 	#include <signal.h>
 // #endif
+
+
 
 
 ProcessUtility:: ProcessUtility (void)
@@ -175,6 +180,9 @@ void ProcessUtility::forkAndExec (
 		string programPath,
 		// first string is the program name, than we have the params
 		vector<string> argList,
+		string redirectionPathName,
+		bool redirectionStdOutput,
+		bool redirectionStdError,
 		pid_t* pPid,
 		int *piReturnedStatus
 		)
@@ -248,6 +256,29 @@ void ProcessUtility::forkAndExec (
 			commandVector.push_back(const_cast<char*>(argList[paramIndex].c_str()));
 		}
 		commandVector.push_back(NULL);
+
+		if (redirectionPathName != "" &&
+				(redirectionStdOutput || redirectionStdError)
+				)
+		{
+			int fd = open(redirectionPathName.c_str(),
+					O_WRONLY | O_TRUNC | O_CREAT,
+					S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+			if (fd == -1)
+			{
+				string errorMessage = string("Redirection file Open failed: ") + redirectionPathName;
+
+				throw runtime_error(errorMessage);
+			}
+
+			// redirect out, copy the file descriptor fd into standard output/error
+			if (redirectionStdOutput)
+				dup2(fd, STDOUT_FILENO); 
+			if (redirectionStdError)
+				dup2(fd, STDERR_FILENO); 
+
+			close (fd); // close the file descriptor as we don't need it more
+		}
 
 		// child process: execute the command
 		execv(programPath.c_str(),  &commandVector[0]);
