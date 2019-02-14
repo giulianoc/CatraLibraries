@@ -219,7 +219,8 @@ void ProcessUtility::forkAndExec (
 
 		int wstatus;
 		// pid_t childPid = wait(piReturnedStatus);
-		wait(&wstatus);
+		// wait(&wstatus);
+		waitpid(childPid, &wstatus, 0);
 
 		if (WIFEXITED(wstatus))
 			*piReturnedStatus = WEXITSTATUS(wstatus);
