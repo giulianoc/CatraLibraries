@@ -226,12 +226,14 @@ void ProcessUtility::forkAndExec (
 		else if (WIFSIGNALED(wstatus))
 		{
 			string errorMessage = string("Child has exit abnormally. Terminating signal: ") + to_string(WTERMSIG(wstatus));
+			*piReturnedStatus = WTERMSIG(wstatus);
 
 			throw runtime_error(errorMessage);
 		}
 		else if (WIFSTOPPED(wstatus))
 		{
 			string errorMessage = string("Child has exit abnormally. Stop signal: ") + to_string(WSTOPSIG(wstatus));
+			*piReturnedStatus = WSTOPSIG(wstatus);
 
 			throw runtime_error(errorMessage);
 		}
@@ -306,7 +308,7 @@ void ProcessUtility::forkAndExec (
 
 void ProcessUtility::killProcess (pid_t pid)
 {
-	if(kill(pid, SIGTERM) == -1)
+	if(kill(pid, SIGKILL) == -1)
 	{
 		string errorMessage = string("kill failed. errno: ") + to_string(errno);
 
