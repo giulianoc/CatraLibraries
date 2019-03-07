@@ -52,4 +52,7 @@ endif()
 if (ZLIB_FOUND)
 	target_link_libraries(forkAndExec ${ZLIB_LIBRARIES})
 endif()
+if (LDAP_FOUND)
+	target_link_libraries(forkAndExec ${LDAP_LIBRARIES})
+endif()
 

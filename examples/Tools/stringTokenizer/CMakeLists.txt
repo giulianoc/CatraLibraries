@@ -52,4 +52,7 @@ endif()
 if (ZLIB_FOUND)
 	target_link_libraries(stringTokenizer ${ZLIB_LIBRARIES})
 endif()
+if (LDAP_FOUND)
+	target_link_libraries(stringTokenizer ${LDAP_LIBRARIES})
+endif()
 

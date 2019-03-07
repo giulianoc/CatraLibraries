@@ -52,4 +52,7 @@ endif()
 if (ZLIB_FOUND)
 	target_link_libraries(service ${ZLIB_LIBRARIES})
 endif()
+if (LDAP_FOUND)
+	target_link_libraries(service ${LDAP_LIBRARIES})
+endif()
 

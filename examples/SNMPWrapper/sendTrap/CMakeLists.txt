@@ -59,5 +59,8 @@ endif()
 if (ZLIB_FOUND)
 	target_link_libraries(sendTrap ${ZLIB_LIBRARIES})
 endif()
+if (LDAP_FOUND)
+	target_link_libraries(sendTrap ${LDAP_LIBRARIES})
+endif()
 target_link_libraries (sendTrap pthread)
 

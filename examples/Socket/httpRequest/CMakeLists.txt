@@ -58,5 +58,8 @@ endif()
 if (ZLIB_FOUND)
 	target_link_libraries(httpRequest ${ZLIB_LIBRARIES})
 endif()
+if (LDAP_FOUND)
+	target_link_libraries(httpRequest ${LDAP_LIBRARIES})
+endif()
 target_link_libraries (httpRequest pthread)
 

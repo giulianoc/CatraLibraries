@@ -21,21 +21,14 @@
 # with the authors.
 
 SET (SOURCES
-	demoTracer.cpp
-	LoopThread.cpp
-	TracingThread.cpp
+	ldapWrapper.cpp
 )
 
 SET (HEADERS
-	LoopThread.h
-	TracingThread.h
 )
 
 include_directories ("${PROJECT_SOURCE_DIR}/ErrMsg/src")
-include_directories ("${PROJECT_SOURCE_DIR}/Tracer/src")
 include_directories ("${PROJECT_SOURCE_DIR}/Tools/src")
-include_directories ("${PROJECT_SOURCE_DIR}/PThread/src")
-include_directories ("${PROJECT_SOURCE_DIR}/Socket/src")
 if(CRYPTO_FOUND)
 	include_directories(${CRYPTO_INCLUDE_DIR})
 endif()
@@ -45,25 +38,21 @@ endif()
 
 add_compile_options(-D_REENTRANT)
 
-add_executable(demoTracer ${SOURCES} ${HEADERS})
+add_executable(ldapWrapper ${SOURCES} ${HEADERS})
 
-target_link_libraries (demoTracer Tracer)
-target_link_libraries (demoTracer Socket)
-target_link_libraries (demoTracer PThread)
-target_link_libraries (demoTracer Tools)
-target_link_libraries (demoTracer ErrMsg)
+target_link_libraries (ldapWrapper Tools)
+target_link_libraries (ldapWrapper ErrMsg)
 if(CRYPTO_FOUND)
 	if (APPLE)
-		target_link_libraries (demoTracer ${CRYPTO_LIBRARIES})
+		target_link_libraries (ldapWrapper ${CRYPTO_LIBRARIES})
 	else()
-		target_link_libraries (demoTracer crypt)
+		target_link_libraries (ldapWrapper crypt)
 	endif()
 endif()
 if (ZLIB_FOUND)
-	target_link_libraries(demoTracer ${ZLIB_LIBRARIES})
+	target_link_libraries(ldapWrapper ${ZLIB_LIBRARIES})
 endif()
 if (LDAP_FOUND)
-	target_link_libraries(demoTracer ${LDAP_LIBRARIES})
+	target_link_libraries(ldapWrapper ${LDAP_LIBRARIES})
 endif()
-target_link_libraries (demoTracer pthread)
 

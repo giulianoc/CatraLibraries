@@ -71,5 +71,8 @@ endif()
 if (ZLIB_FOUND)
 	target_link_libraries(tracerServer ${ZLIB_LIBRARIES})
 endif()
+if (LDAP_FOUND)
+	target_link_libraries(tracerServer ${LDAP_LIBRARIES})
+endif()
 target_link_libraries (tracerServer pthread)
 

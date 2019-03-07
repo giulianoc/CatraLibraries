@@ -60,5 +60,8 @@ endif()
 if (ZLIB_FOUND)
 	target_link_libraries(dataProcessing_Periodic ${ZLIB_LIBRARIES})
 endif()
+if (LDAP_FOUND)
+	target_link_libraries(dataProcessing_Periodic ${LDAP_LIBRARIES})
+endif()
 target_link_libraries (dataProcessing_Periodic pthread)
 

@@ -68,5 +68,8 @@ endif()
 if (ZLIB_FOUND)
 	target_link_libraries(loadBalancer ${ZLIB_LIBRARIES})
 endif()
+if (LDAP_FOUND)
+	target_link_libraries(loadBalancer ${LDAP_LIBRARIES})
+endif()
 target_link_libraries (loadBalancer pthread)
 

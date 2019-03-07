@@ -56,5 +56,8 @@ endif()
 if (ZLIB_FOUND)
 	target_link_libraries(demoSTREAMSocketClient ${ZLIB_LIBRARIES})
 endif()
+if (LDAP_FOUND)
+	target_link_libraries(demoSTREAMSocketClient ${LDAP_LIBRARIES})
+endif()
 target_link_libraries (demoSTREAMSocketClient pthread)
 

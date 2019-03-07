@@ -58,5 +58,8 @@ endif()
 if (ZLIB_FOUND)
 	target_link_libraries(httpPostThread ${ZLIB_LIBRARIES})
 endif()
+if (LDAP_FOUND)
+	target_link_libraries(httpPostThread ${LDAP_LIBRARIES})
+endif()
 target_link_libraries (httpPostThread pthread)
 

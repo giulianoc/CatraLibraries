@@ -21,37 +21,33 @@
  with the authors.
 */
 
+#include "LdapWrapper.h"
+#include <iostream>
 
-#ifndef Ldap_h
-	#define Ldap_h
+int main (int iArgc, char *pArgv [])
 
-	#include <string>
+{
 
-	using namespace std;
+	string ldapURL("ldap://media.int:389");
+	string managerUserName("svc-rsi-adread09");
+	string managerPassword("MP-data-processor");
+	string userName("catramgi");
+	string password("XXXXXXX");
 
-	typedef class Ldap
+	if (iArgc != 2)
 	{
-		private:
-			Ldap (const Ldap &);
+		std:: cerr << "Usage: " << pArgv [0] << " <command to execute>"
+			<< std:: endl;
 
-			Ldap &operator = (const Ldap &);
+		return 1;
+	}
 
-		public:
-			/**
-				Costruttore.
-			*/
-			Ldap ();
+	LdapWrapper ldapWrapper;
 
-			/**
-				Distruttore.
-			*/
-			~Ldap ();
+	ldapWrapper.init(ldapURL, managerUserName, managerPassword);
+	std::cout << "testCredentials: " << to_string(ldapWrapper.testCredentials(userName, password)) << std::endl;
 
-			void init (string ldapURL, string managerUserName, string managerPassword);
 
-			bool testCredentials (string userName, string password);
-
-	} Ldap_t, *Ldap_p;
-
-#endif
+	return 0;
+}
 

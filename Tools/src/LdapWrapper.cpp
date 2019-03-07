@@ -21,20 +21,29 @@
  with the authors.
 */
 
-// extern "C" {
+#define LDAP_DEPRECATED 1
+
+#include "LdapWrapper.h"
+#include <stdexcept>
+#include <assert.h>
+
+#include <iostream>
+
+
+extern "C" {
 // #include <lber.h>
 #include <ldap.h>
-// }
+}
 
 
-Ldap:: Ldap (void)
+LdapWrapper:: LdapWrapper (void)
 
 {
 
 }
 
 
-Ldap:: ~Ldap (void)
+LdapWrapper:: ~LdapWrapper (void)
 
 {
 
@@ -42,7 +51,7 @@ Ldap:: ~Ldap (void)
 
 
 
-Ldap:: Ldap (const Ldap &)
+LdapWrapper:: LdapWrapper (const LdapWrapper &)
 
 {
 
@@ -53,7 +62,7 @@ Ldap:: Ldap (const Ldap &)
 }
 
 
-Ldap &Ldap:: operator = (const Ldap &)
+LdapWrapper &LdapWrapper:: operator = (const LdapWrapper &)
 
 {
 
@@ -66,7 +75,7 @@ Ldap &Ldap:: operator = (const Ldap &)
 }
 
 
-void Ldap::init (string ldapURL, string managerUserName, string managerPassword)
+void LdapWrapper::init (string ldapURL, string managerUserName, string managerPassword)
 
 {
 
@@ -75,8 +84,10 @@ void Ldap::init (string ldapURL, string managerUserName, string managerPassword)
 	_managerPassword = managerPassword;
 }
 
-bool Ldap::testCredentials (string userName, string password)
+bool LdapWrapper::testCredentials (string userName, string password)
 {
+
+	bool testCredentials = false;
 
 	LDAP *ldap;
 	LDAPMessage *answer, *entry;
@@ -111,6 +122,7 @@ bool Ldap::testCredentials (string userName, string password)
 	char **values;
 
 
+std::cout << "ldap_initialize..." << std::endl;
 	/* STEP 1: Get a LDAP connection handle and set any session preferences. */
 	/* For ldaps we must call ldap_sslinit(char *host, int port, int secure) */
 	int result = ldap_initialize(&ldap, _ldapURL.c_str());
@@ -124,7 +136,7 @@ bool Ldap::testCredentials (string userName, string password)
 
 	/* The LDAP_OPT_PROTOCOL_VERSION session preference specifies the client */
 	/* is an LDAPv3 client. */
-	int result = ldap_set_option(ldap, LDAP_OPT_PROTOCOL_VERSION, &ldap_version);
+	result = ldap_set_option(ldap, LDAP_OPT_PROTOCOL_VERSION, &ldap_version);
 	if (result != LDAP_OPT_SUCCESS)
 	{
 		ldap_unbind(ldap);
@@ -139,7 +151,7 @@ bool Ldap::testCredentials (string userName, string password)
 	/* STEP 2: Bind to the server. */
 	// If no DN or credentials are specified, we bind anonymously to the server */
 	// result = ldap_simple_bind_s( ldap, NULL, NULL );
-	result = ldap_simple_bind_s(ldap, _managerUserName.c_str(), _managerPassword );
+	result = ldap_simple_bind_s(ldap, _managerUserName.c_str(), _managerPassword.c_str() );
 	if ( result != LDAP_SUCCESS )
 	{
 		ldap_unbind(ldap);
@@ -202,7 +214,7 @@ bool Ldap::testCredentials (string userName, string password)
 
 			/* The LDAP_OPT_PROTOCOL_VERSION session preference specifies the client */
 			/* is an LDAPv3 client. */
-			result = ldap_set_option(ldap, LDAP_OPT_PROTOCOL_VERSION, &ldap_version);
+			result = ldap_set_option(ldap2, LDAP_OPT_PROTOCOL_VERSION, &ldap_version);
 			if (result != LDAP_OPT_SUCCESS)
 			{
 				ldap_unbind(ldap2);
@@ -222,36 +234,46 @@ bool Ldap::testCredentials (string userName, string password)
 			result=ldap_simple_bind_s(ldap2, dn, password.c_str());
 			if (result != LDAP_SUCCESS)
 			{
+				/*
 				ldap_unbind(ldap2);
 				ldap_memfree(dn);
 				ldap_msgfree(answer);
 				ldap_unbind(ldap);
+				*/
 
-				string errorMessage = string("ldap_simple_bind_s: ") + ldap_err2string(result);
+				testCredentials = false;
+				// string errorMessage = string("ldap_simple_bind_s: ") + ldap_err2string(result);
 
-				throw runtime_error(errorMessage);
+				// throw runtime_error(errorMessage);
 			}
-			// printf("CHECK PWD SUCCESS.\n");
+			else
+			{
+				// printf("CHECK PWD SUCCESS.\n");
+				testCredentials = true;
+			}
 
 			ldap_unbind(ldap2);
 		}
 
-		// cycle through all returned attributes
-		for (attribute = ldap_first_attribute(ldap, entry, &ber); attribute != NULL;
-			attribute = ldap_next_attribute(ldap, entry, ber))
+		if (testCredentials)
 		{
-			/* Print the attribute name */
-			// printf("Found Attribute: %s\n", attribute);
-			if ((values = ldap_get_values(ldap, entry, attribute)) != NULL)
+			// cycle through all returned attributes
+			for (attribute = ldap_first_attribute(ldap, entry, &ber); attribute != NULL;
+				attribute = ldap_next_attribute(ldap, entry, ber))
 			{
-				/* cycle through all values returned for this attribute */
-				for (int valueIndex = 0; values[valueIndex] != NULL; valueIndex++)
+				/* Print the attribute name */
+				// printf("Found Attribute: %s\n", attribute);
+				if ((values = ldap_get_values(ldap, entry, attribute)) != NULL)
 				{
-					/* print each value of a attribute here */
-					printf("%s: %s\n", attribute, values[i] );
-				}
+					/* cycle through all values returned for this attribute */
+					for (int valueIndex = 0; values[valueIndex] != NULL; valueIndex++)
+					{
+						/* print each value of a attribute here */
+						// printf("%s: %s\n", attribute, values[valueIndex] );
+					}
 
-				ldap_value_free(values);
+					ldap_value_free(values);
+				}
 			}
 		}
 
@@ -261,5 +283,6 @@ bool Ldap::testCredentials (string userName, string password)
 	ldap_msgfree(answer);
 	ldap_unbind(ldap);
 
-	return(EXIT_SUCCESS);
+	return testCredentials;
 }
+

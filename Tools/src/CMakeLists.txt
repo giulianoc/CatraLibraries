@@ -35,6 +35,13 @@ SET (SOURCES
 	ProcessUtility.cpp
 	ToolsErrors.cpp
 )
+if (LDAP_FOUND)
+	SET (SOURCES
+		${SOURCES}
+		LdapWrapper.cpp
+	)
+endif()
+
 SET (HEADERS
 	Buffer.h
 	Convert.h
@@ -51,6 +58,13 @@ SET (HEADERS
 	ProcessUtility.h
 	ToolsErrors.h
 )
+if (LDAP_FOUND)
+	SET (SOURCES
+		${SOURCES}
+		LdapWrapper.h
+	)
+endif()
+
 
 include_directories ("${PROJECT_SOURCE_DIR}/ErrMsg/src")
 add_compile_options(-D_REENTRANT -DSERVICEDEBUG -DUSEGZIPLIB -D_FILE_OFFSET_BITS=64)
