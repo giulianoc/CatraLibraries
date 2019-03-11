@@ -32,20 +32,29 @@ int main (int iArgc, char *pArgv [])
 	string managerUserName("svc-rsi-adread09");
 	string managerPassword("MP-data-processor");
 	string userName("catramgi");
-	string password("XXXXXXX");
+	string baseDn("DC=media,DC=int");
 
 	if (iArgc != 2)
 	{
-		std:: cerr << "Usage: " << pArgv [0] << " <command to execute>"
+		std:: cerr << "Usage: " << pArgv [0] << " <password>"
 			<< std:: endl;
 
 		return 1;
 	}
 
+	string password = pArgv[1];
+
 	LdapWrapper ldapWrapper;
 
 	ldapWrapper.init(ldapURL, managerUserName, managerPassword);
-	std::cout << "testCredentials: " << to_string(ldapWrapper.testCredentials(userName, password)) << std::endl;
+	pair<bool, string> testCredentialsSuccessfulAndEmail = ldapWrapper.testCredentials(
+			userName, password, baseDn);
+	bool testCredentialsSuccessful;
+	string email;
+	tie(testCredentialsSuccessful, email) = testCredentialsSuccessfulAndEmail;
+
+	std::cout << "testCredentialsSuccessful: " << testCredentialsSuccessful << std::endl;
+	std::cout << "email: " << email << std::endl;
 
 
 	return 0;

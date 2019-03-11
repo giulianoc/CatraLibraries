@@ -25,6 +25,7 @@
 #ifndef LdapWrapper_h
 	#define LdapWrapper_h
 
+	#include <tuple>
 	#include <string>
 
 	using namespace std;
@@ -53,7 +54,8 @@
 
 			void init (string ldapURL, string managerUserName, string managerPassword);
 
-			bool testCredentials (string userName, string password);
+			pair<bool,string> testCredentials (
+					string userName, string password, string searchBaseDn);
 
 	} LdapWrapper_t, *LdapWrapper_p;
 

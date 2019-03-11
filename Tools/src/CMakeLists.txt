@@ -59,8 +59,8 @@ SET (HEADERS
 	ToolsErrors.h
 )
 if (LDAP_FOUND)
-	SET (SOURCES
-		${SOURCES}
+	SET (HEADERS
+		${HEADERS}
 		LdapWrapper.h
 	)
 endif()

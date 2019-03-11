@@ -84,10 +84,12 @@ void LdapWrapper::init (string ldapURL, string managerUserName, string managerPa
 	_managerPassword = managerPassword;
 }
 
-bool LdapWrapper::testCredentials (string userName, string password)
+pair<bool,string> LdapWrapper::testCredentials (
+		string userName, string password, string searchBaseDn)
 {
 
-	bool testCredentials = false;
+	bool testCredentialsSuccessful = false;
+	string email;
 
 	LDAP *ldap;
 	LDAPMessage *answer, *entry;
@@ -97,7 +99,7 @@ bool LdapWrapper::testCredentials (string userName, string password)
 	int  ldap_version   = LDAP_VERSION3;
 
 	// char *base_dn       = "OU=User,DC=media,DC=int";
-	string base_dn		= "DC=media,DC=int";
+	// string base_dn		= "DC=media,DC=int";
 
 	// The search scope must be either LDAP_SCOPE_SUBTREE or LDAP_SCOPE_ONELEVEL
 	int  scope          = LDAP_SCOPE_SUBTREE;
@@ -122,7 +124,6 @@ bool LdapWrapper::testCredentials (string userName, string password)
 	char **values;
 
 
-std::cout << "ldap_initialize..." << std::endl;
 	/* STEP 1: Get a LDAP connection handle and set any session preferences. */
 	/* For ldaps we must call ldap_sslinit(char *host, int port, int secure) */
 	int result = ldap_initialize(&ldap, _ldapURL.c_str());
@@ -163,7 +164,8 @@ std::cout << "ldap_initialize..." << std::endl;
 
 
 	/* STEP 3: Do the LDAP search. */
-	result=ldap_search_s(ldap, base_dn.c_str(), scope, filter.c_str(), attrs, attrsonly, &answer);
+	result=ldap_search_s(ldap, searchBaseDn.c_str(), scope, filter.c_str(), attrs, attrsonly,
+			&answer);
 	if (result != LDAP_SUCCESS)
 	{
 		ldap_unbind(ldap);
@@ -183,11 +185,25 @@ std::cout << "ldap_initialize..." << std::endl;
 		// fprintf(stderr, "LDAP search did not return any data.\n");
 		// exit(EXIT_FAILURE);
 
-		return false;
+		return make_pair(testCredentialsSuccessful, email);
+	}
+	else if (entriesFound != 1)
+	{
+		// more than one entries returned by the search
+
+		ldap_msgfree(answer);
+		ldap_unbind(ldap);
+
+		// fprintf(stderr, "LDAP search did not return any data.\n");
+		// exit(EXIT_FAILURE);
+
+		return make_pair(testCredentialsSuccessful, email);
 	}
 
 	/* cycle through all objects returned with our search */
-	for (entry = ldap_first_entry(ldap, answer); entry != NULL; entry = ldap_next_entry(ldap, entry))
+	for (entry = ldap_first_entry(ldap, answer);
+			entry != NULL;
+			entry = ldap_next_entry(ldap, entry))
 	{
 		/* Print the DN string of the object */
 		dn = ldap_get_dn(ldap, entry);
@@ -241,7 +257,7 @@ std::cout << "ldap_initialize..." << std::endl;
 				ldap_unbind(ldap);
 				*/
 
-				testCredentials = false;
+				testCredentialsSuccessful = false;
 				// string errorMessage = string("ldap_simple_bind_s: ") + ldap_err2string(result);
 
 				// throw runtime_error(errorMessage);
@@ -249,32 +265,40 @@ std::cout << "ldap_initialize..." << std::endl;
 			else
 			{
 				// printf("CHECK PWD SUCCESS.\n");
-				testCredentials = true;
+				testCredentialsSuccessful = true;
 			}
 
 			ldap_unbind(ldap2);
 		}
 
-		if (testCredentials)
+		if (testCredentialsSuccessful)
 		{
+			char** emailValues = ldap_get_values(ldap, entry, "userPrincipalName");
+			if (ldap_count_values(emailValues) == 1)
+				email = emailValues[0];
+			ldap_value_free(emailValues);
+
 			// cycle through all returned attributes
+			/*
 			for (attribute = ldap_first_attribute(ldap, entry, &ber); attribute != NULL;
 				attribute = ldap_next_attribute(ldap, entry, ber))
 			{
-				/* Print the attribute name */
+				// Print the attribute name
 				// printf("Found Attribute: %s\n", attribute);
 				if ((values = ldap_get_values(ldap, entry, attribute)) != NULL)
 				{
-					/* cycle through all values returned for this attribute */
+					// cycle through all values returned for this attribute
 					for (int valueIndex = 0; values[valueIndex] != NULL; valueIndex++)
 					{
-						/* print each value of a attribute here */
+						// print each value of a attribute here
 						// printf("%s: %s\n", attribute, values[valueIndex] );
+std::cout << attribute << ": " << values[valueIndex] << std::endl;
 					}
 
 					ldap_value_free(values);
 				}
 			}
+			*/
 		}
 
 		ldap_memfree(dn);
@@ -283,6 +307,6 @@ std::cout << "ldap_initialize..." << std::endl;
 	ldap_msgfree(answer);
 	ldap_unbind(ldap);
 
-	return testCredentials;
+	return make_pair(testCredentialsSuccessful, email);
 }
 
