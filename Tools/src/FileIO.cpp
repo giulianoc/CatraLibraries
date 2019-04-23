@@ -5080,7 +5080,7 @@ void FileIO:: moveFile (string srcPathName, string destPathName)
     
     if ((errFileIO = moveFile (srcPathName.c_str(), destPathName.c_str())) != errNoError)
     {
-        throw runtime_error(string("FileIO::isDirectoryExisting failed: ")
+        throw runtime_error(string("FileIO::moveFile failed: ")
                 + (const char *) errFileIO);
     }
 }
