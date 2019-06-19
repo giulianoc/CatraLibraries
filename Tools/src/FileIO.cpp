@@ -3825,7 +3825,10 @@ void FileIO:: removeDirectory (string pathName, bool removeRecursively)
     
     if ((errFileIO = FileIO:: removeDirectory (pathName.c_str(), removeRecursively)) != errNoError)
     {
-        throw runtime_error(string("FileIO::removeDirectory failed: ")
+		if ((long) errFileIO == TOOLS_FILEIO_DIRECTORYNOTEXISTING)
+			throw DirectoryNotExisting();
+		else
+			throw runtime_error(string("FileIO::removeDirectory failed: ")
                 + (const char *) errFileIO);
     }
 }
@@ -5664,8 +5667,22 @@ void FileIO:: remove (string pathName, bool exceptionInCaseOfError)
     if ((errFileIO = FileIO:: remove (pathName.c_str())) != errNoError)
     {
         if (exceptionInCaseOfError)
-            throw runtime_error(string("FileIO::remove failed: ")
-                + (const char *) errFileIO);
+		{
+			int					iErrno;
+			unsigned long		ulUserDataBytes;
+
+
+			errFileIO. getUserData (&iErrno, &ulUserDataBytes);
+			if (iErrno == ENOENT || iErrno == ENOTDIR)
+			{
+				throw FileNotExisting();
+			}
+			else
+			{
+				throw runtime_error(string("FileIO::remove failed: ")
+					+ (const char *) errFileIO);
+			}
+		}
     }
 }
 
