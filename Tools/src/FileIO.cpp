@@ -890,10 +890,26 @@ FileIO::DirectoryEntryType_t FileIO:: getDirectoryEntryType (string pathName)
     DirectoryEntryType_t detDirectoryEntryType;
     
     if ((errFileIO = FileIO:: getDirectoryEntryType (pathName.c_str(),
-	&detDirectoryEntryType)) != errNoError)
+		&detDirectoryEntryType)) != errNoError)
     {
-        throw runtime_error(string("FileIO::getDirectoryEntryType failed: ")
+        if ((long) errFileIO == TOOLS_LSTAT_FAILED)
+        {
+			int			iErrno;
+			unsigned long		ulUserDataBytes;
+
+			errFileIO. getUserData (&iErrno, &ulUserDataBytes);
+
+			if (iErrno == ENOENT)
+				throw FileNotExisting();
+			else
+				throw runtime_error(string("FileIO::getDirectoryEntryType failed: ")
+					+ (const char *) errFileIO);
+        }
+        else
+        {
+			throw runtime_error(string("FileIO::getDirectoryEntryType failed: ")
                 + (const char *) errFileIO);
+        }
     }
 
     return detDirectoryEntryType;
@@ -5668,14 +5684,22 @@ void FileIO:: remove (string pathName, bool exceptionInCaseOfError)
     {
         if (exceptionInCaseOfError)
 		{
-			int					iErrno;
-			unsigned long		ulUserDataBytes;
-
-
-			errFileIO. getUserData (&iErrno, &ulUserDataBytes);
-			if (iErrno == ENOENT || iErrno == ENOTDIR)
+			if ((long) errFileIO == TOOLS_UNLINK_FAILED)
 			{
-				throw FileNotExisting();
+				int					iErrno;
+				unsigned long		ulUserDataBytes;
+
+
+				errFileIO. getUserData (&iErrno, &ulUserDataBytes);
+				if (iErrno == ENOENT || iErrno == ENOTDIR)
+				{
+					throw FileNotExisting();
+				}
+				else
+				{
+					throw runtime_error(string("FileIO::remove failed: ")
+						+ (const char *) errFileIO);
+				}
 			}
 			else
 			{
