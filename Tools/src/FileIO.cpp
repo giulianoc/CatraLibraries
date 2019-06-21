@@ -890,10 +890,26 @@ FileIO::DirectoryEntryType_t FileIO:: getDirectoryEntryType (string pathName)
     DirectoryEntryType_t detDirectoryEntryType;
     
     if ((errFileIO = FileIO:: getDirectoryEntryType (pathName.c_str(),
-	&detDirectoryEntryType)) != errNoError)
+		&detDirectoryEntryType)) != errNoError)
     {
-        throw runtime_error(string("FileIO::getDirectoryEntryType failed: ")
+        if ((long) errFileIO == TOOLS_LSTAT_FAILED)
+        {
+			int			iErrno;
+			unsigned long		ulUserDataBytes;
+
+			errFileIO. getUserData (&iErrno, &ulUserDataBytes);
+
+			if (iErrno == ENOENT)
+				throw FileNotExisting();
+			else
+				throw runtime_error(string("FileIO::getDirectoryEntryType failed: ")
+					+ (const char *) errFileIO);
+        }
+        else
+        {
+			throw runtime_error(string("FileIO::getDirectoryEntryType failed: ")
                 + (const char *) errFileIO);
+        }
     }
 
     return detDirectoryEntryType;
@@ -3825,7 +3841,10 @@ void FileIO:: removeDirectory (string pathName, bool removeRecursively)
     
     if ((errFileIO = FileIO:: removeDirectory (pathName.c_str(), removeRecursively)) != errNoError)
     {
-        throw runtime_error(string("FileIO::removeDirectory failed: ")
+		if ((long) errFileIO == TOOLS_FILEIO_DIRECTORYNOTEXISTING)
+			throw DirectoryNotExisting();
+		else
+			throw runtime_error(string("FileIO::removeDirectory failed: ")
                 + (const char *) errFileIO);
     }
 }
@@ -5664,8 +5683,30 @@ void FileIO:: remove (string pathName, bool exceptionInCaseOfError)
     if ((errFileIO = FileIO:: remove (pathName.c_str())) != errNoError)
     {
         if (exceptionInCaseOfError)
-            throw runtime_error(string("FileIO::remove failed: ")
-                + (const char *) errFileIO);
+		{
+			if ((long) errFileIO == TOOLS_UNLINK_FAILED)
+			{
+				int					iErrno;
+				unsigned long		ulUserDataBytes;
+
+
+				errFileIO. getUserData (&iErrno, &ulUserDataBytes);
+				if (iErrno == ENOENT || iErrno == ENOTDIR)
+				{
+					throw FileNotExisting();
+				}
+				else
+				{
+					throw runtime_error(string("FileIO::remove failed: ")
+						+ (const char *) errFileIO);
+				}
+			}
+			else
+			{
+				throw runtime_error(string("FileIO::remove failed: ")
+					+ (const char *) errFileIO);
+			}
+		}
     }
 }
 
