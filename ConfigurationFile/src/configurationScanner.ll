@@ -86,7 +86,7 @@ extern long glBufferToParseIndex;
 		void myInput (char *pBufferToFill, yy_size_t *piCharsFilled,
 			int iMaxCharsNumberToFill)
 	#else
-		void myInput (char *pBufferToFill, int *piCharsFilled,
+		void myInput (char *pBufferToFill, yy_size_t *piCharsFilled,
 			int iMaxCharsNumberToFill)
 	#endif
 
