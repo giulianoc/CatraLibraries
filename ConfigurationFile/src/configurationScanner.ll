@@ -82,11 +82,11 @@ extern long glBufferToParseIndex;
 #ifdef _FLEX
 	// void myInput (char *pBufferToFill, int *piCharsFilled,
 	// 	int iMaxCharsNumberToFill)
-	#ifdef __APPLE__
+	#if defined(__APPLE__) || defined(_FLEX_YY_INPUT_PARAMETER_SIZE_T)
 		void myInput (char *pBufferToFill, yy_size_t *piCharsFilled,
 			int iMaxCharsNumberToFill)
 	#else
-		void myInput (char *pBufferToFill, yy_size_t *piCharsFilled,
+		void myInput (char *pBufferToFill, int *piCharsFilled,
 			int iMaxCharsNumberToFill)
 	#endif
 
