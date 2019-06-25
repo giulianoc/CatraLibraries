@@ -35,12 +35,28 @@ int main (int iArgc, char *pArgv [])
 
 {
 
+	if (iArgc != 7)
+	{
+		cout << pArgv[0] << " \"tcp://rsis-cp-wedep1.media.int:3306\" u_vedatest \"~Kpq6Mll]Y\" vedatest \"select count(*) from MMS_TestConnection\" 1" << endl;
+
+		return 1;
+	}
+
 	string dbServer(pArgv[1]);
 	string dbUsername(pArgv[2]);
 	string dbPassword(pArgv[3]);
 	string dbName(pArgv[4]);
 	string selectTestingConnection(pArgv[5]);
 	int dbPoolSize = atol(pArgv[6]);
+
+	cout << pArgv[0]
+		<< ", dbServer: " + dbServer
+		<< ", dbUsername: " + dbUsername
+		<< ", dbPassword: " + dbPassword
+		<< ", dbName: " + dbName
+		<< ", selectTestingConnection: " + selectTestingConnection
+		<< ", dbPoolSize: " + to_string(dbPoolSize)
+		<< endl;
 
 	try
 	{
