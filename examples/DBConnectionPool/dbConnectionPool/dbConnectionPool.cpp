@@ -35,54 +35,84 @@ int main (int iArgc, char *pArgv [])
 
 {
 
-	string dbServer("127.0.0.1");
-	string dbUsername("root");
-	string dbPassword("root");
-	string dbName("catracms");
-	string selectTestingConnection("select count(*) from MMS_APIKeys");
-	int dbPoolSize = 5;
+	string dbServer(pArgv[1]);
+	string dbUsername(pArgv[2]);
+	string dbPassword(pArgv[3]);
+	string dbName(pArgv[4]);
+	string selectTestingConnection(pArgv[5]);
+	int dbPoolSize = atol(pArgv[6]);
 
-	shared_ptr<MySQLConnectionFactory>  mySQLConnectionFactory = 
-		make_shared<MySQLConnectionFactory>(dbServer, dbUsername, dbPassword, dbName,
-		selectTestingConnection);
-
-	shared_ptr<DBConnectionPool<MySQLConnection>> connectionPool =
-		make_shared<DBConnectionPool<MySQLConnection>>(
-		dbPoolSize, mySQLConnectionFactory);
-
-	shared_ptr<MySQLConnection> conn;
-
-	for (int index = 0; index < 1000; index++)
+	try
 	{
-		try
+		bool reconnect = true;
+		string defaultCharacterSet = "utf8";
+
+		shared_ptr<MySQLConnectionFactory>  mySQLConnectionFactory = 
+			make_shared<MySQLConnectionFactory>(dbServer, dbUsername, dbPassword, dbName,
+			reconnect, defaultCharacterSet, selectTestingConnection);
+
+		shared_ptr<DBConnectionPool<MySQLConnection>> connectionPool =
+			make_shared<DBConnectionPool<MySQLConnection>>(
+			dbPoolSize, mySQLConnectionFactory);
+
+		shared_ptr<MySQLConnection> conn;
+
+		for (int index = 0; index < 1000; index++)
 		{
-			conn = connectionPool->borrow();	
-			connectionPool->unborrow(conn);
-		}
-		catch(sql::SQLException se)
-		{
-			string exceptionMessage(se.what());
+			try
+			{
+				conn = connectionPool->borrow();	
+				connectionPool->unborrow(conn);
+			}
+			catch(sql::SQLException se)
+			{
+				string exceptionMessage(se.what());
  
-			cerr <<__FILEREF__ + "SQL exception"
-				+ ", exceptionMessage: " + exceptionMessage
-				<< endl;
-		}
-		catch(runtime_error e)
-		{
-			string exceptionMessage(e.what());
+				cerr <<__FILEREF__ + "SQL borrow/unborrow exception"
+					+ ", exceptionMessage: " + exceptionMessage
+					<< endl;
+			}
+			catch(runtime_error e)
+			{
+				string exceptionMessage(e.what());
  
-			cerr <<__FILEREF__ + "SQL exception"
-				+ ", exceptionMessage: " + exceptionMessage
-				<< endl;
-		}
-		catch(exception e)
-		{
-			string exceptionMessage(e.what());
+				cerr <<__FILEREF__ + "SQL borrow/unborrow exception"
+					+ ", exceptionMessage: " + exceptionMessage
+					<< endl;
+			}
+			catch(exception e)
+			{
+				string exceptionMessage(e.what());
  
-			cerr <<__FILEREF__ + "SQL exception"
-				+ ", exceptionMessage: " + exceptionMessage
-				<< endl;
+				cerr <<__FILEREF__ + "SQL borrow/unborrow exception"
+					+ ", exceptionMessage: " + exceptionMessage
+					<< endl;
+			}
 		}
+	}
+	catch(sql::SQLException se)
+	{
+		string exceptionMessage(se.what());
+
+		cerr <<__FILEREF__ + "SQL exception"
+			+ ", exceptionMessage: " + exceptionMessage
+			<< endl;
+	}
+	catch(runtime_error e)
+	{
+		string exceptionMessage(e.what());
+
+		cerr <<__FILEREF__ + "SQL exception"
+			+ ", exceptionMessage: " + exceptionMessage
+			<< endl;
+	}
+	catch(exception e)
+	{
+		string exceptionMessage(e.what());
+
+		cerr <<__FILEREF__ + "SQL exception"
+			+ ", exceptionMessage: " + exceptionMessage
+		<< endl;
 	}
 
 	return 0;

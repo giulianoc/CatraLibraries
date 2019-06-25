@@ -35,3 +35,6 @@ link_directories ("/app/5/ThirdPartySoftware/mysql-connector-c++-1.1.9-linux-ubu
 add_executable(dbConnectionPool ${SOURCES} ${HEADERS})
 
 target_link_libraries (dbConnectionPool mysqlcppconn)
+
+install (TARGETS dbConnectionPool DESTINATION bin)
+

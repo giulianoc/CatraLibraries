@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "catralibraries/DBConnectionPool.h"
+#include "DBConnectionPool.h"
 #include <string>
 #include "mysql_connection.h"
 #include <cppconn/driver.h>

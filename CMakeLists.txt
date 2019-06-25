@@ -82,7 +82,7 @@ add_subdirectory(Tracer/src)
 add_subdirectory(Scheduler/src)
 add_subdirectory(LoadBalancer/src)
 
-#add_subdirectory(examples/DBConnectionPool/dbConnectionPool)
+add_subdirectory(examples/DBConnectionPool/dbConnectionPool)
 
 add_subdirectory(examples/Configuration/configuration)
 add_subdirectory(examples/Configuration/cryptedItem)
