@@ -131,54 +131,90 @@ public:
     // Any exceptions thrown here should be caught elsewhere
     shared_ptr<DBConnection> create(int connectionId) {
 
-		sql::Driver *driver;
-		driver = get_driver_instance();
-
-		sql::ConnectOptionsMap connection_properties;
-
-		connection_properties["hostName"] = _dbServer;
-		connection_properties["userName"] = _dbUsername;
-		connection_properties["password"] = _dbPassword;
-		connection_properties["schema"] = _dbName;
-		connection_properties["OPT_RECONNECT"] = _reconnect;
-		connection_properties["OPT_CHARSET_NAME"] = _defaultCharacterSet;
-
-		// server like "tcp://127.0.0.1:3306"
-		shared_ptr<sql::Connection> connectionFromDriver (driver->connect(connection_properties));
-
-		// shared_ptr<sql::Connection> connectionFromDriver (driver->connect(_dbServer, _dbUsername, _dbPassword));
-		// bool reconnect_state = true;
-		// connectionFromDriver->setClientOption("OPT_RECONNECT", &reconnect_state);    
-		// connectionFromDriver->setSchema(_dbName);
-
-		shared_ptr<MySQLConnection>     mySqlConnection = make_shared<MySQLConnection>(
-			_selectTestingConnection, connectionId);
-        mySqlConnection->_sqlConnection = connectionFromDriver;
-
-		bool connectionValid = mySqlConnection->connectionValid();
-		if (!connectionValid)
+		try
 		{
-			string errorMessage = string("just created sql connection is not valid")
-				+ ", _connectionId: " + to_string(mySqlConnection->getConnectionId())
+			sql::Driver *driver;
+			driver = get_driver_instance();
+
+			sql::ConnectOptionsMap connection_properties;
+
+			connection_properties["hostName"] = _dbServer;
+			connection_properties["userName"] = _dbUsername;
+			connection_properties["password"] = _dbPassword;
+			connection_properties["schema"] = _dbName;
+			connection_properties["OPT_RECONNECT"] = _reconnect;
+			connection_properties["OPT_CHARSET_NAME"] = _defaultCharacterSet;
+
+			DB_DEBUG_LOGGER(__FILEREF__ + "sql connection creating..."
 				+ ", _dbServer: " + _dbServer
 				+ ", _dbUsername: " + _dbUsername
+				+ ", _dbPassword: " + _dbPassword
 				+ ", _dbName: " + _dbName
-			;
-			DB_ERROR_LOGGER(__FILEREF__ + errorMessage);
-
-			return nullptr;
-		}
-		else
-		{
-			DB_DEBUG_LOGGER(__FILEREF__ + "just created sql connection"
-				+ ", _connectionId: " + to_string(mySqlConnection->getConnectionId())
-				+ ", _dbServer: " + _dbServer
-				+ ", _dbUsername: " + _dbUsername
-				+ ", _dbName: " + _dbName
+				+ ", _reconnect: " + to_string(_reconnect)
+				+ ", _defaultCharacterSet: " + _defaultCharacterSet
 			);
-		}
 
-        return static_pointer_cast<DBConnection>(mySqlConnection);
+			// server like "tcp://127.0.0.1:3306"
+			shared_ptr<sql::Connection> connectionFromDriver (driver->connect(connection_properties));
+
+			// shared_ptr<sql::Connection> connectionFromDriver (driver->connect(_dbServer, _dbUsername, _dbPassword));
+			// bool reconnect_state = true;
+			// connectionFromDriver->setClientOption("OPT_RECONNECT", &reconnect_state);    
+			// connectionFromDriver->setSchema(_dbName);
+	
+			shared_ptr<MySQLConnection>     mySqlConnection = make_shared<MySQLConnection>(
+				_selectTestingConnection, connectionId);
+			mySqlConnection->_sqlConnection = connectionFromDriver;
+
+			bool connectionValid = mySqlConnection->connectionValid();
+			if (!connectionValid)
+			{
+				string errorMessage = string("just created sql connection is not valid")
+					+ ", _connectionId: " + to_string(mySqlConnection->getConnectionId())
+					+ ", _dbServer: " + _dbServer
+					+ ", _dbUsername: " + _dbUsername
+					+ ", _dbName: " + _dbName
+					;
+				DB_ERROR_LOGGER(__FILEREF__ + errorMessage);
+
+				return nullptr;
+			}
+			else
+			{
+				DB_DEBUG_LOGGER(__FILEREF__ + "just created sql connection"
+					+ ", _connectionId: " + to_string(mySqlConnection->getConnectionId())
+					+ ", _dbServer: " + _dbServer
+					+ ", _dbUsername: " + _dbUsername
+					+ ", _dbName: " + _dbName
+				);
+			}
+
+			return static_pointer_cast<DBConnection>(mySqlConnection);
+		}
+		catch(sql::SQLException se)
+		{
+			DB_ERROR_LOGGER(__FILEREF__ + "sql connection creation failed"
+				+ ", se.what(): " + se.what()
+					);
+
+			throw se;
+		}
+		catch(runtime_error e)
+		{        
+			DB_ERROR_LOGGER(__FILEREF__ + "sql connection creation failed"
+				+ ", e.what(): " + e.what()
+					);
+
+			throw e;
+		}
+		catch(exception e)
+		{        
+			DB_ERROR_LOGGER(__FILEREF__ + "sql connection creation failed"
+				+ ", e.what(): " + e.what()
+					);
+
+			throw e;
+		}
     };
 
 };

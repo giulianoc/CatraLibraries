@@ -21,7 +21,7 @@
 # with the authors.
 
 SET (SOURCES
-	dbConnectionPool.cpp
+	connectorCppAPI.cpp
 )
 
 SET (HEADERS
@@ -34,15 +34,15 @@ execute_process(COMMAND ${LSB_RELEASE_EXEC} -is
 )
 message("-- LSB_RELEASE_ID_SHORT: ${LSB_RELEASE_ID_SHORT}")
 
-include_directories ("${PROJECT_SOURCE_DIR}/DBConnectionPool/src")
-if(LSB_RELEASE_ID_SHORT STREQUAL "CentOS")
+#if(LSB_RELEASE_ID_SHORT STREQUAL "CentOS")
 	include_directories ("/usr/include/mysql-cppconn/jdbc")
-endif()
+#endif()
 
+#link_directories ("${PROJECT_SOURCE_DIR}/../mysql-connector-c++-8.0.16-linux-glibc2.12-x86-64bit/lib64")
 
-add_executable(dbConnectionPool ${SOURCES} ${HEADERS})
+add_executable(connectorCppAPI ${SOURCES} ${HEADERS})
 
-target_link_libraries (dbConnectionPool mysqlcppconn)
+target_link_libraries (connectorCppAPI mysqlcppconn)
 
-install (TARGETS dbConnectionPool DESTINATION bin)
+#install (TARGETS connectorCppAPI DESTINATION bin)
 

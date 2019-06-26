@@ -121,6 +121,8 @@ public:
 
     DBConnectionPool(size_t poolSize, shared_ptr<DBConnectionFactory> factory)
     {
+        DB_DEBUG_LOGGER(__FILEREF__ + "building DBConnectionPool");
+
         _poolSize=poolSize;
         _factory=factory;
 
@@ -132,6 +134,7 @@ public:
 			// shared_ptr<DBConnection> sqlConnection = _factory->create(lastConnectionId++);
 			// if (sqlConnection != nullptr)
 			// 	_connectionPool.push_back(sqlConnection);
+			DB_DEBUG_LOGGER(__FILEREF__ + "Creating connection " + to_string(lastConnectionId));
 			_connectionPool.push_back(_factory->create(lastConnectionId++));
         }
     };

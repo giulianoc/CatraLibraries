@@ -30,6 +30,9 @@ project(
 
 SET(CMAKE_CXX_FLAGS "-std=c++14")
 
+#this is to generate a compilation database (for the YCM vim plugin)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(CMAKE_BUILD_TYPE Debug)
 #set(CMAKE_BUILD_TYPE RelWithDebInfo)
 #set(CMAKE_BUILD_TYPE Release)
@@ -83,6 +86,7 @@ add_subdirectory(Scheduler/src)
 add_subdirectory(LoadBalancer/src)
 
 add_subdirectory(examples/DBConnectionPool/dbConnectionPool)
+add_subdirectory(examples/DBConnectionPool/connectorCppAPI)
 
 add_subdirectory(examples/Configuration/configuration)
 add_subdirectory(examples/Configuration/cryptedItem)

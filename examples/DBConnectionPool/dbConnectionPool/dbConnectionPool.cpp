@@ -25,6 +25,8 @@
 
 using namespace std;
 
+#define DB_BORROW_DEBUG_LOGGER(x) cout << x << endl
+#define DB_BORROW_ERROR_LOGGER(x) cerr << x << endl
 #define DB_DEBUG_LOGGER(x) cout << x << endl
 #define DB_ERROR_LOGGER(x) cerr << x << endl
 
@@ -35,9 +37,12 @@ int main (int iArgc, char *pArgv [])
 
 {
 
-	if (iArgc != 7)
+	if (iArgc != 8)
 	{
-		cout << pArgv[0] << " \"tcp://rsis-cp-wedep1.media.int:3306\" u_vedatest \"~Kpq6Mll]Y\" vedatest \"select count(*) from MMS_TestConnection\" 1" << endl;
+		cout << "wrong args number: " << iArgc
+			<< ", usage: "
+			<< pArgv[0]
+			<< " \"tcp://rsis-cp-wedep1.media.int:3306\" u_vedatest \"~Kpq6Mll]Y\" vedatest \"select count(*) from MMS_TestConnection\" 1 100" << endl;
 
 		return 1;
 	}
@@ -48,6 +53,7 @@ int main (int iArgc, char *pArgv [])
 	string dbName(pArgv[4]);
 	string selectTestingConnection(pArgv[5]);
 	int dbPoolSize = atol(pArgv[6]);
+	int iterations = atol(pArgv[7]);
 
 	cout << pArgv[0]
 		<< ", dbServer: " + dbServer
@@ -56,29 +62,36 @@ int main (int iArgc, char *pArgv [])
 		<< ", dbName: " + dbName
 		<< ", selectTestingConnection: " + selectTestingConnection
 		<< ", dbPoolSize: " + to_string(dbPoolSize)
+		<< ", iterations: " + to_string(iterations)
 		<< endl;
 
+	shared_ptr<MySQLConnectionFactory>  mySQLConnectionFactory;
+	shared_ptr<DBConnectionPool<MySQLConnection>> connectionPool;
+	shared_ptr<MySQLConnection> conn = nullptr;
 	try
 	{
 		bool reconnect = true;
 		string defaultCharacterSet = "utf8";
 
-		shared_ptr<MySQLConnectionFactory>  mySQLConnectionFactory = 
+		cout << "mySQLConnectionFactory..." << endl;
+		mySQLConnectionFactory = 
 			make_shared<MySQLConnectionFactory>(dbServer, dbUsername, dbPassword, dbName,
 			reconnect, defaultCharacterSet, selectTestingConnection);
 
-		shared_ptr<DBConnectionPool<MySQLConnection>> connectionPool =
+		cout << "connectionPool..." << endl;
+		connectionPool =
 			make_shared<DBConnectionPool<MySQLConnection>>(
 			dbPoolSize, mySQLConnectionFactory);
 
-		shared_ptr<MySQLConnection> conn;
-
-		for (int index = 0; index < 1000; index++)
+		for (int index = 0; index < iterations; index++)
 		{
+			cout << "index: " << index << endl;
+
 			try
 			{
 				conn = connectionPool->borrow();	
 				connectionPool->unborrow(conn);
+				conn = nullptr;
 			}
 			catch(sql::SQLException se)
 			{
@@ -112,7 +125,14 @@ int main (int iArgc, char *pArgv [])
 
 		cerr <<__FILEREF__ + "SQL exception"
 			+ ", exceptionMessage: " + exceptionMessage
+			+ ", conn: " + (conn != nullptr ? to_string(conn->getConnectionId()) : "-1")
 			<< endl;
+
+		if (conn != nullptr)                                                                                  
+        {                                                                                                     
+            connectionPool->unborrow(conn);                                                                  
+            conn = nullptr;                                                                                   
+        }
 	}
 	catch(runtime_error e)
 	{
@@ -120,7 +140,14 @@ int main (int iArgc, char *pArgv [])
 
 		cerr <<__FILEREF__ + "SQL exception"
 			+ ", exceptionMessage: " + exceptionMessage
+			+ ", conn: " + (conn != nullptr ? to_string(conn->getConnectionId()) : "-1")
 			<< endl;
+
+		if (conn != nullptr)                                                                                  
+        {                                                                                                     
+            connectionPool->unborrow(conn);                                                                  
+            conn = nullptr;                                                                                   
+        }
 	}
 	catch(exception e)
 	{
@@ -128,7 +155,14 @@ int main (int iArgc, char *pArgv [])
 
 		cerr <<__FILEREF__ + "SQL exception"
 			+ ", exceptionMessage: " + exceptionMessage
+			+ ", conn: " + (conn != nullptr ? to_string(conn->getConnectionId()) : "-1")
 		<< endl;
+
+		if (conn != nullptr)                                                                                  
+        {                                                                                                     
+            connectionPool->unborrow(conn);                                                                  
+            conn = nullptr;                                                                                   
+        }
 	}
 
 	return 0;
