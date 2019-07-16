@@ -4475,7 +4475,11 @@ Error FileIO:: copyFile (const char *pSrcPathName,
 			return errIO;
 		}
 
-		if (ulFileSize >= 5 * 1000 * 1024)	// 5MB
+		if (ulFileSize >= 30 * 1000 * 1024)	// 30MB
+			ulLocalBufferSizeToBeUsed			= 30 * 1000 * 1024;
+		else if (ulFileSize >= 10 * 1000 * 1024)	// 10MB
+			ulLocalBufferSizeToBeUsed			= 10 * 1000 * 1024;
+		else if (ulFileSize >= 5 * 1000 * 1024)	// 5MB
 			ulLocalBufferSizeToBeUsed			= 5 * 1000 * 1024;
 		else if (ulFileSize == 0)
 			ulLocalBufferSizeToBeUsed			= 8;	// it cannot be 0
