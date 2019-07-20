@@ -56,3 +56,4 @@ if (LDAP_FOUND)
 	target_link_libraries(copyFile ${LDAP_LIBRARIES})
 endif()
 
+install (TARGETS copyFile DESTINATION bin)
