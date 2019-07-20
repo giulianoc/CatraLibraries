@@ -71,9 +71,12 @@ int main (int iArgc, char *pArgv [])
 		return 1;
 	}
 
-	if (FileIO:: copyFile (pSrcPathName, pDestPathName,
-		ulBufferSizeToBeUsed) != errNoError)
+	Error_t errFileIO;
+	if ((errFileIO = FileIO:: copyFile (pSrcPathName, pDestPathName,
+		ulBufferSizeToBeUsed)) != errNoError)
 	{
+		std:: cerr << (const char *) errFileIO << std:: endl;
+
 		Error err = ToolsErrors (__FILE__, __LINE__,
 			TOOLS_FILEIO_COPYFILE_FAILED);
 		std:: cerr << (const char *) err << std:: endl;
