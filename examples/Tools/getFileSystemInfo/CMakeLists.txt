@@ -56,3 +56,5 @@ if (LDAP_FOUND)
 	target_link_libraries(getFileSystemInfo ${LDAP_LIBRARIES})
 endif()
 
+install (TARGETS getFileSystemInfo DESTINATION bin)
+

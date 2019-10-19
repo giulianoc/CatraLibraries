@@ -94,7 +94,7 @@ ErrMsgBase:: ErrMsgsInfo TracerErrorsStr = {
 	{ TRACER_TRACER_GETNEWTRACEPATHFILENAME_FAILED,
 		"The getNewTracePathFileName method of the Tracer class failed" },
 	{ TRACER_TRACER_NOSPACEAVAILABLE,
-		"No space available on File System (%s). Available KB: %llu" },
+		"No space available on File System (%s). Available Bytes: %llu" },
 	{ TRACER_TRACETOOLONG,
 		"The trace message too long (%lu), increase the trace file cache (%lu)" },
 	{ TRACER_COMMANDWRONG,

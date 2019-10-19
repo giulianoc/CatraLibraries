@@ -917,15 +917,15 @@ FileIO::DirectoryEntryType_t FileIO:: getDirectoryEntryType (string pathName)
 
 
 Error FileIO:: getFileSystemInfo (const char *pPathName,
-	unsigned long long *pullUsedInKB,
-	unsigned long long *pullAvailableInKB,
+	int64_t* pUsedInBytes,
+	int64_t* pAvailableInBytes,
 	long *plPercentUsed)
 
 {
 
 	if (pPathName == (const char *) NULL ||
-		pullUsedInKB == (unsigned long long *) NULL ||
-		pullAvailableInKB == (unsigned long long *) NULL ||
+		pUsedInBytes == (int64_t*) NULL ||
+		pAvailableInBytes == (int64_t*) NULL ||
 		plPercentUsed == (long *) NULL)
 	{
 		Error err = ToolsErrors (__FILE__, __LINE__,
@@ -975,9 +975,9 @@ Error FileIO:: getFileSystemInfo (const char *pPathName,
         i64TotalBytes		= (__int64) dwTotalClusters * dwSectPerClust * dwBytesPerSect;
         i64FreeBytes		= (__int64) dwFreeClusters * dwSectPerClust * dwBytesPerSect;
 
-		*pullUsedInKB		= (i64TotalBytes / 1024) - (i64FreeBytes / 1024);
-		*pullAvailableInKB	= (i64FreeBytes / 1024);
-		*plPercentUsed		= (long) (*pullUsedInKB * 100.0 / (*pullUsedInKB + *pullAvailableInKB)) + 0.5;
+		*pUsedInBytes		= i64TotalBytes - i64FreeBytes;
+		*pAvailableInBytes	= i64FreeBytes;
+		*plPercentUsed		= (long) (*pUsedInBytes * 100.0 / (*pUsedInBytes + *pAvailableInBytes)) + 0.5;
 	#else
 		struct statfs			sStatfs;
 		long long				llBlocksUsed;
@@ -999,10 +999,16 @@ Error FileIO:: getFileSystemInfo (const char *pPathName,
 				((llBlocksUsed * 100.0 / (llBlocksUsed + sStatfs. f_bavail)) +
 				0.5);
 
+			/*
 			*pullUsedInKB			= llBlocksUsed *
 				(sStatfs. f_bsize / 1024.0);
 			*pullAvailableInKB		= sStatfs. f_bavail *
 				(sStatfs. f_bsize / 1024.0);
+			*/
+
+			*pAvailableInBytes		= ((double) sStatfs.f_bavail * sStatfs.f_frsize);
+			int64_t total			= ((double) sStatfs.f_blocks * sStatfs.f_frsize);
+			*pUsedInBytes			= total - *pAvailableInBytes;
 		}
 		else
 		{
@@ -1021,18 +1027,18 @@ Error FileIO:: getFileSystemInfo (const char *pPathName,
 }
 
 void FileIO:: getFileSystemInfo (string pathName,
-	unsigned long long *pullUsedInKB,
-	unsigned long long *pullAvailableInKB,
+	int64_t* pUsedInKB,
+	int64_t* pAvailableInKB,
 	long *plPercentUsed)
 
 {
     Error errFileIO;
 
     if ((errFileIO = FileIO:: getFileSystemInfo (pathName.c_str(),
-	pullUsedInKB, pullAvailableInKB, plPercentUsed)) != errNoError)
+		pUsedInKB, pAvailableInKB, plPercentUsed)) != errNoError)
     {
-        throw runtime_error(string("FileIO::getFileSystemInfo failed: ")
-                + (const char *) errFileIO);
+		throw runtime_error(string("FileIO::getFileSystemInfo failed: ")
+			+ (const char *) errFileIO);
     }
 }
 

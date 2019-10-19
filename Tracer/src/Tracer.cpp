@@ -5857,8 +5857,8 @@ Error Tracer:: checkFileSystemSize (const char *pDirectoryPathName)
 
 {
 
-	unsigned long long		ullUsedInKB;
-	unsigned long long		ullAvailableInKB;
+	int64_t					usedInBytes;
+	int64_t					availableInBytes;
 	long					lPercentUsed;
 	Error_t					errFileIO;
 	Buffer_t				bDirectoryPathName;
@@ -5876,7 +5876,7 @@ Error Tracer:: checkFileSystemSize (const char *pDirectoryPathName)
 
 	if ((errFileIO = FileIO:: getFileSystemInfo (
 		(const char *) bDirectoryPathName,
-		&ullUsedInKB, &ullAvailableInKB, &lPercentUsed)) !=
+		&usedInBytes, &availableInBytes, &lPercentUsed)) !=
 		errNoError)
 	{
 		std:: cerr << (const char *) errFileIO << std:: endl;
@@ -5907,11 +5907,11 @@ Error Tracer:: checkFileSystemSize (const char *pDirectoryPathName)
 	// to be safe we will check that at least we have space
 	// to save 5 times the max size of one trace file
 	// if (ullAvailableInKB <= _ullMaxTraceFileSize * 3)
-	if (ullAvailableInKB <= 100000)
+	if (availableInBytes <= 100000 * 1000)
 	{
 		Error err = TracerErrors (__FILE__, __LINE__,
 			TRACER_TRACER_NOSPACEAVAILABLE,
-			2, (const char *) _bTraceDirectory, ullAvailableInKB);
+			2, (const char *) _bTraceDirectory, availableInBytes);
 		std:: cerr << (const char *) err << std:: endl;
 
 		return err;

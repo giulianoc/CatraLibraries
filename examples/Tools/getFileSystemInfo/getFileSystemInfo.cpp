@@ -33,11 +33,11 @@ int main (int iArgc, char *pArgv [])
 
 {
 
-	const char					*pPathName;
-	unsigned long long			ullUsedInKB;
-	unsigned long long			ullAvailableInKB;
-	long						lPercentUsed;
-	Error_t						errFileIO;
+	const char			*pPathName;
+	int64_t				usedInBytes;
+	int64_t				availableInBytes;
+	long				lPercentUsed;
+	Error_t				errFileIO;
 
 
 	if (iArgc != 2)
@@ -51,7 +51,7 @@ int main (int iArgc, char *pArgv [])
 	pPathName			= pArgv [1];
 
 	if ((errFileIO = FileIO:: getFileSystemInfo (pPathName,
-		&ullUsedInKB, &ullAvailableInKB, &lPercentUsed)) != errNoError)
+		&usedInBytes, &availableInBytes, &lPercentUsed)) != errNoError)
 	{
 		std:: cerr << (const char *) errFileIO << std:: endl;
 
@@ -63,8 +63,8 @@ int main (int iArgc, char *pArgv [])
 	}
 
 	std:: cout << "PathName: " << pPathName
-		<< std:: endl << "UsedInKB: " << ullUsedInKB
-		<< std:: endl << "AvailableInKB: " << ullAvailableInKB
+		<< std:: endl << "UsedInBytes: " << usedInBytes
+		<< std:: endl << "AvailableInBytes: " << availableInBytes
 		<< std:: endl << "PercentUsed: " << lPercentUsed << "%"
 		<< std:: endl;
 
