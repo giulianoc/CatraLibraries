@@ -999,16 +999,15 @@ Error FileIO:: getFileSystemInfo (const char *pPathName,
 				((llBlocksUsed * 100.0 / (llBlocksUsed + sStatfs. f_bavail)) +
 				0.5);
 
-			/*
-			*pullUsedInKB			= llBlocksUsed *
-				(sStatfs. f_bsize / 1024.0);
-			*pullAvailableInKB		= sStatfs. f_bavail *
-				(sStatfs. f_bsize / 1024.0);
-			*/
+			// 2019-10-20: it works, it was checked with a mounted partition
+			*pUsedInBytes			= llBlocksUsed * sStatfs. f_bsize;
+			*pAvailableInBytes		= sStatfs. f_bavail * sStatfs. f_bsize;
 
+			/*
 			*pAvailableInBytes		= ((double) sStatfs.f_bavail * sStatfs.f_frsize);
 			int64_t total			= ((double) sStatfs.f_blocks * sStatfs.f_frsize);
 			*pUsedInBytes			= total - *pAvailableInBytes;
+			*/
 		}
 		else
 		{
