@@ -309,6 +309,13 @@ void ProcessUtility::forkAndExec (
 
 void ProcessUtility::killProcess (pid_t pid)
 {
+	if (pid <= 0)
+	{
+		string errorMessage = string("pid is wrong. pid: ") + to_string(pid);
+
+		throw runtime_error(errorMessage);
+	}
+
 	if(kill(pid, SIGKILL) == -1)
 	{
 		string errorMessage = string("kill failed. errno: ") + to_string(errno);
