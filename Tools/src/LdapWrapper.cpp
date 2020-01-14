@@ -80,7 +80,7 @@ void LdapWrapper::init (string ldapURL, string certificatePathName,
 
 {
 
-	_ldapURL = ldapURL;
+	_ldapURL = ldapURL;							// "ldaps://media.int:636" or "ldap://media.int:389"
 	_certificatePathName = certificatePathName;	// used only in case of ldaps://...
 	_managerUserName = managerUserName;
 	_managerPassword = managerPassword;
