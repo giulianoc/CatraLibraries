@@ -37,9 +37,10 @@
 
 			LdapWrapper &operator = (const LdapWrapper &);
 
-			string _ldapURL;
-			string _managerUserName;
-			string _managerPassword;
+			string	_ldapURL;
+			string	_certificatePathName;
+			string	_managerUserName;
+			string	_managerPassword;
 
 		public:
 			/**
@@ -52,7 +53,8 @@
 			*/
 			~LdapWrapper ();
 
-			void init (string ldapURL, string managerUserName, string managerPassword);
+			void init (string ldapURL, string certificatePathName,
+					string managerUserName, string managerPassword);
 
 			pair<bool,string> testCredentials (
 					string userName, string password, string searchBaseDn);

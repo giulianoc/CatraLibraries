@@ -55,4 +55,3 @@ endif()
 if (LDAP_FOUND)
 	target_link_libraries(appendBuffer ${LDAP_LIBRARIES})
 endif()
-

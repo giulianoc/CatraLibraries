@@ -22,31 +22,41 @@
 */
 
 #include "LdapWrapper.h"
+#include <string.h>
 #include <iostream>
 
 int main (int iArgc, char *pArgv [])
 
 {
 
-	string ldapURL("ldap://media.int:389");
 	string managerUserName("svc-rsi-adread09");
 	string managerPassword("MP-data-processor");
 	string userName("catramgi");
 	string baseDn("DC=media,DC=int");
 
-	if (iArgc != 2)
+	if (iArgc != 4)
 	{
-		std:: cerr << "Usage: " << pArgv [0] << " <password>"
+		std:: cerr << "Usage: " << pArgv [0] << " <overSSL> <certificate path name> <password>"
 			<< std:: endl;
 
 		return 1;
 	}
 
-	string password = pArgv[1];
+	string ldapURL;
+	if (strcmp(pArgv[1], "true") == 0)
+	{
+		ldapURL = "ldaps://media.int:636";
+	}
+	else
+	{
+		ldapURL = "ldap://media.int:389";
+	}
+	string certificatePathName = pArgv[2];
+	string password = pArgv[3];
 
 	LdapWrapper ldapWrapper;
 
-	ldapWrapper.init(ldapURL, managerUserName, managerPassword);
+	ldapWrapper.init(ldapURL, certificatePathName, managerUserName, managerPassword);
 	pair<bool, string> testCredentialsSuccessfulAndEmail = ldapWrapper.testCredentials(
 			userName, password, baseDn);
 	bool testCredentialsSuccessful;

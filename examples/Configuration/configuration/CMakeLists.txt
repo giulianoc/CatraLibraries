@@ -39,6 +39,7 @@ add_compile_options(-D_REENTRANT)
 
 add_executable(configuration ${SOURCES})
 
+
 target_link_libraries (configuration Configuration)
 target_link_libraries (configuration PThread)
 target_link_libraries (configuration Tools)

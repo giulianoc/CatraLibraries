@@ -75,17 +75,19 @@ LdapWrapper &LdapWrapper:: operator = (const LdapWrapper &)
 }
 
 
-void LdapWrapper::init (string ldapURL, string managerUserName, string managerPassword)
+void LdapWrapper::init (string ldapURL, string certificatePathName,
+		string managerUserName, string managerPassword)
 
 {
 
 	_ldapURL = ldapURL;
+	_certificatePathName = certificatePathName;	// used only in case of ldaps://...
 	_managerUserName = managerUserName;
 	_managerPassword = managerPassword;
 }
 
 pair<bool,string> LdapWrapper::testCredentials (
-		string userName, string password, string searchBaseDn)
+	string userName, string password, string searchBaseDn)
 {
 
 	bool testCredentialsSuccessful = false;
@@ -125,13 +127,15 @@ pair<bool,string> LdapWrapper::testCredentials (
 
 
 	/* STEP 1: Get a LDAP connection handle and set any session preferences. */
-	/* For ldaps we must call ldap_sslinit(char *host, int port, int secure) */
-	int result = ldap_initialize(&ldap, _ldapURL.c_str());
-	if (result != LDAP_SUCCESS)
+	int result;
 	{
-		string errorMessage = "ldap_initialize failed";
+		result = ldap_initialize(&ldap, _ldapURL.c_str());
+		if (result != LDAP_SUCCESS)
+		{
+			string errorMessage = "ldap_initialize failed";
 
-		throw runtime_error(errorMessage);
+			throw runtime_error(errorMessage);
+		}
 	}
 	// printf("Generated LDAP handle.\n");
 
@@ -140,14 +144,112 @@ pair<bool,string> LdapWrapper::testCredentials (
 	result = ldap_set_option(ldap, LDAP_OPT_PROTOCOL_VERSION, &ldap_version);
 	if (result != LDAP_OPT_SUCCESS)
 	{
-		ldap_unbind(ldap);
+		ldap_unbind_ext_s(ldap, NULL, NULL);
 
-		string errorMessage = "ldap_set_option failed!";
+		string errorMessage = "ldap_set_option LDAP_OPT_PROTOCOL_VERSION failed!";
 
 		throw runtime_error(errorMessage);
 	}
 	// printf("Set LDAPv3 client version.\n");
 
+	// timeout is important, for example, in case ldap is not listening,
+	// the next ldap api (ldap_simple_bind_s) will wait the default timeout
+	// that is about 6 minutes
+	struct timeval timeOut = {30, 0};   /* 30 second connection timeout */
+	result = ldap_set_option (ldap, LDAP_OPT_NETWORK_TIMEOUT, &timeOut);
+	if (result != LDAP_OPT_SUCCESS)
+	{
+		ldap_unbind_ext_s(ldap, NULL, NULL);
+
+		string errorMessage = "ldap_set_option LDAP_OPT_NETWORK_TIMEOUT, failed!";
+
+		throw runtime_error(errorMessage);
+	}
+
+	string ldapOverSSLPrefix ("ldaps://");
+    if (_ldapURL.size() >= ldapOverSSLPrefix.size()
+		&& 0 == _ldapURL.compare(0, ldapOverSSLPrefix.size(), ldapOverSSLPrefix))
+	{
+		int opt = LDAP_OPT_X_TLS_NEVER;
+		// if (ldap_tls > 1)
+		// opt = LDAP_OPT_X_TLS_DEMAND;
+		result = ldap_set_option(ldap, LDAP_OPT_X_TLS_REQUIRE_CERT, &opt);
+		if (result != LDAP_OPT_SUCCESS)
+		{
+			ldap_unbind_ext_s(ldap, NULL, NULL);
+
+			string errorMessage = string("ldap_set_option LDAP_OPT_X_TLS_REQUIRE_CERT failed")
+				+ ", error: " + ldap_err2string(result);
+
+			throw runtime_error(errorMessage);
+		}
+	}
+
+    if (_ldapURL.size() >= ldapOverSSLPrefix.size()
+		&& 0 == _ldapURL.compare(0, ldapOverSSLPrefix.size(), ldapOverSSLPrefix))
+	{
+		result = ldap_set_option(NULL, LDAP_OPT_X_TLS_CACERTFILE, (void *)_certificatePathName.c_str());
+		if (result != LDAP_OPT_SUCCESS)
+		{
+			ldap_unbind_ext_s(ldap, NULL, NULL);
+
+			string errorMessage = string("ldap_set_option LDAP_OPT_X_TLS_CACERTFILE failed")
+				+ ", error: " + ldap_err2string(result);
+
+			throw runtime_error(errorMessage);
+		}
+	}
+
+	// StartTLS is the name of the standard LDAP operation for initiating TLS/SSL.
+	// TLS/SSL is initiated upon successful completion of this LDAP operation. No alternative port is necessary.
+	// It is sometimes referred to as the TLS upgrade operation, as it upgrades a normal LDAP connection
+	// to one protected by TLS/SSL.
+
+	// ldaps:// and LDAPS refers to "LDAP over TLS/SSL" or "LDAP Secured". TLS/SSL is initated upon connection
+	// to an alternative port (normally 636). Though the LDAPS port (636) is registered for this use,
+	// the particulars of the TLS/SSL initiation mechanism are not standardized.
+
+	// Summary:
+	// 1) ldap:// + StartTLS should be directed to a normal LDAP port (normally 389), not the ldaps:// port.
+	// 2) ldaps:// should be directed to an LDAPS port (normally 636), not the LDAP port.
+
+	/*
+	if (!_ldapOverSSL)
+	{
+		// starts SSL connection
+		result = ldap_start_tls_s(ldap, NULL, NULL);
+		switch(result)
+		{
+			case LDAP_SUCCESS:
+
+			break;
+			case LDAP_CONNECT_ERROR:
+			{
+				char *errmsg;
+
+				ldap_get_option(ldap, LDAP_OPT_DIAGNOSTIC_MESSAGE, (void*)&errmsg);
+
+				string errorMessage = string("ldap_start_tls_s failed")
+					+ ", errmsg: " + errmsg;
+
+				ldap_memfree(errmsg);
+
+				ldap_unbind_ext_s(ldap, NULL, NULL);
+
+				throw runtime_error(errorMessage);
+			}
+			default:
+			{
+				ldap_unbind_ext_s(ldap, NULL, NULL);
+
+				string errorMessage = string("ldap_start_tls_s failed")
+					+ ", error: " + ldap_err2string(result);
+
+				throw runtime_error(errorMessage);
+			}
+		};
+	}
+	*/
 
 	/* STEP 2: Bind to the server. */
 	// If no DN or credentials are specified, we bind anonymously to the server */
@@ -155,20 +257,19 @@ pair<bool,string> LdapWrapper::testCredentials (
 	result = ldap_simple_bind_s(ldap, _managerUserName.c_str(), _managerPassword.c_str() );
 	if ( result != LDAP_SUCCESS )
 	{
-		ldap_unbind(ldap);
+		ldap_unbind_ext_s(ldap, NULL, NULL);
 
 		string errorMessage = string("ldap_simple_bind_s: ") + ldap_err2string(result);
 
 		throw runtime_error(errorMessage);
 	}
 
-
 	/* STEP 3: Do the LDAP search. */
 	result=ldap_search_s(ldap, searchBaseDn.c_str(), scope, filter.c_str(), attrs, attrsonly,
 			&answer);
 	if (result != LDAP_SUCCESS)
 	{
-		ldap_unbind(ldap);
+		ldap_unbind_ext_s(ldap, NULL, NULL);
 
 		string errorMessage = string("ldap_search_s: ") + ldap_err2string(result);
 
@@ -180,10 +281,7 @@ pair<bool,string> LdapWrapper::testCredentials (
 	if (entriesFound == 0)
 	{
 		ldap_msgfree(answer);
-		ldap_unbind(ldap);
-
-		// fprintf(stderr, "LDAP search did not return any data.\n");
-		// exit(EXIT_FAILURE);
+		ldap_unbind_ext_s(ldap, NULL, NULL);
 
 		return make_pair(testCredentialsSuccessful, email);
 	}
@@ -192,10 +290,7 @@ pair<bool,string> LdapWrapper::testCredentials (
 		// more than one entries returned by the search
 
 		ldap_msgfree(answer);
-		ldap_unbind(ldap);
-
-		// fprintf(stderr, "LDAP search did not return any data.\n");
-		// exit(EXIT_FAILURE);
+		ldap_unbind_ext_s(ldap, NULL, NULL);
 
 		return make_pair(testCredentialsSuccessful, email);
 	}
@@ -213,18 +308,19 @@ pair<bool,string> LdapWrapper::testCredentials (
 		{
 			/* rebind */
 			/* STEP 1: Get a LDAP connection handle and set any session preferences. */
-			/* For ldaps we must call ldap_sslinit(char *host, int port, int secure) */
 			LDAP *ldap2;
-			int result = ldap_initialize(&ldap2, _ldapURL.c_str());
-			if (result != LDAP_SUCCESS)
 			{
-				ldap_memfree(dn);
-				ldap_msgfree(answer);
-				ldap_unbind(ldap);
+				result = ldap_initialize(&ldap2, _ldapURL.c_str());
+				if (result != LDAP_SUCCESS)
+				{
+					ldap_memfree(dn);
+					ldap_msgfree(answer);
+					ldap_unbind_ext_s(ldap, NULL, NULL);
 
-				string errorMessage = "ldap_initialize failed";
+					string errorMessage = "ldap_initialize failed";
 
-				throw runtime_error(errorMessage);
+					throw runtime_error(errorMessage);
+				}
 			}
 			// printf("Generated LDAP handle.\n");
 
@@ -233,16 +329,116 @@ pair<bool,string> LdapWrapper::testCredentials (
 			result = ldap_set_option(ldap2, LDAP_OPT_PROTOCOL_VERSION, &ldap_version);
 			if (result != LDAP_OPT_SUCCESS)
 			{
-				ldap_unbind(ldap2);
+				ldap_unbind_ext_s(ldap2, NULL, NULL);
 				ldap_memfree(dn);
 				ldap_msgfree(answer);
-				ldap_unbind(ldap);
+				ldap_unbind_ext_s(ldap, NULL, NULL);
 
 				string errorMessage = "ldap_set_option failed!";
 
 				throw runtime_error(errorMessage);
 			}
 			// printf("Set LDAPv3 client version.\n");
+
+			// timeout is important, for example, in case ldap is not listening,
+			// the next ldap api (ldap_simple_bind_s) will wait the default timeout
+			// that is about 6 minutes
+			struct timeval timeOut = {30, 0};   /* 30 second connection timeout */
+			result = ldap_set_option (ldap2, LDAP_OPT_NETWORK_TIMEOUT, &timeOut);
+			if (result != LDAP_OPT_SUCCESS)
+			{
+				ldap_unbind_ext_s(ldap2, NULL, NULL);
+				ldap_memfree(dn);
+				ldap_msgfree(answer);
+				ldap_unbind_ext_s(ldap, NULL, NULL);
+
+				string errorMessage = "ldap_set_option LDAP_OPT_NETWORK_TIMEOUT, failed!";
+
+				throw runtime_error(errorMessage);
+			}
+
+			if (_ldapURL.size() >= ldapOverSSLPrefix.size()
+				&& 0 == _ldapURL.compare(0, ldapOverSSLPrefix.size(), ldapOverSSLPrefix))
+			{
+				int opt = LDAP_OPT_X_TLS_NEVER;
+				// if (ldap_tls > 1)
+				// 	opt = LDAP_OPT_X_TLS_DEMAND;
+				result = ldap_set_option(ldap2, LDAP_OPT_X_TLS_REQUIRE_CERT, &opt);
+				if (result != LDAP_OPT_SUCCESS)
+				{
+					ldap_unbind_ext_s(ldap2, NULL, NULL);
+					ldap_memfree(dn);
+					ldap_msgfree(answer);
+					ldap_unbind_ext_s(ldap, NULL, NULL);
+
+					string errorMessage = string("ldap_set_option LDAP_OPT_X_TLS_REQUIRE_CERT failed")
+						+ ", error: " + ldap_err2string(result);
+
+					throw runtime_error(errorMessage);
+				}
+			}
+
+			if (_ldapURL.size() >= ldapOverSSLPrefix.size()
+				&& 0 == _ldapURL.compare(0, ldapOverSSLPrefix.size(), ldapOverSSLPrefix))
+			{
+				result = ldap_set_option(NULL, LDAP_OPT_X_TLS_CACERTFILE, (void *)_certificatePathName.c_str());
+				if (result != LDAP_OPT_SUCCESS)
+				{
+					ldap_unbind_ext_s(ldap2, NULL, NULL);
+					ldap_memfree(dn);
+					ldap_msgfree(answer);
+					ldap_unbind_ext_s(ldap, NULL, NULL);
+
+					string errorMessage = string("ldap_set_option LDAP_OPT_X_TLS_CACERTFILE failed")
+						+ ", error: " + ldap_err2string(result);
+
+					throw runtime_error(errorMessage);
+				}
+			}
+
+			/*
+			if (!_ldapOverSSL)
+			{
+				// starts SSL connection
+				result = ldap_start_tls_s(ldap2, NULL, NULL);
+				switch(result)
+				{
+					case LDAP_SUCCESS:
+
+					break;
+					case LDAP_CONNECT_ERROR:
+					{
+						char *errmsg;
+
+						ldap_get_option(ldap2, LDAP_OPT_DIAGNOSTIC_MESSAGE, (void*)&errmsg);
+
+						string errorMessage = string("ldap_start_tls_s failed")
+							+ ", error: " + errmsg;
+
+						ldap_memfree(errmsg);
+
+						ldap_unbind_ext_s(ldap2, NULL, NULL);
+						ldap_memfree(dn);
+						ldap_msgfree(answer);
+						ldap_unbind_ext_s(ldap, NULL, NULL);
+
+						throw runtime_error(errorMessage);
+					}
+					default:
+					{
+						ldap_unbind_ext_s(ldap2, NULL, NULL);
+						ldap_memfree(dn);
+						ldap_msgfree(answer);
+						ldap_unbind_ext_s(ldap, NULL, NULL);
+
+						string errorMessage = string("ldap_start_tls_s failed")
+							+ ", error: " + ldap_err2string(result);
+
+						throw runtime_error(errorMessage);
+					}
+				};
+			}
+			*/
 
 			/* STEP 2: Bind to the server. */
 			// If no DN or credentials are specified, we bind anonymously to the server */
@@ -268,7 +464,7 @@ pair<bool,string> LdapWrapper::testCredentials (
 				testCredentialsSuccessful = true;
 			}
 
-			ldap_unbind(ldap2);
+			ldap_unbind_ext_s(ldap2, NULL, NULL);
 		}
 
 		if (testCredentialsSuccessful)
@@ -305,7 +501,7 @@ std::cout << attribute << ": " << values[valueIndex] << std::endl;
 	}
 
 	ldap_msgfree(answer);
-	ldap_unbind(ldap);
+	ldap_unbind_ext_s(ldap, NULL, NULL);
 
 	return make_pair(testCredentialsSuccessful, email);
 }

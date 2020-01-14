@@ -55,4 +55,7 @@ endif()
 if (LDAP_FOUND)
 	target_link_libraries(ldapWrapper ${LDAP_LIBRARIES})
 endif()
+target_link_libraries (ldapWrapper ldap)
+target_link_libraries (ldapWrapper lber)
 
+install (TARGETS ldapWrapper DESTINATION bin)
