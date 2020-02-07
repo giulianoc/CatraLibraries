@@ -63,6 +63,7 @@ find_package(Ldap)
 set(INSTALL_INCLUDE_DIRECTORY include/catralibraries)
 
 add_subdirectory(my_hash_map)
+add_subdirectory(utf8_v2_3_4/source)
 add_subdirectory(ErrMsg/src)
 #add_subdirectory(doc)
 add_subdirectory(Tools/src)
