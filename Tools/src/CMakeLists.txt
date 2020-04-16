@@ -34,6 +34,7 @@ SET (SOURCES
 	System.cpp
 	ProcessUtility.cpp
 	ToolsErrors.cpp
+	StringUtils.cpp
 )
 if (LDAP_FOUND)
 	SET (SOURCES
@@ -57,6 +58,7 @@ SET (HEADERS
 	System.h
 	ProcessUtility.h
 	ToolsErrors.h
+	StringUtils.h
 )
 if (LDAP_FOUND)
 	SET (HEADERS
