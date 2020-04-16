@@ -27,7 +27,7 @@ string StringUtils::ltrim(string s)
 	return s;
 }
 
-string StringUtils::rtrim(string s)                                                                                        
+string StringUtils::rtrim(string s)
 {
 	auto it = find_if(s.rbegin(), s.rend(),                                                                   
 		[](char c)                                                                                            
@@ -44,4 +44,33 @@ string StringUtils::trim(string s)
 	return ltrim(rtrim(s));                                                                                   
 }
 
+
+string StringUtils::ltrimNewLineToo(string s)
+{
+	auto it = find_if(s.begin(), s.end(),
+		[](char c)
+		{
+			return !isspace<char>(c, locale::classic()) && c != '\n';
+		});
+	s.erase(s.begin(), it);
+
+	return s;
+}
+
+string StringUtils::rtrimNewLineToo(string s)
+{
+	auto it = find_if(s.rbegin(), s.rend(),
+		[](char c)
+		{
+			return !isspace<char>(c, locale::classic()) && c != '\n';
+		});
+	s.erase(it.base(), s.end());
+
+	return s;
+}
+
+string StringUtils::trimNewLineToo(string s)
+{
+	return ltrimNewLineToo(rtrimNewLineToo(s));
+}
 

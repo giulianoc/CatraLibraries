@@ -180,4 +180,5 @@ add_subdirectory(examples/Tools/readLinesFromFile)
 add_subdirectory(examples/Tools/removeFile)
 add_subdirectory(examples/Tools/service)
 add_subdirectory(examples/Tools/stringTokenizer)
+add_subdirectory(examples/Tools/trim)
 

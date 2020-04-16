@@ -25,6 +25,10 @@ public:
 	static string ltrim(string s);
 	static string rtrim(string s);
 	static string trim(string s);
+
+	static string ltrimNewLineToo(string s);
+	static string rtrimNewLineToo(string s);
+	static string trimNewLineToo(string s);
 };
 
 #endif
