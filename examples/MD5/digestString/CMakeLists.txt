@@ -20,9 +20,15 @@
 # License is allowed only after express negotiation of conditions
 # with the authors.
 
-SET (HEADERS
-	md5.h
+SET (SOURCES
+	digestString.cpp
 )
 
-install (FILES ${HEADERS} DESTINATION ${INSTALL_INCLUDE_DIRECTORY})
+SET (HEADERS
+)
+
+add_executable(digestString ${SOURCES} ${HEADERS})
+
+target_link_libraries (digestString crypto)
+#target_link_libraries (digestString ssl)
 

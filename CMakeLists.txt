@@ -68,7 +68,6 @@ add_subdirectory(ErrMsg/src)
 #add_subdirectory(doc)
 add_subdirectory(Tools/src)
 
-add_subdirectory(md5/src)
 add_subdirectory(DBConnectionPool/src)
 
 add_subdirectory(PThread/src)
@@ -147,6 +146,8 @@ add_subdirectory(examples/WebTools/httpGetThread)
 add_subdirectory(examples/WebTools/httpPostThread)
 add_subdirectory(examples/WebTools/httpServer)
 add_subdirectory(examples/WebTools/parseURL)
+
+add_subdirectory(examples/MD5/digestString)
 
 add_subdirectory(examples/Tools/GetCpuUsage)
 add_subdirectory(examples/Tools/appendBuffer)
