@@ -43,6 +43,7 @@ public:
     ~Convert ();
 
     static string base64_encode(const string &in);
+	static string base64_encode(const unsigned char* in, int length);
 
     static string base64_decode(const string &in);
 

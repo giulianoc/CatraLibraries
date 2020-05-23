@@ -84,6 +84,27 @@ string Convert::base64_encode(const string &in)
     return out;
 }
 
+string Convert::base64_encode(const unsigned char* in, int length) 
+{
+
+    string out;
+
+    int val=0, valb=-6;
+    for (int inIndex = 0; inIndex < length; inIndex++)
+	{
+		unsigned char c = in[inIndex];
+        val = (val<<8) + c;
+        valb += 8;
+        while (valb>=0) {
+            out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(val>>valb)&0x3F]);
+            valb-=6;
+        }
+    }
+    if (valb>-6) out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val<<8)>>(valb+8))&0x3F]);
+    while (out.size()%4) out.push_back('=');
+    return out;
+}
+
 string Convert::base64_decode(const string &in) 
 {
 

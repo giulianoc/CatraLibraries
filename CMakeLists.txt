@@ -148,6 +148,7 @@ add_subdirectory(examples/WebTools/httpServer)
 add_subdirectory(examples/WebTools/parseURL)
 
 add_subdirectory(examples/MD5/digestString)
+add_subdirectory(examples/MD5/digestFile)
 
 add_subdirectory(examples/Tools/GetCpuUsage)
 add_subdirectory(examples/Tools/appendBuffer)
