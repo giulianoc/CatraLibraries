@@ -29,20 +29,33 @@ int main (int iArgc, char *pArgv [])
 
 {
 
-	string managerUserName("svc-rsi-adread09");
-	string managerPassword("MP-data-processor");
-	string userName("catramgi");
+	// string managerUserName("svc-rsi-adread09");
+	// string managerPassword("MP-data-processor");
+	// string userName("catramgi");
 	string baseDn("DC=media,DC=int");
 
-	if (iArgc != 4)
+	if (iArgc != 7 && iArgc != 8)
 	{
-		std:: cerr << "Usage: " << pArgv [0] << " <overSSL> <certificate path name> <password>"
+		std:: cerr << "Usage: " << pArgv [0] << " [<ldapURL> OR <ldapHostName> <ldapPort>] <certificate path name> <managerUserName> <managerPassword> <userToBeChecked> <passwordToBeChecked>"
 			<< std:: endl;
 
 		return 1;
 	}
 
+	int argcIndex = 1;
+
 	string ldapURL;
+	string ldapHostName;
+	int ldapPort = -1;
+	if (iArgc == 7)
+		ldapURL = pArgv[argcIndex++];
+	else
+	{
+		ldapHostName = pArgv[argcIndex++];
+		ldapPort = atol(pArgv[argcIndex++]);
+	}
+
+	/*
 	if (strcmp(pArgv[1], "true") == 0)
 	{
 		ldapURL = "ldaps://media.int:636";
@@ -51,14 +64,51 @@ int main (int iArgc, char *pArgv [])
 	{
 		ldapURL = "ldap://media.int:389";
 	}
-	string certificatePathName = pArgv[2];
-	string password = pArgv[3];
+	*/
+	string certificatePathName = pArgv[argcIndex++];
+	string managerUserName = pArgv[argcIndex++];
+	string managerPassword = pArgv[argcIndex++];
+	string userName = pArgv[argcIndex++];
+	string password = pArgv[argcIndex++];
+
+	bool overSSL;
+	if (ldapURL == "")
+	{
+		if (ldapPort == 389)
+			overSSL = false;
+		else
+			overSSL = true;
+	}
 
 	LdapWrapper ldapWrapper;
 
-	ldapWrapper.init(ldapURL, certificatePathName, managerUserName, managerPassword);
-	pair<bool, string> testCredentialsSuccessfulAndEmail = ldapWrapper.testCredentials(
-			userName, password, baseDn);
+	if (ldapURL != "")
+	{
+		cout << string("ldapWrapper.init")
+			+ ", ldapURL: " + ldapURL
+			+ ", certificatePathName: " + certificatePathName
+			+ ", managerUserName: " + managerUserName
+			+ ", managerPassword: " + managerPassword
+			<< endl;
+		ldapWrapper.init(ldapURL,
+			certificatePathName, managerUserName, managerPassword);
+	}
+	else
+	{
+		cout << string("ldapWrapper.init")
+			+ ", ldapHostName: " + ldapHostName
+			+ ", ldapPort: " + to_string(ldapPort)
+			+ ", overSSL: " + to_string(overSSL)
+			+ ", certificatePathName: " + certificatePathName
+			+ ", managerUserName: " + managerUserName
+			+ ", managerPassword: " + managerPassword
+			<< endl;
+		ldapWrapper.init(ldapHostName, ldapPort, overSSL,
+			certificatePathName, managerUserName, managerPassword);
+	}
+
+	pair<bool, string> testCredentialsSuccessfulAndEmail =
+		ldapWrapper.testCredentials(userName, password, baseDn);
 	bool testCredentialsSuccessful;
 	string email;
 	tie(testCredentialsSuccessful, email) = testCredentialsSuccessfulAndEmail;

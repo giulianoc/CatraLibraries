@@ -81,6 +81,29 @@ void LdapWrapper::init (string ldapURL, string certificatePathName,
 {
 
 	_ldapURL = ldapURL;							// "ldaps://media.int:636" or "ldap://media.int:389"
+	_ldapHostName = "";
+	_ldapPort = -1;
+	_certificatePathName = certificatePathName;	// used only in case of ldaps://...
+	_managerUserName = managerUserName;
+	_managerPassword = managerPassword;
+
+	string ldapOverSSLPrefix ("ldaps://");
+	if (_ldapURL.size() >= ldapOverSSLPrefix.size()
+		&& 0 == _ldapURL.compare(0, ldapOverSSLPrefix.size(), ldapOverSSLPrefix))
+		_overSSL = true;
+	else
+		_overSSL = false;
+}
+
+void LdapWrapper::init (string ldapHostName, int ldapPort, bool overSSL,
+	string certificatePathName, string managerUserName, string managerPassword)
+
+{
+
+	_ldapURL = "";
+	_ldapHostName = ldapHostName;				// mscs-lgcur-0001.media.int
+	_ldapPort = ldapPort;						// 389 (NO SSL), 636 (SSL)
+	_overSSL = overSSL;
 	_certificatePathName = certificatePathName;	// used only in case of ldaps://...
 	_managerUserName = managerUserName;
 	_managerPassword = managerPassword;
@@ -129,12 +152,25 @@ pair<bool,string> LdapWrapper::testCredentials (
 	/* STEP 1: Get a LDAP connection handle and set any session preferences. */
 	int result;
 	{
-		result = ldap_initialize(&ldap, _ldapURL.c_str());
-		if (result != LDAP_SUCCESS)
+		if (_ldapURL != "")
 		{
-			string errorMessage = "ldap_initialize failed";
+			result = ldap_initialize(&ldap, _ldapURL.c_str());
+			if (result != LDAP_SUCCESS)
+			{
+				string errorMessage = "ldap_initialize failed";
 
-			throw runtime_error(errorMessage);
+				throw runtime_error(errorMessage);
+			}
+		}
+		else
+		{
+			ldap = ldap_init(_ldapHostName.c_str(), _ldapPort);
+			if (ldap == NULL)
+			{
+				string errorMessage = "ldap_init failed";
+
+				throw runtime_error(errorMessage);
+			}
 		}
 	}
 	// printf("Generated LDAP handle.\n");
@@ -166,9 +202,7 @@ pair<bool,string> LdapWrapper::testCredentials (
 		throw runtime_error(errorMessage);
 	}
 
-	string ldapOverSSLPrefix ("ldaps://");
-    if (_ldapURL.size() >= ldapOverSSLPrefix.size()
-		&& 0 == _ldapURL.compare(0, ldapOverSSLPrefix.size(), ldapOverSSLPrefix))
+    if (_overSSL)
 	{
 		int opt = LDAP_OPT_X_TLS_NEVER;
 		// if (ldap_tls > 1)
@@ -185,8 +219,7 @@ pair<bool,string> LdapWrapper::testCredentials (
 		}
 	}
 
-    if (_ldapURL.size() >= ldapOverSSLPrefix.size()
-		&& 0 == _ldapURL.compare(0, ldapOverSSLPrefix.size(), ldapOverSSLPrefix))
+    if (_overSSL)
 	{
 		result = ldap_set_option(NULL, LDAP_OPT_X_TLS_CACERTFILE, (void *)_certificatePathName.c_str());
 		if (result != LDAP_OPT_SUCCESS)
@@ -259,7 +292,12 @@ pair<bool,string> LdapWrapper::testCredentials (
 	{
 		ldap_unbind_ext_s(ldap, NULL, NULL);
 
-		string errorMessage = string("ldap_simple_bind_s: ") + ldap_err2string(result);
+		string errorMessage = string("ldap_simple_bind_s error: ") + ldap_err2string(result)
+			+ ", _ldapURL: " + _ldapURL
+			+ ", _ldapHostName: " + _ldapHostName
+			+ ", _ldapPort: " + to_string(_ldapPort)
+			+ ", _overSSL: " + to_string(_overSSL)
+			;
 
 		throw runtime_error(errorMessage);
 	}
@@ -271,7 +309,12 @@ pair<bool,string> LdapWrapper::testCredentials (
 	{
 		ldap_unbind_ext_s(ldap, NULL, NULL);
 
-		string errorMessage = string("ldap_search_s: ") + ldap_err2string(result);
+		string errorMessage = string("ldap_search_s: ") + ldap_err2string(result)
+			+ ", _ldapURL: " + _ldapURL
+			+ ", _ldapHostName: " + _ldapHostName
+			+ ", _ldapPort: " + to_string(_ldapPort)
+			+ ", _overSSL: " + to_string(_overSSL)
+			;
 
 		throw runtime_error(errorMessage);
 	}
@@ -310,6 +353,35 @@ pair<bool,string> LdapWrapper::testCredentials (
 			/* STEP 1: Get a LDAP connection handle and set any session preferences. */
 			LDAP *ldap2;
 			{
+				if (_ldapURL != "")
+				{
+					result = ldap_initialize(&ldap2, _ldapURL.c_str());
+					if (result != LDAP_SUCCESS)
+					{
+						ldap_memfree(dn);
+						ldap_msgfree(answer);
+						ldap_unbind_ext_s(ldap, NULL, NULL);
+
+						string errorMessage = "ldap_initialize failed";
+
+						throw runtime_error(errorMessage);
+					}
+				}
+				else
+				{
+					ldap2 = ldap_init(_ldapHostName.c_str(), _ldapPort);
+					if (ldap2 == NULL)
+					{
+						ldap_memfree(dn);
+						ldap_msgfree(answer);
+						ldap_unbind_ext_s(ldap, NULL, NULL);
+
+						string errorMessage = "ldap_init failed";
+
+						throw runtime_error(errorMessage);
+					}
+				}
+				/*
 				result = ldap_initialize(&ldap2, _ldapURL.c_str());
 				if (result != LDAP_SUCCESS)
 				{
@@ -321,6 +393,7 @@ pair<bool,string> LdapWrapper::testCredentials (
 
 					throw runtime_error(errorMessage);
 				}
+				*/
 			}
 			// printf("Generated LDAP handle.\n");
 
@@ -357,8 +430,7 @@ pair<bool,string> LdapWrapper::testCredentials (
 				throw runtime_error(errorMessage);
 			}
 
-			if (_ldapURL.size() >= ldapOverSSLPrefix.size()
-				&& 0 == _ldapURL.compare(0, ldapOverSSLPrefix.size(), ldapOverSSLPrefix))
+			if (_overSSL)
 			{
 				int opt = LDAP_OPT_X_TLS_NEVER;
 				// if (ldap_tls > 1)
@@ -378,10 +450,10 @@ pair<bool,string> LdapWrapper::testCredentials (
 				}
 			}
 
-			if (_ldapURL.size() >= ldapOverSSLPrefix.size()
-				&& 0 == _ldapURL.compare(0, ldapOverSSLPrefix.size(), ldapOverSSLPrefix))
+			if (_overSSL)
 			{
-				result = ldap_set_option(NULL, LDAP_OPT_X_TLS_CACERTFILE, (void *)_certificatePathName.c_str());
+				result = ldap_set_option(NULL, LDAP_OPT_X_TLS_CACERTFILE,
+					(void *)_certificatePathName.c_str());
 				if (result != LDAP_OPT_SUCCESS)
 				{
 					ldap_unbind_ext_s(ldap2, NULL, NULL);

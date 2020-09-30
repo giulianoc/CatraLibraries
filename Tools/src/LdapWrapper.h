@@ -38,6 +38,9 @@
 			LdapWrapper &operator = (const LdapWrapper &);
 
 			string	_ldapURL;
+			string	_ldapHostName;
+			int		_ldapPort;
+			bool	_overSSL;
 			string	_certificatePathName;
 			string	_managerUserName;
 			string	_managerPassword;
@@ -55,6 +58,9 @@
 
 			void init (string ldapURL, string certificatePathName,
 					string managerUserName, string managerPassword);
+
+			void init (string ldapHostName, int ldapPort, bool overSSL,
+				string certificatePathName, string managerUserName, string managerPassword);
 
 			pair<bool,string> testCredentials (
 					string userName, string password, string searchBaseDn);
