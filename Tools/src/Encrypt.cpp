@@ -1190,6 +1190,54 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 
 #else
 
+	#include <iostream>
+	#include <string.h>
+	#include <stdexcept>
+
+
+	long Encrypt:: getDecryptedBufferLength (const char *pCryptedBuffer)
+	{
+		return strlen(pCryptedBuffer);
+	}
+
+	long Encrypt:: getCryptedBufferLength (const char *pBufferToEncrypt)
+	{
+		return strlen(pBufferToEncrypt);
+	}
+
+	long Encrypt:: encrypt (const char *pBufferToEncrypt, char *pCryptedBuffer,
+		unsigned long ulCryptedBufferLength)
+	{
+		unsigned long ulBufferToEncryptLength = strlen(pBufferToEncrypt);
+
+		if (ulCryptedBufferLength <= ulBufferToEncryptLength)
+			return 1;
+
+		int index;
+		for(index = 0; index < ulBufferToEncryptLength; index++)
+        		pCryptedBuffer[index] = pBufferToEncrypt[index] + 3; // the key for encryption is 3 that is added to ASCII value
+		pCryptedBuffer[index] = '\0';
+
+		return 0;
+	}
+
+	long Encrypt:: decrypt (const char *pCryptedBuffer, char *pDecryptedBuffer,
+		unsigned long uDecryptedBufferLength)
+	{
+		unsigned long uCryptedBufferLength = strlen(pCryptedBuffer);
+		if (uDecryptedBufferLength <= uCryptedBufferLength)
+			return 1;
+
+		int index;
+		for(index = 0; index < uCryptedBufferLength; index++)
+        		pDecryptedBuffer[index] = pCryptedBuffer[index] - 3; // the key for encryption is 3 that is subtracted to ASCII value
+		pDecryptedBuffer[index] = '\0';
+
+		return 0;
+	}
+
+
+/*
         #include <memory>
 	#include <string.h>
 	#include <stdio.h>
@@ -1236,17 +1284,15 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 	}
 
 
-	/*
-		Converte una password non cryptata nel corrispondente valore binario
-			(64 char (bits))
-		Input: 8 char standard alphabet (original password) 
-		Output: 64 char (bits)
-		Es.
-			Input: "1234"
-			Output: "00000001 00000010 00000011 00000100 00000000 00000000 00000000 00000000"
-				senza gli spazi inseriti esclusivamente per fare capire
-					meglio la conversione
-	*/
+	//	Converte una password non cryptata nel corrispondente valore binario
+	//		(64 char (bits))
+	//	Input: 8 char standard alphabet (original password) 
+	//	Output: 64 char (bits)
+	//	Es.
+	//		Input: "1234"
+	//		Output: "00000001 00000010 00000011 00000100 00000000 00000000 00000000 00000000"
+	//			senza gli spazi inseriti esclusivamente per fare capire
+	//				meglio la conversione
 
 	long asciiToBinary (const char *pAsciiBuffer, char *pBinaryBuffer)
 
@@ -1291,12 +1337,10 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 	}
 
 
-	/*
-		input: 64 char (bits) decrypted
-		converte una password decryptata (binaria) nella password originaria
-			alfanumerica (8 caratteri)
-		output: 8 char of standard alphabet
-	*/
+	//	input: 64 char (bits) decrypted
+	//	converte una password decryptata (binaria) nella password originaria
+	//		alfanumerica (8 caratteri)
+	//	output: 8 char of standard alphabet
 
 	long binaryToAscii (const char *pBinaryBuffer, char *pAsciiBuffer)
 
@@ -1329,15 +1373,13 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 	}
 
 
-	/*
-		Input: massimo 11 caratteri criptati binari
-		Output: 64 caratteri non criptati binari
+	//	Input: massimo 11 caratteri criptati binari
+	//	Output: 64 caratteri non criptati binari
 
-		Converte un buffer binario criptato in un buffer binario non criptato.
-		Ogni carattere del buffer binario criptato e' convertito in 6 caratteri
-			binari non criptati ad eccezione dell'ultimo carattere binario criptato
-			che viene convertito in 4 caratteri binari non criptati
-	*/
+	//	Converte un buffer binario criptato in un buffer binario non criptato.
+	//	Ogni carattere del buffer binario criptato e' convertito in 6 caratteri
+	//		binari non criptati ad eccezione dell'ultimo carattere binario criptato
+	//		che viene convertito in 4 caratteri binari non criptati
 
 	long cryptedBinaryToBinary (const char *pCryptedBinaryBuffer,
 		char *pBinaryBuffer)
@@ -1404,15 +1446,13 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 	}
 
 
-	/*
-		Input: 64 caratteri non criptati binari
-		Output: 11 caratteri criptati binari
+	//	Input: 64 caratteri non criptati binari
+	//	Output: 11 caratteri criptati binari
 
-		Converte un buffer binario non criptato in un buffer binario criptato.
-		Ogni blocco di 6 caratteri del buffer binario non criptato e' convertito
-			in 1 carattere binario criptati (l'ultimo blocco sara' costituito solo
-			da 4 caratteri)
-	*/
+	//	Converte un buffer binario non criptato in un buffer binario criptato.
+	//	Ogni blocco di 6 caratteri del buffer binario non criptato e' convertito
+	//		in 1 carattere binario criptati (l'ultimo blocco sara' costituito solo
+	//		da 4 caratteri)
 
 	long binaryToCryptedBinary (const char *pBinaryBuffer,
 		char *pCryptedBinaryBuffer)
@@ -1601,6 +1641,7 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 
 		return 0;
 	}
+*/
 
     string Encrypt::encrypt(string stringToBeEncrypted)
     {

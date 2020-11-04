@@ -36,7 +36,7 @@ message("-- LSB_RELEASE_ID_SHORT: ${LSB_RELEASE_ID_SHORT}")
 
 include_directories ("${PROJECT_SOURCE_DIR}/DBConnectionPool/src")
 if(LSB_RELEASE_ID_SHORT STREQUAL "CentOS")
-	include_directories ("/usr/include/mysql-cppconn/jdbc")
+	include_directories ("/usr/include/mysql-cppconn-8/jdbc")
 endif()
 
 
