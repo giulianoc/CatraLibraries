@@ -1197,12 +1197,12 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 
 	long Encrypt:: getDecryptedBufferLength (const char *pCryptedBuffer)
 	{
-		return strlen(pCryptedBuffer);
+		return strlen(pCryptedBuffer) / 2;
 	}
 
 	long Encrypt:: getCryptedBufferLength (const char *pBufferToEncrypt)
 	{
-		return strlen(pBufferToEncrypt);
+		return strlen(pBufferToEncrypt) * 2;
 	}
 
 	long Encrypt:: encrypt (const char *pBufferToEncrypt, char *pCryptedBuffer,
@@ -1210,13 +1210,32 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 	{
 		unsigned long ulBufferToEncryptLength = strlen(pBufferToEncrypt);
 
-		if (ulCryptedBufferLength <= ulBufferToEncryptLength)
+		if (ulCryptedBufferLength <= Encrypt::getCryptedBufferLength(pBufferToEncrypt))
 			return 1;
 
-		int index;
-		for(index = 0; index < ulBufferToEncryptLength; index++)
-        		pCryptedBuffer[index] = pBufferToEncrypt[index] + 3; // the key for encryption is 3 that is added to ASCII value
-		pCryptedBuffer[index] = '\0';
+		int indexForToEncrypt;
+		int indexForCrypted;
+		for(indexForToEncrypt = 0, indexForCrypted = 0;
+				indexForToEncrypt < ulBufferToEncryptLength;
+				indexForToEncrypt++, indexForCrypted += 2)
+		{
+			if ((int) (pBufferToEncrypt[indexForToEncrypt] + 3) >= 32 &&
+					(int) (pBufferToEncrypt[indexForToEncrypt] + 3) <= 126)
+			{
+				// printable char
+        		pCryptedBuffer[indexForCrypted] = '1';
+        		pCryptedBuffer[indexForCrypted + 1] = pBufferToEncrypt[indexForToEncrypt] + 3; // the key for encryption is 3 that is added to ASCII value
+			}
+			else
+			{
+				// no printable char
+        		pCryptedBuffer[indexForCrypted] = '0';
+        		pCryptedBuffer[indexForCrypted + 1] = pBufferToEncrypt[indexForToEncrypt];
+			}
+		}
+
+		pCryptedBuffer[indexForCrypted] = '\0';
+
 
 		return 0;
 	}
@@ -1225,13 +1244,25 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 		unsigned long uDecryptedBufferLength)
 	{
 		unsigned long uCryptedBufferLength = strlen(pCryptedBuffer);
-		if (uDecryptedBufferLength <= uCryptedBufferLength)
+
+		if (uDecryptedBufferLength <= Encrypt::getDecryptedBufferLength(pCryptedBuffer))
 			return 1;
 
-		int index;
-		for(index = 0; index < uCryptedBufferLength; index++)
-        		pDecryptedBuffer[index] = pCryptedBuffer[index] - 3; // the key for encryption is 3 that is subtracted to ASCII value
-		pDecryptedBuffer[index] = '\0';
+		int indexForCrypted;
+		int indexForDecrypted;
+		for(indexForCrypted = 0, indexForDecrypted = 0;
+			indexForCrypted < uCryptedBufferLength;
+			indexForCrypted += 2, indexForDecrypted++)
+		{
+			if (pCryptedBuffer[indexForCrypted] == '1')
+				pDecryptedBuffer[indexForDecrypted] = pCryptedBuffer[indexForCrypted + 1] - 3; // the key for encryption is 3 that is subtracted to ASCII value
+			else
+				pDecryptedBuffer[indexForDecrypted] = pCryptedBuffer[indexForCrypted + 1];
+
+			// std::cout << "pDecryptedBuffer[indexForCrypted]: " + pDecryptedBuffer[indexForCrypted] << std::endl;
+			// std::cout << ": " + pDecryptedBuffer[indexForCrypted] << std::endl;
+		}
+		pDecryptedBuffer[indexForDecrypted] = '\0';
 
 		return 0;
 	}

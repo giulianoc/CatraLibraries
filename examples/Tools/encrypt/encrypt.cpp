@@ -69,6 +69,9 @@ int main (int iArgc, char **pArgv)
 		return 1;
 	}
 
+	// for (int index = 0; index < lBufferCryptedLength; index++)
+	// 	std:: cout << (int) (pBufferCrypted[index]) << std:: endl;
+
 	std:: cout << pBufferCrypted << std:: endl;
 
 	delete [] pBufferCrypted;
