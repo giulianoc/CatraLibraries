@@ -217,26 +217,50 @@ void ProcessUtility::forkAndExec (
 		*pPid = childPid;
 
 
-		int wstatus;
-		// pid_t childPid = wait(piReturnedStatus);
-		// wait(&wstatus);
-		waitpid(childPid, &wstatus, 0);
-
-		if (WIFEXITED(wstatus))
-			*piReturnedStatus = WEXITSTATUS(wstatus);
-		else if (WIFSIGNALED(wstatus))
+		bool childTerminated = false;
+		while(!childTerminated)
 		{
-			string errorMessage = string("Child has exit abnormally. Terminating signal: ") + to_string(WTERMSIG(wstatus));
-			*piReturnedStatus = WTERMSIG(wstatus);
+			int wstatus;
+			// pid_t childPid = wait(piReturnedStatus);
+			// wait(&wstatus);
+			pid_t waitPid = waitpid(childPid, &wstatus, 0);
+			if (waitPid == -1)
+			{
+				string errorMessage = string("waitpid failed");
+				*piReturnedStatus = -1;
 
-			throw runtime_error(errorMessage);
-		}
-		else if (WIFSTOPPED(wstatus))
-		{
-			string errorMessage = string("Child has exit abnormally. Stop signal: ") + to_string(WSTOPSIG(wstatus));
-			*piReturnedStatus = WSTOPSIG(wstatus);
+				throw runtime_error(errorMessage);
+			}
+			else if (waitPid == 0)
+			{
+				// child still running
+			}
+			else // if (waitPid == childPid)
+			{
+				// child ended
 
-			throw runtime_error(errorMessage);
+				childTerminated = true;
+
+				if (WIFEXITED(wstatus))
+				{
+					// Child ended normally
+					*piReturnedStatus = WEXITSTATUS(wstatus);
+				}
+				else if (WIFSIGNALED(wstatus))
+				{
+					string errorMessage = string("Child has exit abnormally because of an uncaught signal. Terminating signal: ") + to_string(WTERMSIG(wstatus));
+					*piReturnedStatus = WTERMSIG(wstatus);
+
+					throw runtime_error(errorMessage);
+				}
+				else if (WIFSTOPPED(wstatus))
+				{
+					string errorMessage = string("Child has stopped. Stop signal: ") + to_string(WSTOPSIG(wstatus));
+					*piReturnedStatus = WSTOPSIG(wstatus);
+
+					throw runtime_error(errorMessage);
+				}
+			}
 		}
 	}
 	else
