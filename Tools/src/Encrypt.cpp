@@ -1219,8 +1219,14 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 				indexForToEncrypt < ulBufferToEncryptLength;
 				indexForToEncrypt++, indexForCrypted += 2)
 		{
-			if ((int) (pBufferToEncrypt[indexForToEncrypt] + 3) >= 32 &&
-					(int) (pBufferToEncrypt[indexForToEncrypt] + 3) <= 126)
+			if (       (int) (pBufferToEncrypt[indexForToEncrypt] + 3) >= 32
+					&& (int) (pBufferToEncrypt[indexForToEncrypt] + 3) <= 126
+					// chars creating problems in URL...
+					&& (char) (pBufferToEncrypt[indexForToEncrypt] + 3) != '<'
+					&& (char) (pBufferToEncrypt[indexForToEncrypt] + 3) != '>'
+					// chars creating problems for the token...
+					&& (char) (pBufferToEncrypt[indexForToEncrypt] + 3) != ';'
+				)
 			{
 				// printable char
         		pCryptedBuffer[indexForCrypted] = '1';
