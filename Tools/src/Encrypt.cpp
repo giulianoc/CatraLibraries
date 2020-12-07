@@ -1224,6 +1224,7 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 					// chars creating problems in URL...
 					&& (char) (pBufferToEncrypt[indexForToEncrypt] + 3) != '<'
 					&& (char) (pBufferToEncrypt[indexForToEncrypt] + 3) != '>'
+					&& (char) (pBufferToEncrypt[indexForToEncrypt] + 3) != '='
 					// chars creating problems for the token...
 					&& (char) (pBufferToEncrypt[indexForToEncrypt] + 3) != ';'
 				)
