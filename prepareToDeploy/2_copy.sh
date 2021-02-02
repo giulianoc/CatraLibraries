@@ -7,15 +7,10 @@ version=$(cat ./version.txt)
 currentDir=$(pwd)
 moduleName=$(basename $currentDir)
 
-cd /opt/catrasoftware/deploy
-tarFileName=$moduleName-$version-ubuntu.tar.gz
+linuxName=$(cat /etc/os-release | grep "^ID=" | cut -d'=' -f2)
 
-rm -rf $moduleName-$version
-cp -r $moduleName $moduleName-$version
-tar cvfz $tarFileName $moduleName-$version
-rm -rf $moduleName-$version
+tarFileName=$moduleName-$version-$linuxName.tar.gz
 
-cd $currentDir
 
 echo -n "deploy su mms cloud? " 
 read deploy
