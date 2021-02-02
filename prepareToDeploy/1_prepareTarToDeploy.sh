@@ -40,6 +40,7 @@ echo "git push"
 printf "${NC}"
 git push
 
+echo ""
 printf "${RED}"
 read -n 1 -s -r -p "Press any key to continue preparing the tar file"
 printf "${NC}"
