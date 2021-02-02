@@ -5,7 +5,7 @@ date
 version=$(cat ./version.txt)
 
 currentDir=$(pwd)
-moduleName=basename $(pwd)
+moduleName=$(basename $currentDir)
 
 cd /opt/catrasoftware/deploy
 tarFileName=$moduleName-$version-ubuntu.tar.gz
