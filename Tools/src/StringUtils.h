@@ -29,6 +29,10 @@ public:
 	static string ltrimNewLineToo(string s);
 	static string rtrimNewLineToo(string s);
 	static string trimNewLineToo(string s);
+
+	static string ltrimNewLineAndTabToo(string s);
+	static string rtrimNewLineAndTabToo(string s);
+	static string trimNewLineAndTabToo(string s);
 };
 
 #endif

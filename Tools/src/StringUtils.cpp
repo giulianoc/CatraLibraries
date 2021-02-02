@@ -74,3 +74,32 @@ string StringUtils::trimNewLineToo(string s)
 	return ltrimNewLineToo(rtrimNewLineToo(s));
 }
 
+string StringUtils::ltrimNewLineAndTabToo(string s)
+{
+	auto it = find_if(s.begin(), s.end(),
+		[](char c)
+		{
+			return !isspace<char>(c, locale::classic()) && c != '\n' && c != '\t';
+		});
+	s.erase(s.begin(), it);
+
+	return s;
+}
+
+string StringUtils::rtrimNewLineAndTabToo(string s)
+{
+	auto it = find_if(s.rbegin(), s.rend(),
+		[](char c)
+		{
+			return !isspace<char>(c, locale::classic()) && c != '\n' && c != '\t';
+		});
+	s.erase(it.base(), s.end());
+
+	return s;
+}
+
+string StringUtils::trimNewLineAndTabToo(string s)
+{
+	return ltrimNewLineToo(rtrimNewLineToo(s));
+}
+
