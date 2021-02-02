@@ -74,6 +74,35 @@ string StringUtils::trimNewLineToo(string s)
 	return ltrimNewLineToo(rtrimNewLineToo(s));
 }
 
+string StringUtils::ltrimTabToo(string s)
+{
+	auto it = find_if(s.begin(), s.end(),
+		[](char c)
+		{
+			return !isspace<char>(c, locale::classic()) && c != '\t';
+		});
+	s.erase(s.begin(), it);
+
+	return s;
+}
+
+string StringUtils::rtrimTabToo(string s)
+{
+	auto it = find_if(s.rbegin(), s.rend(),
+		[](char c)
+		{
+			return !isspace<char>(c, locale::classic()) && c != '\t';
+		});
+	s.erase(it.base(), s.end());
+
+	return s;
+}
+
+string StringUtils::trimTabToo(string s)
+{
+	return ltrimTabToo(rtrimTabToo(s));
+}
+
 string StringUtils::ltrimNewLineAndTabToo(string s)
 {
 	auto it = find_if(s.begin(), s.end(),
@@ -100,6 +129,6 @@ string StringUtils::rtrimNewLineAndTabToo(string s)
 
 string StringUtils::trimNewLineAndTabToo(string s)
 {
-	return ltrimNewLineToo(rtrimNewLineToo(s));
+	return ltrimNewLineAndTabToo(rtrimNewLineToo(s));
 }
 
