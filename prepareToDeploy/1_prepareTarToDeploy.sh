@@ -36,7 +36,7 @@ printf "${RED}git push\n"
 printf "${NC}\n"
 git push
 
-read -n 1 -s -r -p "Press any key to continue"
+read -n 1 -s -r -p "Press any key to continue preparing the tar file"
 
 echo ""
 printf "${RED}./prepareToDeploy/createTarVersion.sh\n"
