@@ -24,8 +24,8 @@ sleep 1
 
 linuxName=$(cat /etc/os-release | grep "^ID=" | cut -d'=' -f2)
 
-echo "tar xvfz CatraLibraries-$version-linuxName.tar.gz"
-tar xvfz CatraLibraries-$version-linuxName.tar.gz
+echo "tar xvfz CatraLibraries-$version-$linuxName.tar.gz"
+tar xvfz CatraLibraries-$version-$linuxName.tar.gz
 
 echo "ln -s CatraLibraries-$version CatraLibraries"
 ln -s CatraLibraries-$version CatraLibraries
