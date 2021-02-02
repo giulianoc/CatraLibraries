@@ -12,26 +12,27 @@ fi
 tagName=$1
 tagMessage=$2
 
+RED='\033[0;31m'
 
 echo ""
-echo "git commit -am $tagMessage"
+printf "${RED}git commit -am $tagMessage\n"
 git commit -am "$tagMessage"
 
 echo ""
-echo "./prepareToDeploy/setTag.sh $tagName $tagMessage"
+printf "${RED}./prepareToDeploy/setTag.sh $tagName $tagMessage"
 ./prepareToDeploy/setTag.sh $tagName "$tagMessage"
 
 echo ""
-echo "git commit -am $tagMessage"
+printf "${RED}git commit -am $tagMessage"
 git commit -am "$tagMessage"
 
 echo ""
-echo "git push"
+printf "${RED}git push"
 git push
 
 read -n 1 -s -r -p "Press any key to continue"
 
 echo ""
-echo "./prepareToDeploy/createTarVersion.sh"
+printf "${RED}./prepareToDeploy/createTarVersion.sh"
 ./prepareToDeploy/createTarVersion.sh
 
