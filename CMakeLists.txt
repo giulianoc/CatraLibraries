@@ -184,3 +184,4 @@ add_subdirectory(examples/Tools/service)
 add_subdirectory(examples/Tools/stringTokenizer)
 add_subdirectory(examples/Tools/trim)
 
+install (FILES version.txt DESTINATION ./)
