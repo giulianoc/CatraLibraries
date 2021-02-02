@@ -17,3 +17,5 @@ rm -rf $moduleName-$version
 
 cd $currentDir
 
+echo "$tarFileName ready"
+
