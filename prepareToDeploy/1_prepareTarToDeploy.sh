@@ -43,9 +43,9 @@ git push
 echo ""
 printf "${RED}"
 read -n 1 -s -r -p "Press any key to continue making the project"
+printf "${NC}"
 make
 make install
-printf "${NC}"
 
 echo ""
 printf "${RED}"
