@@ -42,6 +42,13 @@ git push
 
 echo ""
 printf "${RED}"
+read -n 1 -s -r -p "Press any key to continue making the project"
+make
+make install
+printf "${NC}"
+
+echo ""
+printf "${RED}"
 read -n 1 -s -r -p "Press any key to continue preparing the tar file"
 printf "${NC}"
 
