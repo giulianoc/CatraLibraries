@@ -13,15 +13,19 @@ tagName=$1
 tagMessage=$2
 
 
+echo ""
 echo "git commit -am $tagMessage"
 git commit -am "$tagMessage"
 
+echo ""
 echo "./prepareToDeploy/setTag.sh $tagName $tagMessage"
 ./prepareToDeploy/setTag.sh $tagName "$tagMessage"
 
+echo ""
 echo "git commit -am $tagMessage"
 git commit -am "$tagMessage"
 
+echo ""
 echo "git push"
 git push
 
