@@ -18,28 +18,28 @@ NC='\033[0m' # No Color
 
 echo ""
 printf "${RED}git commit -am $tagMessage\n"
-printf "${NC}"
+printf "${NC}\n"
 git commit -am "$tagMessage"
 
 echo ""
-printf "${RED}./prepareToDeploy/setTag.sh $tagName $tagMessage"
-printf "${NC}"
+printf "${RED}./prepareToDeploy/setTag.sh $tagName $tagMessage\n"
+printf "${NC}\n"
 ./prepareToDeploy/setTag.sh $tagName "$tagMessage"
 
 echo ""
-printf "${RED}git commit -am $tagMessage"
-printf "${NC}"
+printf "${RED}git commit -am $tagMessage\n"
+printf "${NC}\n"
 git commit -am "$tagMessage"
 
 echo ""
-printf "${RED}git push"
-printf "${NC}"
+printf "${RED}git push\n"
+printf "${NC}\n"
 git push
 
 read -n 1 -s -r -p "Press any key to continue"
 
 echo ""
-printf "${RED}./prepareToDeploy/createTarVersion.sh"
-printf "${NC}"
+printf "${RED}./prepareToDeploy/createTarVersion.sh\n"
+printf "${NC}\n"
 ./prepareToDeploy/createTarVersion.sh
 
