@@ -29,3 +29,8 @@ echo ""
 echo "git push"
 git push
 
+
+echo ""
+echo "./prepareToDeploy/createTarVersion.sh"
+./prepareToDeploy/createTarVersion.sh
+
