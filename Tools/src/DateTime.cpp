@@ -635,3 +635,170 @@ Error DateTime:: getLastDayOfMonth (
 	return errNoError;
 }
 
+// 2021-02-26T15:41:15Z
+time_t DateTime::sDateSecondsToUtc(string sDate)
+{
+
+	unsigned long       ulUTCYear;
+	unsigned long       ulUTCMonth;
+	unsigned long       ulUTCDay;
+	unsigned long       ulUTCHour;
+	unsigned long       ulUTCMinutes;
+	unsigned long       ulUTCSeconds;
+	tm                  tmDate;
+	int                 sscanfReturn;
+
+
+	if ((sscanfReturn = sscanf (sDate.c_str(),
+		"%4lu-%2lu-%2luT%2lu:%2lu:%2luZ",
+		&ulUTCYear,
+		&ulUTCMonth,
+		&ulUTCDay,
+		&ulUTCHour,
+		&ulUTCMinutes,
+		&ulUTCSeconds)) != 6)
+	{
+		string errorMessage = string("Field has a wrong format (sscanf failed)")
+			+ ", sDate: " + sDate
+			+ ", sscanfReturn: " + to_string(sscanfReturn)
+		;
+		// _logger->error(errorMessage);
+
+		throw runtime_error(errorMessage);
+	}
+
+	time_t utcTime;
+
+	time (&utcTime);
+	gmtime_r(&utcTime, &tmDate);
+
+	tmDate.tm_year      = ulUTCYear - 1900;
+	tmDate.tm_mon       = ulUTCMonth - 1;
+	tmDate.tm_mday      = ulUTCDay;
+	tmDate.tm_hour      = ulUTCHour;                       
+	tmDate.tm_min       = ulUTCMinutes;
+	tmDate.tm_sec       = ulUTCSeconds;
+
+	utcTime = timegm(&tmDate);
+
+
+	return utcTime;
+}
+
+// 2021-02-26T15:41:15.477+0100 (ISO8610)
+// 2021-02-26T15:41:15.477Z
+int64_t DateTime::sDateMilliSecondsToUtc(string sDate)
+{
+
+	unsigned long       ulUTCYear;
+	unsigned long       ulUTCMonth;
+	unsigned long       ulUTCDay;
+	unsigned long       ulUTCHour;
+	unsigned long       ulUTCMinutes;
+	unsigned long       ulUTCSeconds;
+	unsigned long		ulUTCMilliSeconds;
+	unsigned long		ulHourTimeZone;
+	unsigned long		ulMinuteTimeZone;
+	tm                  tmDate;
+	int                 sscanfReturn;
+
+
+	char signTimeZone = '+';
+	string dateFormat;
+	if (sDate.size() == 28)
+	{
+		// 2021-02-26T15:41:15.477+0100 (ISO8610)
+
+		signTimeZone = sDate[23];
+
+		dateFormat = string("%4lu-%2lu-%2luT%2lu:%2lu:%2lu.%3lu") + signTimeZone + "%2lu%2lu";
+	}
+	else if (sDate.size() == 24)
+	{
+		// 2021-02-26T15:41:15.477Z
+		dateFormat = string("%4lu-%2lu-%2luT%2lu:%2lu:%2lu.%3luZ");
+
+		ulHourTimeZone		= 0;
+		ulMinuteTimeZone	= 0;
+	}
+	else
+	{
+		string errorMessage = string("Wrong date format")
+			+ ", sDate: " + sDate
+		;
+		// _logger->error(errorMessage);
+
+		throw runtime_error(errorMessage);
+	}
+
+
+	if (sDate.size() == 28)
+	{
+		if ((sscanfReturn = sscanf (sDate.c_str(),
+			dateFormat.c_str(),
+			&ulUTCYear,
+			&ulUTCMonth,
+			&ulUTCDay,
+			&ulUTCHour,
+			&ulUTCMinutes,
+			&ulUTCSeconds,
+			&ulUTCMilliSeconds,
+			&ulHourTimeZone,
+			&ulMinuteTimeZone
+			)) != 9)
+		{
+			string errorMessage = string("Field has a wrong format (sscanf failed)")
+				+ ", sDate: " + sDate
+				+ ", sscanfReturn: " + to_string(sscanfReturn)
+			;
+			// _logger->error(errorMessage);
+
+			throw runtime_error(errorMessage);
+		}
+	}
+	else
+	{
+		if ((sscanfReturn = sscanf (sDate.c_str(),
+			dateFormat.c_str(),
+			&ulUTCYear,
+			&ulUTCMonth,
+			&ulUTCDay,
+			&ulUTCHour,
+			&ulUTCMinutes,
+			&ulUTCSeconds,
+			&ulUTCMilliSeconds)) != 7)
+		{
+			string errorMessage = string("Field has a wrong format (sscanf failed)")
+				+ ", sDate: " + sDate
+				+ ", sscanfReturn: " + to_string(sscanfReturn)
+			;
+			// _logger->error(errorMessage);
+
+			throw runtime_error(errorMessage);
+		}
+	}
+
+	int64_t utcTime;
+
+	time (&utcTime);
+	gmtime_r(&utcTime, &tmDate);
+
+	tmDate.tm_year      = ulUTCYear - 1900;
+	tmDate.tm_mon       = ulUTCMonth - 1;
+	tmDate.tm_mday      = ulUTCDay;
+	tmDate.tm_hour      = ulUTCHour;                       
+	tmDate.tm_min       = ulUTCMinutes;
+	tmDate.tm_sec       = ulUTCSeconds;
+
+	utcTime = timegm(&tmDate) * 1000;
+	utcTime += ulUTCMilliSeconds;
+
+	if (signTimeZone == '+')
+		utcTime -= (((ulHourTimeZone * 3600) + (ulMinuteTimeZone * 60)) * 1000);
+	else // if (signTimeZone == '-')
+		utcTime += (((ulHourTimeZone * 3600) + (ulMinuteTimeZone * 60)) * 1000);
+
+
+	return utcTime;
+}
+

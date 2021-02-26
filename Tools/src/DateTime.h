@@ -178,6 +178,9 @@
 				unsigned long ulYear, unsigned long ulMonth,
 				unsigned long *pulLastDayOfMonth);
 
+			static time_t sDateSecondsToUtc(string sDate);
+			static int64_t sDateMilliSecondsToUtc(string sDate);
+
 	} DateTime_t, *DateTime_p;
 
 #endif
