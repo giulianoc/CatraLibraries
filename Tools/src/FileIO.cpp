@@ -4450,6 +4450,7 @@ Error FileIO:: copyFile (const char *pSrcPathName,
 	long long					llBytesRead;
 	long long					llBytesWritten;
 	long long					llTotalBytesWritten;
+	long long					llChunkTotalBytesWritten;
 	char						*pDestPathName;
 	Boolean_t					bDirectoryExisting;
 	Error_t						errIO;
@@ -4664,17 +4665,18 @@ Error FileIO:: copyFile (const char *pSrcPathName,
 		if (llBytesRead == 0)
 			break;
 
-		llTotalBytesWritten			= 0;
+		llChunkTotalBytesWritten			= 0;
 
-		while (llTotalBytesWritten < llBytesRead)
+		while (llChunkTotalBytesWritten < llBytesRead)
 		{
 			if ((errIO = FileIO:: writeBytes (iDestFileDescriptor,
-				pucLogBuffer + llTotalBytesWritten,
-				llBytesRead - llTotalBytesWritten,
+				pucLogBuffer + llChunkTotalBytesWritten,
+				llBytesRead - llChunkTotalBytesWritten,
 				&llBytesWritten)) != errNoError)
 			{
 				Error err = ToolsErrors (__FILE__, __LINE__,
-					TOOLS_FILEIO_WRITEBYTES_FAILED);
+					TOOLS_FILEIO_WRITEBYTES_FAILED,
+					2, llTotalBytesWritten, (const char *) errIO);
 
 				if (FileIO:: close (iDestFileDescriptor) != errNoError)
 				{
@@ -4702,10 +4704,12 @@ Error FileIO:: copyFile (const char *pSrcPathName,
 
 				delete [] pucLogBuffer;
 
-				return errIO;
+				// return errIO;
+				return err;
 			}
 
-			llTotalBytesWritten			+= llBytesWritten;
+			llChunkTotalBytesWritten		+= llBytesWritten;
+			llTotalBytesWritten				+= llBytesWritten;
 		}
 	}
 	while (llBytesRead == ulLocalBufferSizeToBeUsed);
@@ -6499,7 +6503,13 @@ Error FileIO:: lockFile (const char *pLockPathName,
 					time (NULL) - lStartUtcTime > lSecondsToWaitIfAlreadyLocked)
 					break;
 				else
+				{
+					long milliSecondsWaitingBetweenChecks = 200;
+					this_thread::sleep_for(chrono::milliseconds(
+						milliSecondsWaitingBetweenChecks));
+
 					continue;
+				}
 			}
 			else if (lFcntlReturn >= 0)
 			{

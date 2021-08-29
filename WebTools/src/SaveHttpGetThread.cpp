@@ -277,7 +277,8 @@ Error_t SaveHttpGetThread:: chunkRead (unsigned long ulChunkReadIndex,
 		pucBuffer, ulBufferDataSize, &llBytesWritten)) != errNoError)
 	{
 		Error err = ToolsErrors (__FILE__, __LINE__,
-			TOOLS_FILEIO_WRITEBYTES_FAILED);
+			TOOLS_FILEIO_WRITEBYTES_FAILED,
+			2, (long long) 0, (const char *) errIO);
 
 		return errIO;
 	}

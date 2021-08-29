@@ -181,7 +181,7 @@ ErrMsgBase:: ErrMsgsInfo ToolsErrorsStr = {
 	{ TOOLS_FILEIO_READBYTES_FAILED,
 		"The readBytes method of the FileIO class failed" },
 	{ TOOLS_FILEIO_WRITEBYTES_FAILED,
-		"The writeBytes method of the FileIO class failed" },
+		"The writeBytes method of the FileIO class failed. (llTotalBytesWritten: %lld, errIO: %s)" },
 	{ TOOLS_FILEIO_READNETUNSIGNEDINT8BIT_FAILED,
 		"The readNetUnsignedInt8Bit method of the FileIO class failed" },
 	{ TOOLS_FILEIO_READNETUNSIGNEDINT16BIT_FAILED,

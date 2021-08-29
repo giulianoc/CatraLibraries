@@ -39,13 +39,13 @@ int main (int iArgc, char **pArgv)
 
 	while (1)
 	{
+		std:: cout << gcuGetCpuUsage. getCpuUsage () << std:: endl;
+
 		#ifdef WIN32
 			Sleep (1000);
 		#else
 			sleep (1);
 		#endif
-
-		std:: cout << gcuGetCpuUsage. getCpuUsage () << std:: endl;
 	}
 
 	return 0;

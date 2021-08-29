@@ -59,3 +59,5 @@ if (LDAP_FOUND)
 	target_link_libraries(getCpuUsage ${LDAP_LIBRARIES})
 endif()
 
+install (TARGETS getCpuUsage DESTINATION bin)
+
