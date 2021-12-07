@@ -348,6 +348,23 @@ void ProcessUtility::killProcess (pid_t pid)
 	}
 }
 
+void ProcessUtility::quitProcess (pid_t pid)
+{
+	if (pid <= 0)
+	{
+		string errorMessage = string("pid is wrong. pid: ") + to_string(pid);
+
+		throw runtime_error(errorMessage);
+	}
+
+	if(kill(pid, SIGQUIT) == -1)
+	{
+		string errorMessage = string("quit failed. errno: ") + to_string(errno);
+
+		throw runtime_error(errorMessage);
+	}
+}
+
 
 #ifdef WIN32
 #else
