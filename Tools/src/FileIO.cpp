@@ -917,15 +917,15 @@ FileIO::DirectoryEntryType_t FileIO:: getDirectoryEntryType (string pathName)
 
 
 Error FileIO:: getFileSystemInfo (const char *pPathName,
-	int64_t* pUsedInBytes,
-	int64_t* pAvailableInBytes,
+	uint64_t* pUsedInBytes,
+	uint64_t* pAvailableInBytes,
 	long *plPercentUsed)
 
 {
 
 	if (pPathName == (const char *) NULL ||
-		pUsedInBytes == (int64_t*) NULL ||
-		pAvailableInBytes == (int64_t*) NULL ||
+		pUsedInBytes == (uint64_t*) NULL ||
+		pAvailableInBytes == (uint64_t*) NULL ||
 		plPercentUsed == (long *) NULL)
 	{
 		Error err = ToolsErrors (__FILE__, __LINE__,
@@ -972,15 +972,15 @@ Error FileIO:: getFileSystemInfo (const char *pPathName,
 		}
 
         /* force 64-bit math */ 
-        i64TotalBytes		= (__int64) dwTotalClusters * dwSectPerClust * dwBytesPerSect;
-        i64FreeBytes		= (__int64) dwFreeClusters * dwSectPerClust * dwBytesPerSect;
+        i64TotalBytes		= (__uint64) dwTotalClusters * dwSectPerClust * dwBytesPerSect;
+        i64FreeBytes		= (__uint64) dwFreeClusters * dwSectPerClust * dwBytesPerSect;
 
 		*pUsedInBytes		= i64TotalBytes - i64FreeBytes;
 		*pAvailableInBytes	= i64FreeBytes;
 		*plPercentUsed		= (long) (*pUsedInBytes * 100.0 / (*pUsedInBytes + *pAvailableInBytes)) + 0.5;
 	#else
 		struct statfs			sStatfs;
-		long long				llBlocksUsed;
+		uint64_t				blocksUsed;
 
 
 		if (statfs (pPathName, &sStatfs) == -1)
@@ -994,13 +994,13 @@ Error FileIO:: getFileSystemInfo (const char *pPathName,
 
 		if (sStatfs. f_blocks > 0)
 		{
-			llBlocksUsed			= sStatfs. f_blocks - sStatfs. f_bfree;
+			blocksUsed			= sStatfs. f_blocks - sStatfs. f_bfree;
 			*plPercentUsed		= (long)
-				((llBlocksUsed * 100.0 / (llBlocksUsed + sStatfs. f_bavail)) +
+				((blocksUsed * 100.0 / (blocksUsed + sStatfs. f_bavail)) +
 				0.5);
 
 			// 2019-10-20: it works, it was checked with a mounted partition
-			*pUsedInBytes			= llBlocksUsed * sStatfs. f_bsize;
+			*pUsedInBytes			= blocksUsed * sStatfs. f_bsize;
 			*pAvailableInBytes		= sStatfs. f_bavail * sStatfs. f_bsize;
 
 			/*
@@ -1026,8 +1026,8 @@ Error FileIO:: getFileSystemInfo (const char *pPathName,
 }
 
 void FileIO:: getFileSystemInfo (string pathName,
-	int64_t* pUsedInKB,
-	int64_t* pAvailableInKB,
+	uint64_t* pUsedInKB,
+	uint64_t* pAvailableInKB,
 	long *plPercentUsed)
 
 {

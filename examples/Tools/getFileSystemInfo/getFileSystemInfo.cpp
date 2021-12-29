@@ -34,8 +34,8 @@ int main (int iArgc, char *pArgv [])
 {
 
 	const char			*pPathName;
-	int64_t				usedInBytes;
-	int64_t				availableInBytes;
+	uint64_t			usedInBytes;
+	uint64_t			availableInBytes;
 	long				lPercentUsed;
 	Error_t				errFileIO;
 

@@ -5857,8 +5857,8 @@ Error Tracer:: checkFileSystemSize (const char *pDirectoryPathName)
 
 {
 
-	int64_t					usedInBytes;
-	int64_t					availableInBytes;
+	uint64_t				usedInBytes;
+	uint64_t				availableInBytes;
 	long					lPercentUsed;
 	Error_t					errFileIO;
 	Buffer_t				bDirectoryPathName;

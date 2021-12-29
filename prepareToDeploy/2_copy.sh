@@ -9,19 +9,19 @@ moduleName=$(basename $currentDir)
 
 linuxName=$(cat /etc/os-release | grep "^ID=" | cut -d'=' -f2)
 #linuxName using centos will be "centos", next remove "
-linuxName=$(echo $linuxName | awk '{ if (substr($0, 0, 1) == "\"") printf("%s", substr($0, 1, length($0) - 1)); else printf("%s", $0) }')
+linuxName=$(echo $linuxName | awk '{ if (substr($0, 0, 1) == "\"") printf("%s", substr($0, 2, length($0) - 2)); else printf("%s", $0) }')
 
 tarFileName=$moduleName-$version-$linuxName.tar.gz
 
 #make it downloadable from public
-echo -n "Load package to MMSRepository-free? "
+echo -n "Load package to MMSRepository-free? " 
 read deploy
 if [ "$deploy" == "y" ]; then
-    scp -P 9255 /opt/catrasoftware/deploy/$tarFileName mms@cibortv-mms-api-gui-1:/var/catramms/storage/MMSRepository-free/packages
+	scp -P 9255 /opt/catrasoftware/deploy/$tarFileName mms@cibortv-mms-api-gui-1:/var/catramms/storage/MMSRepository-free/packages
 fi
 
 
-echo -n "deploy su mms cloud? " 
+echo -n "deploy su mms cloud/test? " 
 read deploy
 if [ "$deploy" == "y" ]; then
 	echo "mms-t-api-gui-1"
@@ -59,10 +59,6 @@ if [ "$deploy" == "y" ]; then
 
 	echo "cibortv-mms-engine-db-3"
 	scp -P 9255 /opt/catrasoftware/deploy/$tarFileName mms@cibortv-mms-engine-db-3:/opt/catramms
-	date
-
-	echo "cibortv-mms-transcoder-es-1"
-	scp -P 9255 /opt/catrasoftware/deploy/$tarFileName mms@cibortv-mms-transcoder-es-1:/opt/catramms
 	date
 
 	echo "cibortv-mms-transcoder-fr-1"

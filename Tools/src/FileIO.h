@@ -170,13 +170,13 @@ public:
     #else
 */
             static Error getFileSystemInfo (const char *pPathName,
-                    int64_t* pUsedInBytes,
-                    int64_t* pAvailableInKB,
+                    uint64_t* pUsedInBytes,
+                    uint64_t* pAvailableInKB,
                     long *plPercentUsed);
 
             static void getFileSystemInfo (string pathName,
-                    int64_t* pUsedInKB,
-                    int64_t* pAvailableInKB,
+                    uint64_t* pUsedInKB,
+                    uint64_t* pAvailableInKB,
                     long *plPercentUsed);
 //			#endif
 
