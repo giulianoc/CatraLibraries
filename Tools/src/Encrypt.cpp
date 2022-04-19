@@ -25,6 +25,10 @@
 #include "Encrypt.h"
 #include <assert.h>
 
+#include <openssl/err.h>
+#include <openssl/pem.h>
+#include <openssl/bio.h>
+
 
 Encrypt:: Encrypt (void)
 
@@ -1194,6 +1198,11 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 	#include <string.h>
 	#include <stdexcept>
 
+	#include <openssl/conf.h>
+	#include <openssl/evp.h>
+	#include <openssl/err.h>
+
+
 
 	long Encrypt:: getDecryptedBufferLength (const char *pCryptedBuffer)
 	{
@@ -1275,412 +1284,6 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 	}
 
 
-/*
-        #include <memory>
-	#include <string.h>
-	#include <stdio.h>
-	#ifdef __APPLE__
-	#else
-		#include <crypt.h>
-	#endif
-	#include <unistd.h>
-	#include <stdlib.h>
-
-
-	const char				*pCryptedBinaryKey		= "a24kj2q";
-	const char				*pAlphabet				=
-		"0123456789ABCDFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_.~";
- 
-
-	long Encrypt:: getDecryptedBufferLength (const char *pCryptedBuffer)
-
-	{
-		unsigned long		ulCryptedBufferLength;
-
-
-		ulCryptedBufferLength		= strlen (pCryptedBuffer);
-
-		if (ulCryptedBufferLength % 11 == 0)
-			return (ulCryptedBufferLength / 11) * 8;
-		else
-			return (((ulCryptedBufferLength / 11) + 1) * 8);
-	}
-
-
-	long Encrypt:: getCryptedBufferLength (const char *pBufferToEncrypt)
-
-	{
-		unsigned long		ulBufferToEncryptLength;
-
-
-		ulBufferToEncryptLength		= strlen (pBufferToEncrypt);
-
-		if (ulBufferToEncryptLength % 8 == 0)
-			return ((ulBufferToEncryptLength / 8) * 11);
-		else
-			return (((ulBufferToEncryptLength / 8) + 1) * 11);
-	}
-
-
-	//	Converte una password non cryptata nel corrispondente valore binario
-	//		(64 char (bits))
-	//	Input: 8 char standard alphabet (original password) 
-	//	Output: 64 char (bits)
-	//	Es.
-	//		Input: "1234"
-	//		Output: "00000001 00000010 00000011 00000100 00000000 00000000 00000000 00000000"
-	//			senza gli spazi inseriti esclusivamente per fare capire
-	//				meglio la conversione
-
-	long asciiToBinary (const char *pAsciiBuffer, char *pBinaryBuffer)
-
-	{
-
-		char		pBinaryChar [256 + 1];
-		long		lAsciiChar;
-		long		lIndex;
-		long		lBufferToConvertLength;
-
-
-		lBufferToConvertLength		= strlen (pAsciiBuffer);
-
-		if (lBufferToConvertLength > 8)
-			return 1;
-
-		strcpy (pBinaryBuffer, "");
-
-		for (lIndex = 0; lIndex < 8; lIndex++)
-		{
-			if (lIndex < lBufferToConvertLength)
-			{
-				lAsciiChar = (long) pAsciiBuffer [lIndex];
- 
-				pBinaryChar [8]		= '\0';
-				pBinaryChar [7]		= (lAsciiChar & 1) + ((long) '0');
-				pBinaryChar [6]		= ((lAsciiChar >> 1) & 1) + ((long) '0');
-				pBinaryChar [5]		= ((lAsciiChar >> 2) & 1) + ((long) '0');
-				pBinaryChar [4]		= ((lAsciiChar >> 3) & 1) + ((long) '0');
-				pBinaryChar [3]		= ((lAsciiChar >> 4) & 1) + ((long) '0');
-				pBinaryChar [2]		= ((lAsciiChar >> 5) & 1) + ((long) '0');
-				pBinaryChar [1]		= ((lAsciiChar >> 6) & 1) + ((long) '0');
-				pBinaryChar [0]		= ((lAsciiChar >> 7) & 1) + ((long) '0');
-
-				strcat (pBinaryBuffer, pBinaryChar);
-			}
-			else
-				strcat (pBinaryBuffer, "00000000");
-		}
-
-		return 0;
-	}
-
-
-	//	input: 64 char (bits) decrypted
-	//	converte una password decryptata (binaria) nella password originaria
-	//		alfanumerica (8 caratteri)
-	//	output: 8 char of standard alphabet
-
-	long binaryToAscii (const char *pBinaryBuffer, char *pAsciiBuffer)
-
-	{
- 
-		long		lIndex;
-		char		pBinaryChar [256 + 1];
-		long		lAsciiChar;
-		long		lBufferToConvertLength;
- 
- 
-		lBufferToConvertLength		= strlen (pBinaryBuffer);
-
-		if (lBufferToConvertLength != 64)
-			return 1;
-
-		for (lIndex = 0; lIndex < 8; lIndex++)
-		{
-			strncpy (pBinaryChar, pBinaryBuffer + (lIndex * 8), 8);
-			pBinaryChar [8]		= '\0';
-
-			lAsciiChar = strtol (pBinaryChar, (char **) NULL, 2);
-			pAsciiBuffer [lIndex]				= (char) lAsciiChar;
-		}
-
-		pAsciiBuffer [lIndex]				= '\0';
-
-
-		return 0;
-	}
-
-
-	//	Input: massimo 11 caratteri criptati binari
-	//	Output: 64 caratteri non criptati binari
-
-	//	Converte un buffer binario criptato in un buffer binario non criptato.
-	//	Ogni carattere del buffer binario criptato e' convertito in 6 caratteri
-	//		binari non criptati ad eccezione dell'ultimo carattere binario criptato
-	//		che viene convertito in 4 caratteri binari non criptati
-
-	long cryptedBinaryToBinary (const char *pCryptedBinaryBuffer,
-		char *pBinaryBuffer)
-
-	{
-
-		long		lAlphabetIndex;
-		long		lIndex;
-		long		lCryptedBinaryBufferLength;
-		long		lAlphabetLength;
-		char		pAlphabetBinaryIndex [256 + 1];
-
-
-		if (strlen (pCryptedBinaryBuffer) > 11)
-			return 1;
-
-		strcpy (pBinaryBuffer, "");
-
-		lCryptedBinaryBufferLength			= strlen (pCryptedBinaryBuffer);
-		lAlphabetLength						= strlen (pAlphabet);
-
-		for (lIndex = 0; lIndex < 11; lIndex++)
-		{
-			if (lIndex < lCryptedBinaryBufferLength)
-			{
-				for (lAlphabetIndex = 0; lAlphabetIndex < lAlphabetLength;
-					lAlphabetIndex++)
-				{
-					if (pAlphabet [lAlphabetIndex] ==
-						pCryptedBinaryBuffer [lIndex])
-						break;
-				}
-
-				pAlphabetBinaryIndex [5]		= (lAlphabetIndex & 1) +
-					((long) '0');
-				pAlphabetBinaryIndex [4]		= ((lAlphabetIndex >> 1) & 1) +
-					((long) '0');
-				pAlphabetBinaryIndex [3]		= ((lAlphabetIndex >> 2) & 1) +
-					((long) '0');
-				pAlphabetBinaryIndex [2]		= ((lAlphabetIndex >> 3) & 1) +
-					((long) '0');
-				pAlphabetBinaryIndex [1]		= ((lAlphabetIndex >> 4) & 1) +
-					((long) '0');
-				pAlphabetBinaryIndex [0]		= ((lAlphabetIndex >> 5) & 1) +
-					((long) '0');
-
-				if (lIndex == 10)
-					pAlphabetBinaryIndex [4]		= '\0';
-				else
-					pAlphabetBinaryIndex [6]		= '\0';
-
-				strcat (pBinaryBuffer, pAlphabetBinaryIndex);
-			}
-			else
-			{
-				if (lIndex == 10)
-					strcat (pBinaryBuffer, "1111");
-				else
-					strcat (pBinaryBuffer, "111111");
-			}
-		}
-
-		return 0;
-	}
-
-
-	//	Input: 64 caratteri non criptati binari
-	//	Output: 11 caratteri criptati binari
-
-	//	Converte un buffer binario non criptato in un buffer binario criptato.
-	//	Ogni blocco di 6 caratteri del buffer binario non criptato e' convertito
-	//		in 1 carattere binario criptati (l'ultimo blocco sara' costituito solo
-	//		da 4 caratteri)
-
-	long binaryToCryptedBinary (const char *pBinaryBuffer,
-		char *pCryptedBinaryBuffer)
-
-	{
-
-		long		lIndex;
-		char		pBinaryBlock [6 + 1];
-		long		lAlphabetIndex;
- 
- 
-		for (lIndex = 0; lIndex < 11; lIndex++)
-		{
-			if (lIndex == 10)
-			{
-				strncpy (pBinaryBlock, pBinaryBuffer + (lIndex * 6), 4);
-				pBinaryBlock [4]		= '0';
-				pBinaryBlock [5]		= '0';
-			}
-			else
-				strncpy (pBinaryBlock, pBinaryBuffer + (lIndex * 6), 6);
-			pBinaryBlock [6]		= '\0';
-
-			lAlphabetIndex		= strtol (pBinaryBlock, (char **) NULL, 2);
-  
-			pCryptedBinaryBuffer [lIndex]		= pAlphabet [lAlphabetIndex];
-		}
-
-		pCryptedBinaryBuffer [lIndex]			= '\0';
-
-
-		return 0;
-	}
-
-
-	long Encrypt:: encrypt (const char *pBufferToEncrypt, char *pCryptedBuffer,
-		unsigned long ulCryptedBufferLength)
-
-	{
-
-		char		pBinaryKey [64 + 1];
-		long		lBufferToEncryptLength;
-		long		lBlocksNumber; 
-		long		lBlockIndex;
-		char		pBufferBlockToEncrypt [8 + 1];
-		char		pBinaryBufferBlockToEncrypt [64 + 1];
-		char		pBinaryBufferBlockCrypted [11 + 1];
-		long		lIndex;
-
-
-		if (cryptedBinaryToBinary (pCryptedBinaryKey, pBinaryKey) != 0)
-			return -1;
-
-		#if !defined(__APPLE__) && defined(_REENTRANT) && !defined(__sun)
-			crypt_data		cd;
-
-			cd. initialized		= 0;
-			setkey_r (pBinaryKey, &cd);
-		#else
-			setkey (pBinaryKey);
-		#endif
-
-		lBufferToEncryptLength		= strlen (pBufferToEncrypt);
-		if (lBufferToEncryptLength % 8 == 0)
-			lBlocksNumber		= lBufferToEncryptLength / 8;
-		else
-			lBlocksNumber		= (lBufferToEncryptLength / 8) + 1;
-
-		strcpy (pCryptedBuffer, "");
-
-		for (lBlockIndex = 0; lBlockIndex < lBlocksNumber; lBlockIndex++)
-		{
-			if (strlen (pBufferToEncrypt + (lBlockIndex * 8)) > 8)
-			{
-				strncpy (pBufferBlockToEncrypt,
-					pBufferToEncrypt + (lBlockIndex * 8), 8);
-				pBufferBlockToEncrypt [8]			= '\0';
-			}
-			else
-				strcpy (pBufferBlockToEncrypt,
-					pBufferToEncrypt + (lBlockIndex * 8));
-
-			if (asciiToBinary (pBufferBlockToEncrypt,
-				pBinaryBufferBlockToEncrypt) != 0)
-				return 1;
-
-			for (lIndex = 0; lIndex < 64; lIndex++)
-				pBinaryBufferBlockToEncrypt [lIndex]		=
-					pBinaryBufferBlockToEncrypt [lIndex] - '0';
-
-			#if !defined(__APPLE__) && defined(_REENTRANT) && !defined(__sun)
-				encrypt_r (pBinaryBufferBlockToEncrypt, 0, &cd);
-			#else
-				::encrypt (pBinaryBufferBlockToEncrypt, 0);
-			#endif
-
-			for (lIndex = 0; lIndex < 64; lIndex++)
-				pBinaryBufferBlockToEncrypt [lIndex]		=
-					pBinaryBufferBlockToEncrypt [lIndex] + '0';
-
-			if (binaryToCryptedBinary (pBinaryBufferBlockToEncrypt,
-				pBinaryBufferBlockCrypted) != 0)
-				return -2;
-
-			strcat (pCryptedBuffer, pBinaryBufferBlockCrypted);
-		}
-
-
-		return 0;
-	}
-
-
-	long Encrypt:: decrypt (const char *pCryptedBuffer, char *pDecryptedBuffer,
-		unsigned long uDecryptedBufferLength)
-
-	{
-
-		char		pBinaryKey [64 + 1];
-		long		lCryptedBufferLength;
-		long		lBlocksNumber;
-		long		lBlockIndex;
-		char		pCryptedBufferBlock [11 + 1];
-		char		pBinaryDecryptedBufferBlock [64 + 1];
-		char		pDecryptedBufferBlock [8 + 1];
-		long		lIndex;
-
-
-		if (cryptedBinaryToBinary (pCryptedBinaryKey, pBinaryKey) != 0)
-			return -1;
-
-		#if !defined(__APPLE__) && defined(_REENTRANT) && !defined(__sun)
-			crypt_data		cd;
-
-			cd. initialized		= 0;
-			setkey_r (pBinaryKey, &cd);
-		#else
-			setkey (pBinaryKey);
-		#endif
-
-
-		lCryptedBufferLength			= strlen (pCryptedBuffer);
-		if (lCryptedBufferLength % 11 == 0)
-			lBlocksNumber		= lCryptedBufferLength / 11;
-		else
-			lBlocksNumber		= (lCryptedBufferLength / 11) + 1;
-
-		strcpy (pDecryptedBuffer, "");
-
-		for (lBlockIndex = 0; lBlockIndex < lBlocksNumber; lBlockIndex++)
-		{
-			if (strlen (pCryptedBuffer + (lBlockIndex * 11)) > 11)
-			{
-				strncpy (pCryptedBufferBlock,
-					pCryptedBuffer + (lBlockIndex * 11),
-					11);
-				pCryptedBufferBlock [11]		='\0';
-			}
-			else
-				strcpy (pCryptedBufferBlock, pCryptedBuffer +
-					(lBlockIndex * 11));
-
-			if (cryptedBinaryToBinary (pCryptedBufferBlock,
-				pBinaryDecryptedBufferBlock) != 0)
-				return -2;
-
-			for (lIndex = 0; lIndex < 64; lIndex++)
-				pBinaryDecryptedBufferBlock [lIndex]		=
-					pBinaryDecryptedBufferBlock [lIndex] - '0';
-
-			#if !defined(__APPLE__) && defined(_REENTRANT) && !defined(__sun)
-				encrypt_r (pBinaryDecryptedBufferBlock, 1, &cd);
-			#else
-				::encrypt (pBinaryDecryptedBufferBlock, 1);
-			#endif
-
-			for (lIndex = 0; lIndex < 64; lIndex++)
-				pBinaryDecryptedBufferBlock [lIndex]		=
-					pBinaryDecryptedBufferBlock [lIndex] + '0';
-
-			if (binaryToAscii (pBinaryDecryptedBufferBlock,
-				pDecryptedBufferBlock) != 0)
-				return -3;
-			strcat (pDecryptedBuffer, pDecryptedBufferBlock);
-		}
-
-
-		return 0;
-	}
-*/
-
     string Encrypt::encrypt(string stringToBeEncrypted)
     {
 
@@ -1738,5 +1341,298 @@ Encrypt &Encrypt:: operator = (const Encrypt &)
 
         return decryptedBuffer;
     }
+
+/*
+int main (void)
+{
+	// Set up the key and iv. Do I need to say to not hard code these in a
+	// real application? :-)
+
+    // A 256 bit key
+    unsigned char *key = (unsigned char *)"01234567890123456789012345678901";
+
+    // A 128 bit IV
+    unsigned char *iv = (unsigned char *)"0123456789012345";
+
+    // Message to be encrypted
+    unsigned char *plaintext =
+        (unsigned char *)"The quick brown fox jumps over the lazy dog";
+
+    // Buffer for ciphertext. Ensure the buffer is long enough for the
+    // ciphertext which may be longer than the plaintext, depending on the
+    // algorithm and mode.
+    unsigned char ciphertext[128];
+
+    // Buffer for the decrypted text
+    unsigned char decryptedtext[128];
+
+    int decryptedtext_len, ciphertext_len;
+
+    // Encrypt the plaintext
+    ciphertext_len = encrypt (plaintext, strlen ((char *)plaintext), key, iv,
+                              ciphertext);
+
+    // Do something useful with the ciphertext here
+    printf("Ciphertext is:\n");
+    BIO_dump_fp (stdout, (const char *)ciphertext, ciphertext_len);
+
+    // Decrypt the ciphertext
+    decryptedtext_len = decrypt(ciphertext, ciphertext_len, key, iv,
+                                decryptedtext);
+
+    // Add a NULL terminator. We are expecting printable text
+    decryptedtext[decryptedtext_len] = '\0';
+
+	// Show the decrypted text
+    printf("Decrypted text is:\n");
+    printf("%s\n", decryptedtext);
+
+
+    return 0;
+}
+*/
+
+
+	string Encrypt::opensslEncrypt(
+		unsigned char *key, unsigned char *iv,
+		string plaintext
+	)
+	{
+		// Buffer for ciphertext. Ensure the buffer is long enough for the
+		// ciphertext which may be longer than the plaintext, depending on the
+		// algorithm and mode.
+		unsigned char ciphertext[10240];
+		int ciphertext_len;
+		{
+			EVP_CIPHER_CTX *ctx;
+
+			int len;
+
+			int plaintext_len = plaintext.size();
+			unsigned char *ucPlaintext = (unsigned char*) malloc(plaintext_len);
+			memcpy(ucPlaintext, plaintext.c_str(), plaintext_len);
+
+			/* Create and initialise the context */
+			if(!(ctx = EVP_CIPHER_CTX_new()))
+			{
+				free(ucPlaintext);
+
+				throw runtime_error(string("EVP_CIPHER_CTX_new failed"));
+			}
+
+			/*
+			* Initialise the encryption operation. IMPORTANT - ensure you use a key
+			* and IV size appropriate for your cipher
+			* In this example we are using 256 bit AES (i.e. a 256 bit key). The
+			* IV size for *most* modes is the same as the block size. For AES this
+			* is 128 bits
+			*/
+			if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv))
+			{
+				free(ucPlaintext);
+				EVP_CIPHER_CTX_free(ctx);
+
+				throw runtime_error(string("EVP_EncryptInit_ex failed"));
+			}
+
+			/*
+			* Provide the message to be encrypted, and obtain the encrypted output.
+			* EVP_EncryptUpdate can be called multiple times if necessary
+			*/
+			if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, ucPlaintext, plaintext_len))
+			{
+				free(ucPlaintext);
+				EVP_CIPHER_CTX_free(ctx);
+
+				throw runtime_error(string("EVP_EncryptUpdate failed"));
+			}
+			ciphertext_len = len;
+
+			/*
+			* Finalise the encryption. Further ciphertext bytes may be written at
+			* this stage.
+			*/
+			if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len))
+			{
+				free(ucPlaintext);
+				EVP_CIPHER_CTX_free(ctx);
+
+				throw runtime_error(string("EVP_EncryptFinal_ex failed"));
+			}
+			ciphertext_len += len;
+
+			free(ucPlaintext);
+
+			/* Clean up */
+			EVP_CIPHER_CTX_free(ctx);
+		}
+
+		// std::cout << "ciphertext_len: " << ciphertext_len << std::endl;
+		string base64Encoded = convertFromBinaryToBase64(ciphertext, ciphertext_len);
+		// std::cout << "base64Encoded.size: " << base64Encoded.size() << std::endl;
+
+		return base64Encoded;
+	}
+
+	string Encrypt::opensslDecrypt(
+		unsigned char *key, unsigned char *iv,
+		string base64Encoded
+	)
+	{
+		// std::cout << "base64Encoded.size: " << base64Encoded.size() << std::endl;
+
+		unsigned char* ciphertext;
+		size_t ciphertext_len;
+		if (convertFromBase64ToBinary(base64Encoded.c_str(),
+			&ciphertext, &ciphertext_len) != 0)
+		{
+			throw runtime_error(string("base64Decode failed"));
+		}
+		// std::cout << "ciphertext_len: " << ciphertext_len << std::endl;
+
+		unsigned char ucPlaintext[10240];
+		int plaintext_len;
+		{
+			EVP_CIPHER_CTX *ctx;
+
+			int len;
+
+			/* Create and initialise the context */
+			if(!(ctx = EVP_CIPHER_CTX_new()))
+			{
+				free(ciphertext);
+
+				throw runtime_error(string("EVP_CIPHER_CTX_new failed"));
+			}
+
+			/*
+			* Initialise the decryption operation. IMPORTANT - ensure you use a key
+			* and IV size appropriate for your cipher
+			* In this example we are using 256 bit AES (i.e. a 256 bit key). The
+			* IV size for *most* modes is the same as the block size. For AES this
+			* is 128 bits
+			*/
+			if(1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv))
+			{
+				EVP_CIPHER_CTX_free(ctx);
+				free(ciphertext);
+
+				throw runtime_error(string("EVP_DecryptInit_ex failed"));
+			}
+
+			/*
+			* Provide the message to be decrypted, and obtain the plaintext output.
+			* EVP_DecryptUpdate can be called multiple times if necessary.
+			*/
+			if(1 != EVP_DecryptUpdate(ctx, ucPlaintext, &len, ciphertext, ciphertext_len))
+			{
+				EVP_CIPHER_CTX_free(ctx);
+				free(ciphertext);
+
+				throw runtime_error(string("EVP_DecryptUpdate failed"));
+			}
+			plaintext_len = len;
+
+			/*
+			* Finalise the decryption. Further plaintext bytes may be written at
+			* this stage.
+			*/
+			if(1 != EVP_DecryptFinal_ex(ctx, ucPlaintext + len, &len))
+			{
+				EVP_CIPHER_CTX_free(ctx);
+				free(ciphertext);
+
+				throw runtime_error(string("EVP_DecryptFinal_ex failed"));
+			}
+			plaintext_len += len;
+
+			/* Clean up */
+			EVP_CIPHER_CTX_free(ctx);
+		}
+
+		free(ciphertext);
+
+		string plainText((const char *) ucPlaintext, plaintext_len);
+
+		return plainText;
+	}
+
+	string Encrypt::convertFromBinaryToBase64(const unsigned char* buffer, size_t length)
+	{
+		// Encodes a binary safe base 64 string
+
+		BIO *bio, *b64;
+		BUF_MEM *bufferPtr;
+
+		// _logger->info(__FILEREF__ + "BIO_new...");
+		b64 = BIO_new(BIO_f_base64());
+		bio = BIO_new(BIO_s_mem());
+
+		// _logger->info(__FILEREF__ + "BIO_push...");
+		bio = BIO_push(b64, bio);
+
+		// _logger->info(__FILEREF__ + "BIO_write...");
+		BIO_write(bio, buffer, length);
+		BIO_flush(bio);
+		BIO_get_mem_ptr(bio, &bufferPtr);
+
+		// _logger->info(__FILEREF__ + "BIO_set_close...");
+		BIO_set_close(bio, BIO_NOCLOSE);
+		// _logger->info(__FILEREF__ + "BIO_free_all...");
+		BIO_free_all(bio);
+			// _logger->info(__FILEREF__ + "BIO_free...");
+		// BIO_free(b64);   // useless because of BIO_free_all
+
+		// _logger->info(__FILEREF__ + "base64Text set...");
+		string base64Encoded = string(bufferPtr->data);
+
+		BUF_MEM_free(bufferPtr);
+
+		// _logger->info(__FILEREF__ + "signature: " + signature);
+
+		return base64Encoded;
+	}
+
+	size_t Encrypt::calcBinaryLength(const char* b64input)
+	{
+		// Calculates the length of a base64 decoded string
+
+		size_t len = strlen(b64input);
+		size_t padding = 0;
+
+		if (b64input[len-1] == '=' && b64input[len-2] == '=') //last two chars are =
+			padding = 2;
+		else if (b64input[len-1] == '=') //last char is =
+			padding = 1;
+
+		return (len * 3) / 4 - padding;
+	}
+
+	int Encrypt::convertFromBase64ToBinary(const char* b64message,
+		unsigned char** buffer, size_t* length)
+	{ //Decodes a base64 encoded string
+		BIO *bio, *b64;
+
+		int decodeLen = calcBinaryLength(b64message);
+		*buffer = (unsigned char*) malloc(decodeLen + 1);
+		(*buffer)[decodeLen] = '\0';
+
+		bio = BIO_new_mem_buf(b64message, -1);
+		b64 = BIO_new(BIO_f_base64());
+		bio = BIO_push(b64, bio);
+
+		BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL); //Do not use newlines to flush buffer
+		*length = BIO_read(bio, *buffer, strlen(b64message));
+		if (*length != decodeLen)
+		{
+			free(*buffer);
+
+			throw runtime_error(string("EVP_DecryptFinal_ex failed"));
+		}
+		
+		BIO_free_all(bio);
+
+		return (0); //success
+	}
 #endif
 

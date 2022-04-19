@@ -60,4 +60,5 @@ if (LDAP_FOUND)
 	target_link_libraries(threadsAndMutex ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (threadsAndMutex pthread)
+target_link_libraries (threadsAndMutex crypto)
 

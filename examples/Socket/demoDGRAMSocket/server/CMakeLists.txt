@@ -60,4 +60,5 @@ if (LDAP_FOUND)
 	target_link_libraries(demoDGRAMSocketServer ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (demoDGRAMSocketServer pthread)
+target_link_libraries (demoDGRAMSocketServer crypto)
 

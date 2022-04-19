@@ -42,6 +42,7 @@ add_executable(mergeSort ${SOURCES} ${HEADERS})
 
 target_link_libraries (mergeSort Tools)
 target_link_libraries (mergeSort ErrMsg)
+target_link_libraries (mergeSort crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (mergeSort ${CRYPTO_LIBRARIES})

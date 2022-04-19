@@ -42,6 +42,7 @@ add_executable(copyFile ${SOURCES} ${HEADERS})
 
 target_link_libraries (copyFile Tools)
 target_link_libraries (copyFile ErrMsg)
+target_link_libraries (copyFile crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (copyFile ${CRYPTO_LIBRARIES})

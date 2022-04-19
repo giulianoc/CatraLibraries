@@ -21,7 +21,7 @@
 # with the authors.
 
 SET (SOURCES
-	getHostName.cpp
+	opensslEncrypt.cpp
 )
 
 SET (HEADERS
@@ -38,22 +38,24 @@ endif()
 
 add_compile_options(-D_REENTRANT)
 
-add_executable(getHostName ${SOURCES} ${HEADERS})
+add_executable(opensslEncrypt ${SOURCES} ${HEADERS})
 
-target_link_libraries (getHostName Tools)
-target_link_libraries (getHostName ErrMsg)
-target_link_libraries (getHostName crypto)
+target_link_libraries (opensslEncrypt Tools)
+target_link_libraries (opensslEncrypt ErrMsg)
+target_link_libraries (opensslEncrypt crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
-		target_link_libraries (getHostName ${CRYPTO_LIBRARIES})
+		target_link_libraries (opensslEncrypt ${CRYPTO_LIBRARIES})
 	else()
-		target_link_libraries (getHostName crypt)
+		target_link_libraries (opensslEncrypt crypt)
 	endif()
 endif()
 if (ZLIB_FOUND)
-	target_link_libraries(getHostName ${ZLIB_LIBRARIES})
+	target_link_libraries(opensslEncrypt ${ZLIB_LIBRARIES})
 endif()
 if (LDAP_FOUND)
-	target_link_libraries(getHostName ${LDAP_LIBRARIES})
+	target_link_libraries(opensslEncrypt ${LDAP_LIBRARIES})
 endif()
+target_link_libraries (opensslEncrypt crypto)
+
 

@@ -62,4 +62,5 @@ if (LDAP_FOUND)
 	target_link_libraries(httpPostThread ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (httpPostThread pthread)
+target_link_libraries (httpPostThread crypto)
 

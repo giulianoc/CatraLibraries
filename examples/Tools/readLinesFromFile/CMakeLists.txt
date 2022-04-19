@@ -42,6 +42,7 @@ add_executable(readLinesFromFile ${SOURCES} ${HEADERS})
 
 target_link_libraries (readLinesFromFile Tools)
 target_link_libraries (readLinesFromFile ErrMsg)
+target_link_libraries (readLinesFromFile crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (readLinesFromFile ${CRYPTO_LIBRARIES})

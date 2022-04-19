@@ -66,4 +66,5 @@ if (LDAP_FOUND)
 	target_link_libraries(demoTracer ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (demoTracer pthread)
+target_link_libraries (demoTracer crypto)
 

@@ -42,6 +42,7 @@ add_executable(createDirectory ${SOURCES} ${HEADERS})
 
 target_link_libraries (createDirectory Tools)
 target_link_libraries (createDirectory ErrMsg)
+target_link_libraries (createDirectory crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (createDirectory ${CRYPTO_LIBRARIES})

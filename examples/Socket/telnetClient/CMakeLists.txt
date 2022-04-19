@@ -60,4 +60,5 @@ if (LDAP_FOUND)
 	target_link_libraries(telnetClient ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (telnetClient pthread)
+target_link_libraries (telnetClient crypto)
 

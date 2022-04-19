@@ -75,4 +75,5 @@ if (LDAP_FOUND)
 	target_link_libraries(tracerServer ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (tracerServer pthread)
+target_link_libraries (tracerServer crypto)
 

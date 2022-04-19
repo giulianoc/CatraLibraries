@@ -42,6 +42,7 @@ add_executable(removeFile ${SOURCES} ${HEADERS})
 
 target_link_libraries (removeFile Tools)
 target_link_libraries (removeFile ErrMsg)
+target_link_libraries (removeFile crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (removeFile ${CRYPTO_LIBRARIES})

@@ -62,4 +62,5 @@ if (LDAP_FOUND)
 	target_link_libraries(parseURL ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (parseURL pthread)
+target_link_libraries (parseURL crypto)
 

@@ -42,6 +42,7 @@ add_executable(moveLink ${SOURCES} ${HEADERS})
 
 target_link_libraries (moveLink Tools)
 target_link_libraries (moveLink ErrMsg)
+target_link_libraries (moveLink crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (moveLink ${CRYPTO_LIBRARIES})

@@ -42,6 +42,7 @@ add_executable(forkAndExec ${SOURCES} ${HEADERS})
 
 target_link_libraries (forkAndExec Tools)
 target_link_libraries (forkAndExec ErrMsg)
+target_link_libraries (forkAndExec crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (forkAndExec ${CRYPTO_LIBRARIES})

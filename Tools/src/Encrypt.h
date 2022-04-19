@@ -326,6 +326,21 @@
 			*/
 			static long getCryptedBufferLength (const char *pBufferToEncrypt);
 
+			static string opensslEncrypt(
+				unsigned char *key, unsigned char *iv,
+				string plaintext);
+
+			static string opensslDecrypt(
+				unsigned char *key, unsigned char *iv,
+				string base64Encoded);
+
+
+			static string convertFromBinaryToBase64(const unsigned char* buffer, size_t length);
+
+			static size_t calcBinaryLength(const char* b64input);
+
+			static int convertFromBase64ToBinary(const char* b64message,
+				unsigned char** buffer, size_t* length);
 	} Encrypt_t, *Encrypt_p;
 
 #endif

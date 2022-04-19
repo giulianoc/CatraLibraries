@@ -42,6 +42,7 @@ add_executable(encrypt ${SOURCES} ${HEADERS})
 
 target_link_libraries (encrypt Tools)
 target_link_libraries (encrypt ErrMsg)
+target_link_libraries (encrypt crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (encrypt ${CRYPTO_LIBRARIES})

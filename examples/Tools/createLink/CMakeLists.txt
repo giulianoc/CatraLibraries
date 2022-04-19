@@ -42,6 +42,7 @@ add_executable(createLink ${SOURCES} ${HEADERS})
 
 target_link_libraries (createLink Tools)
 target_link_libraries (createLink ErrMsg)
+target_link_libraries (createLink crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (createLink ${CRYPTO_LIBRARIES})

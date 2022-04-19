@@ -42,6 +42,7 @@ add_executable(directoryList ${SOURCES} ${HEADERS})
 
 target_link_libraries (directoryList Tools)
 target_link_libraries (directoryList ErrMsg)
+target_link_libraries (directoryList crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (directoryList ${CRYPTO_LIBRARIES})

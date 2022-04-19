@@ -42,6 +42,7 @@ add_executable(dateTime ${SOURCES} ${HEADERS})
 
 target_link_libraries (dateTime Tools)
 target_link_libraries (dateTime ErrMsg)
+target_link_libraries (dateTime crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (dateTime ${CRYPTO_LIBRARIES})

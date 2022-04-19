@@ -57,4 +57,5 @@ if (LDAP_FOUND)
 	target_link_libraries(cryptedItem ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (cryptedItem pthread)
+target_link_libraries (cryptedItem crypto)
 

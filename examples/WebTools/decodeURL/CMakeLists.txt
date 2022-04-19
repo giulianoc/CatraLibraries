@@ -62,4 +62,5 @@ if (LDAP_FOUND)
 	target_link_libraries(decodeURL ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (decodeURL pthread)
+target_link_libraries (decodeURL crypto)
 

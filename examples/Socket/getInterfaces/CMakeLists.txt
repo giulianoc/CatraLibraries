@@ -60,4 +60,5 @@ if (LDAP_FOUND)
 	target_link_libraries(getInterfaces ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (getInterfaces pthread)
+target_link_libraries (getInterfaces crypto)
 

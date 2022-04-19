@@ -62,4 +62,5 @@ if (LDAP_FOUND)
 	target_link_libraries(encodeURL ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (encodeURL pthread)
+target_link_libraries (encodeURL crypto)
 

@@ -42,6 +42,7 @@ add_executable(execute ${SOURCES} ${HEADERS})
 
 target_link_libraries (execute Tools)
 target_link_libraries (execute ErrMsg)
+target_link_libraries (execute crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (execute ${CRYPTO_LIBRARIES})

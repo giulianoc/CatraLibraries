@@ -42,6 +42,7 @@ add_executable(getFileSystemInfo ${SOURCES} ${HEADERS})
 
 target_link_libraries (getFileSystemInfo Tools)
 target_link_libraries (getFileSystemInfo ErrMsg)
+target_link_libraries (getFileSystemInfo crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (getFileSystemInfo ${CRYPTO_LIBRARIES})

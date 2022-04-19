@@ -42,6 +42,7 @@ add_executable(buffer ${SOURCES} ${HEADERS})
 
 target_link_libraries (buffer Tools)
 target_link_libraries (buffer ErrMsg)
+target_link_libraries (buffer crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (buffer ${CRYPTO_LIBRARIES})

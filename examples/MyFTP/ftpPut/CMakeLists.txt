@@ -61,4 +61,5 @@ if (LDAP_FOUND)
 	target_link_libraries(ftpPut ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (ftpPut pthread)
+target_link_libraries (ftpPut crypto)
 

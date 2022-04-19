@@ -63,4 +63,5 @@ if (LDAP_FOUND)
 	target_link_libraries(sendTrap ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (sendTrap pthread)
+target_link_libraries (sendTrap crypto)
 

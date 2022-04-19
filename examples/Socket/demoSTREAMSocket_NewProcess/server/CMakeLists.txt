@@ -60,4 +60,5 @@ if (LDAP_FOUND)
 	target_link_libraries(demoSTREAMSocket_NewProcessServer ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (demoSTREAMSocket_NewProcessServer pthread)
+target_link_libraries (demoSTREAMSocket_NewProcessServer crypto)
 

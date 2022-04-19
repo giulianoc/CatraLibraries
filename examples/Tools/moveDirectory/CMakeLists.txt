@@ -42,6 +42,7 @@ add_executable(moveDirectory ${SOURCES} ${HEADERS})
 
 target_link_libraries (moveDirectory Tools)
 target_link_libraries (moveDirectory ErrMsg)
+target_link_libraries (moveDirectory crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (moveDirectory ${CRYPTO_LIBRARIES})

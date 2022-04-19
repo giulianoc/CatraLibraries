@@ -42,6 +42,7 @@ add_executable(fileReader ${SOURCES} ${HEADERS})
 
 target_link_libraries (fileReader Tools)
 target_link_libraries (fileReader ErrMsg)
+target_link_libraries (fileReader crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (fileReader ${CRYPTO_LIBRARIES})

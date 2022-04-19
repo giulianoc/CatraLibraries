@@ -72,4 +72,5 @@ if (LDAP_FOUND)
 	target_link_libraries(loadBalancer ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (loadBalancer pthread)
+target_link_libraries (loadBalancer crypto)
 

@@ -62,4 +62,5 @@ if (LDAP_FOUND)
 	target_link_libraries(getURLParameterValue ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (getURLParameterValue pthread)
+target_link_libraries (getURLParameterValue crypto)
 

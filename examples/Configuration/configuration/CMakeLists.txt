@@ -58,4 +58,5 @@ if (LDAP_FOUND)
 	target_link_libraries(configuration ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (configuration pthread)
+target_link_libraries (configuration crypto)
 

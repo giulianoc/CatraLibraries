@@ -42,6 +42,7 @@ add_executable(stringTokenizer ${SOURCES} ${HEADERS})
 
 target_link_libraries (stringTokenizer Tools)
 target_link_libraries (stringTokenizer ErrMsg)
+target_link_libraries (stringTokenizer crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (stringTokenizer ${CRYPTO_LIBRARIES})

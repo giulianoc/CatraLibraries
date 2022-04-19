@@ -67,4 +67,5 @@ if (LDAP_FOUND)
 	target_link_libraries(printerSpooler ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (printerSpooler pthread)
+target_link_libraries (printerSpooler crypto)
 

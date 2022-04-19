@@ -60,4 +60,5 @@ if (LDAP_FOUND)
 	target_link_libraries(socketsPoolClient ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (socketsPoolClient pthread)
+target_link_libraries (socketsPoolClient crypto)
 

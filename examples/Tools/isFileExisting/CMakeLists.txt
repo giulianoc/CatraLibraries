@@ -42,6 +42,7 @@ add_executable(isFileExisting ${SOURCES} ${HEADERS})
 
 target_link_libraries (isFileExisting Tools)
 target_link_libraries (isFileExisting ErrMsg)
+target_link_libraries (isFileExisting crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (isFileExisting ${CRYPTO_LIBRARIES})

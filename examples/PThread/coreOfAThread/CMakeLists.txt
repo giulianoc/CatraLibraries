@@ -62,4 +62,5 @@ if (LDAP_FOUND)
 	target_link_libraries(coreOfAThread ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (coreOfAThread pthread)
+target_link_libraries (coreOfAThread crypto)
 

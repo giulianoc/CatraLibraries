@@ -42,6 +42,7 @@ add_executable(base64 ${SOURCES} ${HEADERS})
 
 target_link_libraries (base64 Tools)
 target_link_libraries (base64 ErrMsg)
+target_link_libraries (base64 crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (base64 ${CRYPTO_LIBRARIES})

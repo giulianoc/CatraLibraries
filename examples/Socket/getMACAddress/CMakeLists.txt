@@ -60,4 +60,5 @@ if (LDAP_FOUND)
 	target_link_libraries(getMACAddress ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (getMACAddress pthread)
+target_link_libraries (getMACAddress crypto)
 

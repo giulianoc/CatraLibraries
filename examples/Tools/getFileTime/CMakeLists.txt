@@ -42,6 +42,7 @@ add_executable(getFileTime ${SOURCES} ${HEADERS})
 
 target_link_libraries (getFileTime Tools)
 target_link_libraries (getFileTime ErrMsg)
+target_link_libraries (getFileTime crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (getFileTime ${CRYPTO_LIBRARIES})

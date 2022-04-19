@@ -64,4 +64,5 @@ if (LDAP_FOUND)
 	target_link_libraries(dataProcessing_Calendar ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (dataProcessing_Calendar pthread)
+target_link_libraries (dataProcessing_Calendar crypto)
 

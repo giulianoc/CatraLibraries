@@ -42,6 +42,7 @@ add_executable(getDirectoryUsage ${SOURCES} ${HEADERS})
 
 target_link_libraries (getDirectoryUsage Tools)
 target_link_libraries (getDirectoryUsage ErrMsg)
+target_link_libraries (getDirectoryUsage crypto)
 if(CRYPTO_FOUND)
 	if (APPLE)
 		target_link_libraries (getDirectoryUsage ${CRYPTO_LIBRARIES})

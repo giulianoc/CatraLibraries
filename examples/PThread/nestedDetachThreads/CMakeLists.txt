@@ -62,4 +62,5 @@ if (LDAP_FOUND)
 	target_link_libraries(nestedDetachThreads ${LDAP_LIBRARIES})
 endif()
 target_link_libraries (nestedDetachThreads pthread)
+target_link_libraries (nestedDetachThreads crypto)
 
