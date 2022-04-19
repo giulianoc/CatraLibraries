@@ -24,6 +24,7 @@
 
 #include "Encrypt.h"
 #include <assert.h>
+#include <algorithm>
 
 #include <openssl/err.h>
 #include <openssl/pem.h>
@@ -1471,6 +1472,12 @@ int main (void)
 		string base64Encoded = convertFromBinaryToBase64(ciphertext, ciphertext_len);
 		// std::cout << "base64Encoded.size: " << base64Encoded.size() << std::endl;
 
+		// base64, see https://it.wikipedia.org/wiki/Base64 contains two characters
+		// that could create issues: + and /
+		// For this reasons we wil just replace them
+		::replace(base64Encoded.begin(), base64Encoded.end(), '+', '-');
+		::replace(base64Encoded.begin(), base64Encoded.end(), '/', '_');
+
 		return base64Encoded;
 	}
 
@@ -1481,9 +1488,13 @@ int main (void)
 	{
 		// std::cout << "base64Encoded.size: " << base64Encoded.size() << std::endl;
 
+		string localBase64Encoded = base64Encoded;
+		::replace(localBase64Encoded.begin(), localBase64Encoded.end(), '-', '+');
+		::replace(localBase64Encoded.begin(), localBase64Encoded.end(), '_', '/');
+
 		unsigned char* ciphertext;
 		size_t ciphertext_len;
-		if (convertFromBase64ToBinary(base64Encoded.c_str(),
+		if (convertFromBase64ToBinary(localBase64Encoded.c_str(),
 			&ciphertext, &ciphertext_len) != 0)
 		{
 			throw runtime_error(string("base64Decode failed"));
