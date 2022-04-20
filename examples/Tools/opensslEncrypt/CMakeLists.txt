@@ -58,4 +58,4 @@ if (LDAP_FOUND)
 endif()
 target_link_libraries (opensslEncrypt crypto)
 
-
+install (TARGETS opensslEncrypt DESTINATION bin)
