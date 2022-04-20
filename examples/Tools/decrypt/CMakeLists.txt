@@ -57,3 +57,4 @@ if (LDAP_FOUND)
 	target_link_libraries(decrypt ${LDAP_LIBRARIES})
 endif()
 
+install (TARGETS decrypt DESTINATION bin)

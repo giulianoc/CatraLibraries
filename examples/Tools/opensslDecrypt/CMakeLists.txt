@@ -57,3 +57,5 @@ if (LDAP_FOUND)
 	target_link_libraries(opensslDecrypt ${LDAP_LIBRARIES})
 endif()
 
+install (TARGETS opensslDecrypt DESTINATION bin)
+
