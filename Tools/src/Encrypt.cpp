@@ -1474,9 +1474,12 @@ int main (void)
 
 		// base64, see https://it.wikipedia.org/wiki/Base64 contains two characters
 		// that could create issues: + and /
+		// Also the '=' character is used as padding
 		// For this reasons we wil just replace them
 		::replace(base64Encoded.begin(), base64Encoded.end(), '+', '-');
-		::replace(base64Encoded.begin(), base64Encoded.end(), '/', '_');
+		::replace(base64Encoded.begin(), base64Encoded.end(), '/', '~');
+		::replace(base64Encoded.begin(), base64Encoded.end(), '=', '_');
+
 
 		return base64Encoded;
 	}
@@ -1490,7 +1493,8 @@ int main (void)
 
 		string localBase64Encoded = base64Encoded;
 		::replace(localBase64Encoded.begin(), localBase64Encoded.end(), '-', '+');
-		::replace(localBase64Encoded.begin(), localBase64Encoded.end(), '_', '/');
+		::replace(localBase64Encoded.begin(), localBase64Encoded.end(), '~', '/');
+		::replace(localBase64Encoded.begin(), localBase64Encoded.end(), '_', '=');
 
 		unsigned char* ciphertext;
 		size_t ciphertext_len;
