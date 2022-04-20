@@ -43,8 +43,8 @@ int main (int iArgc, char **pArgv)
 		return 1;
 	}
 
-	int max = 100000000;
-	for (long lIndex = 0; lIndex < max; lIndex++)
+	// int max = 100000000;
+	// for (long lIndex = 0; lIndex < max; lIndex++)
 	{
 	// A 256 bit key
 	// unsigned char *key = (unsigned char *)"01234567890123456789012345678901";
@@ -56,9 +56,10 @@ int main (int iArgc, char **pArgv)
 
 	// Message to be encrypted
 	string plaintext = pArgv [1];
+	std::cout << "plaintext: " << plaintext << std::endl;
 
 	string base64Encoded = Encrypt::opensslEncrypt(key, iv, plaintext);
-	std::cout << lIndex << "/" << max << ". base64Encoded: " << base64Encoded << std::endl;
+	std::cout << "base64Encoded: " << base64Encoded << std::endl;
 	}
 
 
