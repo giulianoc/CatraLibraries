@@ -327,8 +327,14 @@
 			static long getCryptedBufferLength (const char *pBufferToEncrypt);
 
 			static string opensslEncrypt(
+				string plaintext);
+
+			static string opensslEncrypt(
 				unsigned char *key, unsigned char *iv,
 				string plaintext);
+
+			static string opensslDecrypt(
+				string base64Encoded);
 
 			static string opensslDecrypt(
 				unsigned char *key, unsigned char *iv,

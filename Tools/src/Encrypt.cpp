@@ -1394,6 +1394,19 @@ int main (void)
 */
 
 
+	string Encrypt::opensslEncrypt(string plaintext)
+	{
+		// A 256 bit key
+		// unsigned char *key = (unsigned char *)"01234567890123456789012345678901";
+		unsigned char *key =   (unsigned char *) "r12Dd5678h012_45.7890*534D6l/9R1";
+
+		// A 128 bit IV
+		// unsigned char *iv = (unsigned char *)"0123456789012345";
+		unsigned char *iv =   (unsigned char *) "0/2xd5678GA12*_5";
+
+		return Encrypt::opensslEncrypt(key, iv, plaintext);
+	}
+
 	string Encrypt::opensslEncrypt(
 		unsigned char *key, unsigned char *iv,
 		string plaintext
@@ -1482,6 +1495,19 @@ int main (void)
 
 
 		return base64Encoded;
+	}
+
+	string Encrypt::opensslDecrypt(string base64Encoded)
+	{
+		// A 256 bit key
+		// unsigned char *key = (unsigned char *)"01234567890123456789012345678901";
+		unsigned char *key =   (unsigned char *) "r12Dd5678h012_45.7890*534D6l/9R1";
+
+		// A 128 bit IV
+		// unsigned char *iv = (unsigned char *)"0123456789012345";
+		unsigned char *iv =   (unsigned char *) "0/2xd5678GA12*_5";
+
+		return Encrypt::opensslDecrypt(key, iv, base64Encoded);
 	}
 
 	string Encrypt::opensslDecrypt(
