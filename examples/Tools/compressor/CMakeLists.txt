@@ -21,67 +21,41 @@
 # with the authors.
 
 SET (SOURCES
-	Buffer.cpp
-	Compressor.cpp
-	Convert.cpp
-	DateTime.cpp
-	Encrypt.cpp
-	FileIO.cpp
-	FileReader.cpp
-	GetCpuUsage.cpp
-	Network.cpp
-	Service.cpp
-	StringTokenizer.cpp
-	System.cpp
-	ProcessUtility.cpp
-	ToolsErrors.cpp
-	StringUtils.cpp
+	compressor.cpp
 )
-if (LDAP_FOUND)
-	SET (SOURCES
-		${SOURCES}
-		LdapWrapper.cpp
-	)
-endif()
 
 SET (HEADERS
-	Buffer.h
-	Compressor.h
-	Convert.h
-	DateTime.h
-	Encrypt.h
-	FileIO.h
-	FileReader.h
-	GetCpuUsage.h
-	MergeSort.h
-	Network.h
-	Service.h
-	StringTokenizer.h
-	System.h
-	ProcessUtility.h
-	ToolsErrors.h
-	StringUtils.h
 )
-if (LDAP_FOUND)
-	SET (HEADERS
-		${HEADERS}
-		LdapWrapper.h
-	)
-endif()
-
 
 include_directories ("${PROJECT_SOURCE_DIR}/ErrMsg/src")
-add_compile_options(-D_REENTRANT -DSERVICEDEBUG -DUSEGZIPLIB -D_FILE_OFFSET_BITS=64)
-
-add_library (Tools SHARED ${SOURCES} ${HEADERS})
-
-if (APPLE)
-	target_link_libraries (Tools ErrMsg)
-	if (ZLIB_FOUND)
-		target_link_libraries(Tools ${ZLIB_LIBRARIES})
-	endif()
+include_directories ("${PROJECT_SOURCE_DIR}/Tools/src")
+if(CRYPTO_FOUND)
+	include_directories(${CRYPTO_INCLUDE_DIR})
+endif()
+if (ZLIB_FOUND)
+	include_directories(${ZLIB_INCLUDE_DIRS})
 endif()
 
-install (TARGETS Tools DESTINATION lib)
-install (FILES ${HEADERS} DESTINATION ${INSTALL_INCLUDE_DIRECTORY})
+add_compile_options(-D_REENTRANT)
+
+add_executable(compressor ${SOURCES} ${HEADERS})
+
+target_link_libraries (compressor Tools)
+target_link_libraries (compressor ErrMsg)
+target_link_libraries (compressor crypto)
+if(CRYPTO_FOUND)
+	if (APPLE)
+		target_link_libraries (compressor ${CRYPTO_LIBRARIES})
+	else()
+		target_link_libraries (compressor crypt)
+	endif()
+endif()
+if (ZLIB_FOUND)
+	target_link_libraries(compressor ${ZLIB_LIBRARIES})
+endif()
+if (LDAP_FOUND)
+	target_link_libraries(compressor ${LDAP_LIBRARIES})
+endif()
+
+install (TARGETS compressor DESTINATION bin)
 
