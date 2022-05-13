@@ -48,7 +48,8 @@ public:
 	/** Compress a STL string using zlib with given compression level and return
 	  * the binary data. */
 	static string compress_string(const string& str,
-		int compressionlevel = Z_BEST_COMPRESSION);
+		int compressionlevel = Z_DEFAULT_COMPRESSION);
+		// int compressionlevel = Z_BEST_COMPRESSION);
 
 	static string decompress_string(const string& str);
 
