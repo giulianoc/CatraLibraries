@@ -65,6 +65,11 @@ Compressor &Compressor:: operator = (const Compressor &)
 
 /** Compress a STL string using zlib with given compression level and return
   * the binary data. */
+// linux command using this compresion: zlib-flate
+//		i.e.: cat a.zip | zlib-flate -uncompress
+//			where a.zip is the output of the CatraMMS API
+// Gzip is deflate plus a few headers and a check sum
+// https://dev.to/biellls/compression-clearing-the-confusion-on-zip-gzip-zlib-and-deflate-15g1
 string Compressor::compress_string(const string& toBeCompressed, int compressionlevel)
 {
     z_stream zStream;                        // z_stream is zlib's control structure
