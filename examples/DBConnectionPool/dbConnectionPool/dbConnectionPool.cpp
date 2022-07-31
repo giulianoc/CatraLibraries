@@ -100,6 +100,12 @@ int main (int iArgc, char *pArgv [])
 				cerr <<__FILEREF__ + "SQL borrow/unborrow exception"
 					+ ", exceptionMessage: " + exceptionMessage
 					<< endl;
+
+				if (conn != nullptr)
+				{
+					connectionPool->unborrow(conn);
+					conn = nullptr;
+				}
 			}
 			catch(runtime_error e)
 			{
@@ -108,6 +114,12 @@ int main (int iArgc, char *pArgv [])
 				cerr <<__FILEREF__ + "SQL borrow/unborrow exception"
 					+ ", exceptionMessage: " + exceptionMessage
 					<< endl;
+
+				if (conn != nullptr)
+				{
+					connectionPool->unborrow(conn);
+					conn = nullptr;
+				}
 			}
 			catch(exception e)
 			{
@@ -116,6 +128,12 @@ int main (int iArgc, char *pArgv [])
 				cerr <<__FILEREF__ + "SQL borrow/unborrow exception"
 					+ ", exceptionMessage: " + exceptionMessage
 					<< endl;
+
+				if (conn != nullptr)
+				{
+					connectionPool->unborrow(conn);
+					conn = nullptr;
+				}
 			}
 		}
 	}
@@ -128,10 +146,10 @@ int main (int iArgc, char *pArgv [])
 			+ ", conn: " + (conn != nullptr ? to_string(conn->getConnectionId()) : "-1")
 			<< endl;
 
-		if (conn != nullptr)                                                                                  
-        {                                                                                                     
-            connectionPool->unborrow(conn);                                                                  
-            conn = nullptr;                                                                                   
+		if (conn != nullptr)
+        {
+            connectionPool->unborrow(conn);
+            conn = nullptr;
         }
 	}
 	catch(runtime_error e)
@@ -143,10 +161,10 @@ int main (int iArgc, char *pArgv [])
 			+ ", conn: " + (conn != nullptr ? to_string(conn->getConnectionId()) : "-1")
 			<< endl;
 
-		if (conn != nullptr)                                                                                  
-        {                                                                                                     
-            connectionPool->unborrow(conn);                                                                  
-            conn = nullptr;                                                                                   
+		if (conn != nullptr)
+        {
+            connectionPool->unborrow(conn);
+            conn = nullptr;
         }
 	}
 	catch(exception e)
@@ -158,10 +176,10 @@ int main (int iArgc, char *pArgv [])
 			+ ", conn: " + (conn != nullptr ? to_string(conn->getConnectionId()) : "-1")
 		<< endl;
 
-		if (conn != nullptr)                                                                                  
-        {                                                                                                     
-            connectionPool->unborrow(conn);                                                                  
-            conn = nullptr;                                                                                   
+		if (conn != nullptr)
+        {
+            connectionPool->unborrow(conn);
+            conn = nullptr;
         }
 	}
 
