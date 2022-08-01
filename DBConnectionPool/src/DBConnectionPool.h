@@ -163,9 +163,11 @@ public:
             DB_BORROW_DEBUG_LOGGER(__FILEREF__ + "_connectionPool.size is 0, look to recover a borrowed one");
 
             // Are there any crashed connections listed as "borrowed"?
-            for(set<shared_ptr<DBConnection> >::iterator it = _connectionBorrowed.begin(); it != _connectionBorrowed.end(); ++it)
+            for(set<shared_ptr<DBConnection> >::iterator it = _connectionBorrowed.begin();
+				it != _connectionBorrowed.end(); ++it)
             {
-                // generally use_count is 2, one because of borrowed set and one because it is used for sql statements.
+                // generally use_count is 2, one because of borrowed
+				// set and one because it is used for sql statements.
                 // If it is 1, it means this connection has been abandoned
                 if((*it).use_count() == 1)   
                 {
@@ -173,11 +175,13 @@ public:
                     try 
                     {
                         // If we are able to create a new connection, return it
-                        DB_BORROW_DEBUG_LOGGER(__FILEREF__ + "Creating new connection to replace discarded connection");
+                        DB_BORROW_DEBUG_LOGGER(__FILEREF__
+							+ "Creating new connection to replace discarded connection");
 
                         int connectionId = (*it)->getConnectionId();
 
-                        shared_ptr<DBConnection> sqlConnection=_factory->create(connectionId);
+                        shared_ptr<DBConnection> sqlConnection =
+							_factory->create(connectionId);
                         if (sqlConnection == nullptr)
                         {
                             string errorMessage = __FILEREF__ + "sqlConnection is null"
@@ -244,20 +248,67 @@ public:
 
             int connectionId = sqlConnection->getConnectionId();
 
-            // we will create a new connection. The previous connection will be deleted by the shared_ptr
-            sqlConnection=_factory->create(connectionId);
-            if (sqlConnection == nullptr)
-            {
-                // in this scenario we will lose one connection because we removed it from _connectionPool
-                // and we will not add it to _connectionBorrowed
-                // We will accept that since we were not be able to create a new connection
+			try
+			{
+				// we will create a new connection. The previous connection
+				// will be deleted by the shared_ptr
+				sqlConnection=_factory->create(connectionId);
+				if (sqlConnection == nullptr)
+				{
+					// in this scenario we will lose one connection
+					// because we removed it from _connectionPool
+					// and we will not add it to _connectionBorrowed
+					// We will accept that since we were not be able
+					// to create a new connection
 
-                string errorMessage = __FILEREF__ + "sqlConnection is null"
-                ;
-                DB_BORROW_ERROR_LOGGER(errorMessage);
+					string errorMessage = __FILEREF__ + "sqlConnection is null";
+					DB_BORROW_ERROR_LOGGER(errorMessage);
 
-                throw runtime_error(errorMessage);                    
-            }
+					throw runtime_error(errorMessage);                    
+				}
+			}
+			catch(runtime_error e)
+			{        
+				DB_ERROR_LOGGER(__FILEREF__ + "sql connection creation failed"
+					+ ", e.what(): " + e.what()
+					);
+
+				// 2022-07-31: in case the create fails, we have to put
+				//	the connection again into the pool
+				//	Scenario: mysql server is restarted.
+				//		In this scenario, if we have a pool of 100 connections,
+				//		all the 'create' fail and the pool remain without connections.
+				//		The result is that the the pool of the application (i.e. MMS)
+				//		remain with a pool without connection. To recover, the application
+				//		has to be restarted once the mysql server is running again.
+				// So, to avoid that, we will insert the 'non valid' connection again
+				// into the pool in order next time the 'create' can be tried again
+
+				_connectionPool.push_back(sqlConnection);
+
+				throw e;
+			}
+			catch(exception e)
+			{        
+				DB_ERROR_LOGGER(__FILEREF__ + "sql connection creation failed"
+					+ ", e.what(): " + e.what()
+					);
+
+				// 2022-07-31: in case the create fails, we have to put
+				//	the connection again into the pool
+				//	Scenario: mysql server is restarted.
+				//		In this scenario, if we have a pool of 100 connections,
+				//		all the 'create' fail and the pool remain without connections.
+				//		The result is that the the pool of the application (i.e. MMS)
+				//		remain with a pool without connection. To recover, the application
+				//		has to be restarted once the mysql server is running again.
+				// So, to avoid that, we will insert the 'non valid' connection again
+				// into the pool in order next time the 'create' can be tried again
+
+				_connectionPool.push_back(sqlConnection);
+
+				throw e;
+			}
         }
 
         _connectionBorrowed.insert(sqlConnection);

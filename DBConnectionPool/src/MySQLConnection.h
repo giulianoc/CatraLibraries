@@ -129,8 +129,8 @@ public:
     };
 
     // Any exceptions thrown here should be caught elsewhere
-    shared_ptr<DBConnection> create(int connectionId) {
-
+    shared_ptr<DBConnection> create(int connectionId)
+	{
 		try
 		{
 			sql::Driver *driver;
@@ -197,7 +197,7 @@ public:
 				+ ", se.what(): " + se.what()
 					);
 
-			throw se;
+			throw runtime_error(se.what());
 		}
 		catch(runtime_error e)
 		{        
