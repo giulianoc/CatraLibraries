@@ -30,7 +30,7 @@ if [ "$deploy" == "y" ]; then
 	date
 fi
 
-echo -n "deploy su aws? " 
+echo -n "deploy su cibortv-aws? " 
 read deploy
 if [ "$deploy" == "y" ]; then
 	echo "aws-mms-api-gui-1"
