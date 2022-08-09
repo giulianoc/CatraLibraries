@@ -1615,6 +1615,9 @@ int main (void)
 
 		// _logger->info(__FILEREF__ + "BIO_push...");
 		bio = BIO_push(b64, bio);
+		// Do not use newlines to flush buffer
+		// (see https://www.openssl.org/docs/man1.1.1/man3/BIO_f_base64.html)
+		BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
 
 		// _logger->info(__FILEREF__ + "BIO_write...");
 		BIO_write(bio, buffer, length);
@@ -1629,16 +1632,8 @@ int main (void)
 		// BIO_free(b64);   // useless because of BIO_free_all
 
 		// _logger->info(__FILEREF__ + "base64Text set...");
-		string base64Encoded; // = string(bufferPtr->data);
-		// 2022-08-09: a differenza di ubuntu 20.04, con ubuntu 22.04,
-		// 	l'ultimo carattere di bufferPtr->data è un \n (10)
-		// 	Questo carattere non serve e crea problemi, quindi controllo e
-		// 	se presente, lo elimino
-		if(strlen(bufferPtr->data) > 0
-			&& bufferPtr->data[strlen(bufferPtr->data) - 1] == '\n')
-			base64Encoded = string(bufferPtr->data, strlen(bufferPtr->data) - 1);
-		else
-			base64Encoded = string(bufferPtr->data);
+		// string base64Encoded; // = string(bufferPtr->data);
+		string base64Encoded = string(bufferPtr->data, bufferPtr->length);
 
 		BUF_MEM_free(bufferPtr);
 
@@ -1675,7 +1670,9 @@ int main (void)
 		b64 = BIO_new(BIO_f_base64());
 		bio = BIO_push(b64, bio);
 
-		BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL); //Do not use newlines to flush buffer
+		// Do not use newlines to flush buffer
+		// (see https://www.openssl.org/docs/man1.1.1/man3/BIO_f_base64.html)
+		BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
 		*length = BIO_read(bio, *buffer, strlen(b64message));
 		if (*length != decodeLen)
 		{
