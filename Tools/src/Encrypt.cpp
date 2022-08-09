@@ -1482,8 +1482,12 @@ int main (void)
 		}
 
 		// std::cout << "ciphertext_len: " << ciphertext_len << std::endl;
+		// for(int index =  0; index < ciphertext_len; index++)
+		// 	std::cout << "'" << ciphertext[index] << "'" << (int) (ciphertext[index]) << std::endl;
 		string base64Encoded = convertFromBinaryToBase64(ciphertext, ciphertext_len);
 		// std::cout << "base64Encoded.size: " << base64Encoded.size() << std::endl;
+		// for(int index =  0; index < base64Encoded.size(); index++)
+		// 	std::cout << "'" << base64Encoded[index] << "'" << (int) (base64Encoded[index]) << std::endl;
 
 		// base64, see https://it.wikipedia.org/wiki/Base64 contains two characters
 		// that could create issues: + and /
@@ -1625,7 +1629,16 @@ int main (void)
 		// BIO_free(b64);   // useless because of BIO_free_all
 
 		// _logger->info(__FILEREF__ + "base64Text set...");
-		string base64Encoded = string(bufferPtr->data);
+		string base64Encoded; // = string(bufferPtr->data);
+		// 2022-08-09: a differenza di ubuntu 20.04, con ubuntu 22.04,
+		// 	l'ultimo carattere di bufferPtr->data è un \n (10)
+		// 	Questo carattere non serve e crea problemi, quindi controllo e
+		// 	se presente, lo elimino
+		if(strlen(bufferPtr->data) > 0
+			&& bufferPtr->data[strlen(bufferPtr->data) - 1] == '\n')
+			base64Encoded = string(bufferPtr->data, strlen(bufferPtr->data) - 1);
+		else
+			base64Encoded = string(bufferPtr->data);
 
 		BUF_MEM_free(bufferPtr);
 

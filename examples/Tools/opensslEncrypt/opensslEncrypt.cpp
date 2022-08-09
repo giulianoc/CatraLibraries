@@ -59,7 +59,9 @@ int main (int iArgc, char **pArgv)
 	std::cout << "plaintext: " << plaintext << std::endl;
 
 	string base64Encoded = Encrypt::opensslEncrypt(key, iv, plaintext);
-	std::cout << "base64Encoded: " << base64Encoded << std::endl;
+	std::cout << "base64Encoded: '" << base64Encoded << "'" << std::endl;
+	// for(int index =  0; index < base64Encoded.size(); index++)
+	// 	std::cout << "'" << base64Encoded[index] << "'" << (int) (base64Encoded[index]) << std::endl;
 	}
 
 
