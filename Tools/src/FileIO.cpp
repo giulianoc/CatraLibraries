@@ -712,49 +712,42 @@ Error FileIO:: getWorkingDirectory (char *pWorkingDirectory,
 
 
 Error FileIO:: isDirectoryExisting (const char *pDirectoryPathName,
-	Boolean_p pbExist)
+	Boolean_p pbExist, long maxMillisecondsToWait, long milliSecondsWaitingBetweenChecks)
 
 {
 
-	#ifdef WIN32
-		Buffer_t					bDirectory;
-		struct _finddata_t			fdDirectoryEntry;
-		long						lIdentifier;
+	chrono::system_clock::time_point start =
+		chrono::system_clock::now();
+	chrono::system_clock::time_point end =
+		start + chrono::milliseconds(maxMillisecondsToWait);
+
+	bool firstCheck = true;
+
+	do
+	{
+		if (!firstCheck)
+			this_thread::sleep_for(chrono::milliseconds(milliSecondsWaitingBetweenChecks));
+		else
+			firstCheck = false;
+
+		#ifdef WIN32
+			Buffer_t					bDirectory;
+			struct _finddata_t			fdDirectoryEntry;
+			long						lIdentifier;
 
 
-		if (bDirectory. init (pDirectoryPathName) != errNoError)
-		{
-			Error err = ToolsErrors (__FILE__, __LINE__,
-				TOOLS_BUFFER_INIT_FAILED);
-
-			return err;
-		}
-
-		if (bDirectory. append ("\\*") != errNoError)
-		{
-			Error err = ToolsErrors (__FILE__, __LINE__,
-				TOOLS_BUFFER_APPEND_FAILED);
-
-			if (bDirectory. finish () != errNoError)
+			if (bDirectory. init (pDirectoryPathName) != errNoError)
 			{
 				Error err = ToolsErrors (__FILE__, __LINE__,
-					TOOLS_BUFFER_FINISH_FAILED);
+					TOOLS_BUFFER_INIT_FAILED);
+
+				return err;
 			}
 
-			return err;
-		}
-
-		if ((lIdentifier = _findfirst (
-			(const char *) bDirectory,
-			&fdDirectoryEntry)) == -1L)
-		{
-			if (errno == ENOENT)
-				*pbExist			= false;
-			else
+			if (bDirectory. append ("\\*") != errNoError)
 			{
 				Error err = ToolsErrors (__FILE__, __LINE__,
-					TOOLS_FINDFIRST_FAILED,
-					1, (const char *) bDirectory);
+					TOOLS_BUFFER_APPEND_FAILED);
 
 				if (bDirectory. finish () != errNoError)
 				{
@@ -764,66 +757,87 @@ Error FileIO:: isDirectoryExisting (const char *pDirectoryPathName,
 
 				return err;
 			}
-		}
-		else
-		{
-			*pbExist			= true;
 
-			_findclose (lIdentifier);
-		}
-
-		if (bDirectory. finish () != errNoError)
-		{
-			Error err = ToolsErrors (__FILE__, __LINE__,
-				TOOLS_BUFFER_FINISH_FAILED);
-			
-			return err;
-		}
-	#else
-		Directory_t			dDirectory;
-		Error_t				errDir;
-
-
-//                cout << "idDirectoryExisting"
-//                        << ", pDirectoryPathName: " << pDirectoryPathName
-//                        << endl;
-		if ((errDir = FileIO:: openDirectory (pDirectoryPathName,
-			&dDirectory)) != errNoError)
-		{
-			int					iErrno;
-			unsigned long		ulUserDataBytes;
-
-
-			errDir. getUserData (&iErrno, &ulUserDataBytes);
-			if (iErrno == ENOENT || iErrno == ENOTDIR)
+			if ((lIdentifier = _findfirst (
+				(const char *) bDirectory,
+				&fdDirectoryEntry)) == -1L)
 			{
-				*pbExist			= false;
+				if (errno == ENOENT)
+					*pbExist			= false;
+				else
+				{
+					Error err = ToolsErrors (__FILE__, __LINE__,
+						TOOLS_FINDFIRST_FAILED,
+						1, (const char *) bDirectory);
+
+					if (bDirectory. finish () != errNoError)
+					{
+						Error err = ToolsErrors (__FILE__, __LINE__,
+							TOOLS_BUFFER_FINISH_FAILED);
+					}
+
+					return err;
+				}
 			}
 			else
-				return errDir;
-		}
-		else
-		{
-			*pbExist				= true;
-
-			if ((errDir = FileIO:: closeDirectory (&dDirectory)) != errNoError)
 			{
-				return errDir;
+				*pbExist			= true;
+
+				_findclose (lIdentifier);
 			}
-		}
-	#endif
+
+			if (bDirectory. finish () != errNoError)
+			{
+				Error err = ToolsErrors (__FILE__, __LINE__,
+					TOOLS_BUFFER_FINISH_FAILED);
+			
+				return err;
+			}
+		#else
+			Directory_t			dDirectory;
+			Error_t				errDir;
+
+
+			if ((errDir = FileIO:: openDirectory (pDirectoryPathName,
+				&dDirectory)) != errNoError)
+			{
+				int					iErrno;
+				unsigned long		ulUserDataBytes;
+
+
+				errDir. getUserData (&iErrno, &ulUserDataBytes);
+				if (iErrno == ENOENT || iErrno == ENOTDIR)
+				{
+					*pbExist			= false;
+				}
+				else
+					return errDir;
+			}
+			else
+			{
+				*pbExist				= true;
+
+				if ((errDir = FileIO:: closeDirectory (&dDirectory)) != errNoError)
+				{
+					return errDir;
+				}
+			}
+		#endif
+	}
+	while(!(*pbExist) && chrono::system_clock::now() < end);
 
 
 	return errNoError;
 }
 
-bool FileIO:: directoryExisting (string directoryPathName)
+bool FileIO:: directoryExisting (string directoryPathName,
+	long maxMillisecondsToWait, long milliSecondsWaitingBetweenChecks)
 {
     Error errFileIO;
     bool bExist;
     
     if ((errFileIO = FileIO::isDirectoryExisting (directoryPathName.c_str(),
-	&bExist)) != errNoError)
+		&bExist, maxMillisecondsToWait, milliSecondsWaitingBetweenChecks)) != errNoError)
     {
         throw runtime_error(string("FileIO::isDirectoryExisting failed: ")
                 + (const char *) errFileIO);

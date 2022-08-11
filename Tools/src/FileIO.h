@@ -152,9 +152,11 @@ public:
             unsigned long ulBufferLength);
 
     static Error isDirectoryExisting (const char *pDirectoryPathName,
-            Boolean_p pbExist);
+		Boolean_p pbExist,
+		long maxMillisecondsToWait = 0, long milliSecondsWaitingBetweenChecks = 50);
 
-    static bool directoryExisting (string directoryPathName);
+    static bool directoryExisting (string directoryPathName,
+		long maxMillisecondsToWait = 0, long milliSecondsWaitingBetweenChecks = 50);
 
     static Error getDirectoryEntryType (const char *pPathName,
             DirectoryEntryType_p pdetDirectoryEntryType);
