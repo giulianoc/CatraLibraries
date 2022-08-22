@@ -1672,7 +1672,7 @@ int main (void)
 
 		// Do not use newlines to flush buffer
 		// (see https://www.openssl.org/docs/man1.1.1/man3/BIO_f_base64.html)
-		// BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
+		BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
 		*length = BIO_read(bio, *buffer, strlen(b64message));
 		if (*length != decodeLen)
 		{
