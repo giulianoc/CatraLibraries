@@ -1678,7 +1678,11 @@ int main (void)
 		{
 			free(*buffer);
 
-			throw runtime_error(string("EVP_DecryptFinal_ex failed"));
+			throw runtime_error(
+				string("check length failed")
+				+ ", *length: " + to_string(*length)
+				+ ", decodeLen: " + to_string(decodeLen)
+			);
 		}
 		
 		BIO_free_all(bio);
