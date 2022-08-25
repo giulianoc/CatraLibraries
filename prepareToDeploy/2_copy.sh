@@ -115,6 +115,6 @@ fi
 echo -n "Load package to MMSRepository-free (ubuntu-22.04)? " 
 read deploy
 if [ "$deploy" == "y" ]; then
-	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@168.119.250.162:/var/catramms/storage/MMSRepository-free/packages/ubuntu-22.04
+	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@168.119.250.162:/var/catramms/storage/MMSRepository-free/packages/x86_64-ubuntu-22.04
 fi
 
