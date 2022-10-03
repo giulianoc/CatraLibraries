@@ -43,6 +43,8 @@ int main (int iArgc, char **pArgv)
 		return 1;
 	}
 
+	std:: cout << "'" << pArgv [1] << "'" << endl;
+
 	// for (long lIndex = 0; lIndex < 10000; lIndex++)
 	{
 	lBufferCryptedLength	= Encrypt:: getCryptedBufferLength (pArgv [1]);
