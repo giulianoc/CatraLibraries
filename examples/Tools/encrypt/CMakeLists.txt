@@ -57,4 +57,6 @@ if (LDAP_FOUND)
 	target_link_libraries(encrypt ${LDAP_LIBRARIES})
 endif()
 
-install (TARGETS encrypt DESTINATION bin)
+#2022-10-04: we have the openssl version
+#install (TARGETS encrypt DESTINATION bin)
+
