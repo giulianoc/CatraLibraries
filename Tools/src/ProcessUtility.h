@@ -91,6 +91,7 @@
 				int *piReturnedStatus);
 
 			static void killProcess (pid_t pid);
+			static void termProcess (pid_t pid);
 			static void quitProcess (pid_t pid);
 
                         /**
