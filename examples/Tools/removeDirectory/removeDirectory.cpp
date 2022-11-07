@@ -39,7 +39,7 @@ int main (int iArgc, char *pArgv [])
 
 	if (iArgc != 2)
 	{
-		std:: cerr << "Usage: " << pArgv [0] << " <file>"
+		std:: cerr << "Usage: " << pArgv [0] << " <directory>"
 			<< std:: endl;
 
 		return 1;
@@ -58,12 +58,12 @@ int main (int iArgc, char *pArgv [])
 	}
 
 	cout << "isDirectoryExisting " << bIsDirectoryExisting << std::endl;
-	if (!bIsDirectoryExisting)
-	{
-		std:: cerr << "The " << pPathName << " file does not exist." << std:: endl;
+	// if (!bIsDirectoryExisting)
+	// {
+	// 	std:: cerr << "The " << pPathName << " file does not exist." << std:: endl;
 
-		return 1;
-	}
+	// 	return 1;
+	// }
 
 	cout << "removeDirectory " << pPathName << std::endl;
 	Boolean_t bRemoveRecursively = true;
