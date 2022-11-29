@@ -26,7 +26,9 @@
 #include <fstream>
 #include <sstream>
 // md5 function seems to be defined in openssl/md5.h and implemented in crypto lib
-#include <openssl/md5.h>
+// #include <openssl/md5.h>
+#include <openssl/evp.h>
+
 
 
 int main (int iArgc, char *pArgv [])
@@ -42,19 +44,42 @@ int main (int iArgc, char *pArgv [])
 	}
 
 	std::string str(pArgv [1]);
-	unsigned char digest[MD5_DIGEST_LENGTH];
-	MD5((unsigned char*)str.c_str(), str.size(), digest);
+
+	// unsigned char digest[MD5_DIGEST_LENGTH];
+	// MD5((unsigned char*)str.c_str(), str.size(), digest);
+
+	unsigned char *md5_digest;
+	unsigned int md5_digest_len = EVP_MD_size(EVP_md5());
+
+
+	EVP_MD_CTX *mdctx;
+
+	// MD5_Init
+	mdctx = EVP_MD_CTX_new();
+	EVP_DigestInit_ex(mdctx, EVP_md5(), NULL);
+
+	// MD5_Update
+	EVP_DigestUpdate(mdctx, (unsigned char*) str.c_str(), str.size());
+
+	// MD5_Final
+	md5_digest = (unsigned char *)OPENSSL_malloc(md5_digest_len);
+	EVP_DigestFinal_ex(mdctx, md5_digest, &md5_digest_len);
 
 	std::ostringstream sout;
 	sout<<std::hex<<std::setfill('0');
-	for(long long c: digest)
+	for(int i = 0; i < md5_digest_len; i++)
 	{
+		long long c = md5_digest[i];
+
 		sout<<std::setw(2)<<(long long)c;
 	}
 
 // linux command in case for example of "apple": printf "%s" "apple" | md5sum
 	std::cout << str << " hex ---> " << sout.str() << std::endl;
-	std::cout << str << " bin ---> " << digest << std::endl;
+	std::cout << str << " bin ---> " << md5_digest << std::endl;
+
+	OPENSSL_free(md5_digest);
+	EVP_MD_CTX_free(mdctx);
 
 	return 0;
 }

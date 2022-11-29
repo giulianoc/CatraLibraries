@@ -26,7 +26,6 @@
 #include "Convert.h"
 #include "ToolsErrors.h"
 
-
 int main (int iArgc, char **pArgv)
 
 {
@@ -44,7 +43,7 @@ int main (int iArgc, char **pArgv)
 
 	pBase64 = pArgv [1];
 
-	// for (long lIndex = 0; lIndex < 10000; lIndex++)
+	// for (long lIndex = 0; lIndex < 100000000; lIndex++)
 	{
 		cout << Convert::base64_encode(string(pBase64)) << endl;                                                            
 	}
