@@ -685,6 +685,44 @@ time_t DateTime::sDateSecondsToUtc(string sDate)
 	return utcTime;
 }
 
+// 2021-02-26T15:41:15Z
+string DateTime::utcToUtcString(time_t utc)
+{
+	tm		tmDateTime;
+	char	strDateTime [64];
+
+
+	gmtime_r (&utc, &tmDateTime);
+	sprintf (strDateTime, "%04d-%02d-%02dT%02d:%02d:%02dZ",
+		tmDateTime. tm_year + 1900,
+		tmDateTime. tm_mon + 1,
+		tmDateTime. tm_mday,
+		tmDateTime. tm_hour,
+		tmDateTime. tm_min,
+		tmDateTime. tm_sec);
+
+	return string(strDateTime);
+}
+
+// 2021-02-26T15:41:15
+string DateTime::utcToLocalString(time_t utc)
+{
+	tm		tmDateTime;
+	char	strDateTime [64];
+
+
+	localtime_r (&utc, &tmDateTime);
+	sprintf (strDateTime, "%04d-%02d-%02dT%02d:%02d:%02d",
+		tmDateTime. tm_year + 1900,
+		tmDateTime. tm_mon + 1,
+		tmDateTime. tm_mday,
+		tmDateTime. tm_hour,
+		tmDateTime. tm_min,
+		tmDateTime. tm_sec);
+
+	return string(strDateTime);
+}
+
 // 2021-02-26T15:41:15.477+0100 (ISO8610)
 // 2021-02-26T15:41:15.477Z
 int64_t DateTime::sDateMilliSecondsToUtc(string sDate)

@@ -14,40 +14,46 @@ moduleName=$(basename $currentDir)
 #tarFileName=$moduleName-$version-$linuxName.tar.gz
 tarFileName=$moduleName-$version.tar.gz
 
+
 echo -n "deploy su mms cloud/test? " 
 read deploy
 if [ "$deploy" == "y" ]; then
-	echo "aws-mms-t-api-gui-1"
-	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-176-34-143-242.eu-west-1.compute.amazonaws.com:/opt/catramms
+	echo "hetzner-test-api-1"
+	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@138.201.245.228:/opt/catramms
 	date
 
-
-	echo "aws-mms-t-engine-db-1"
-	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-52-31-108-235.eu-west-1.compute.amazonaws.com:/opt/catramms
+	echo "hetzner-test-engine-db-1"
+	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@5.75.228.47:/opt/catramms
 	date
 
-	echo "aws-mms-t-transcoder-irl-1"
-	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-54-73-213-29.eu-west-1.compute.amazonaws.com:/opt/catramms
+	echo "hetzner-test-engine-db-2"
+	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@49.12.74.56:/opt/catramms
 	date
+
+	echo "hetzner-test-transcoder-1"
+	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@49.12.33.127:/opt/catramms
+	date
+
 fi
 
-echo -n "deploy su cloud production? " 
+echo ""
+echo -n "deploy su cloud production (rel 22)? " 
 read deploy
 if [ "$deploy" == "y" ]; then
+	echo "hetzner-api-gui-1"
+	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@159.69.251.50:/opt/catramms
+	date
+
 	echo "hetzner-api-gui-2"
 	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@168.119.250.162:/opt/catramms
 	date
 
-	echo "hetzner-engine-db-1"                                                                                
+	echo "hetzner-engine-db-1"
 	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@167.235.14.44:/opt/catramms
-	date                                                                                                      
-
-	echo "hetzner-engine-db-2"
-	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@168.119.60.134:/opt/catramms
 	date
 
-	echo "hetzner-transcoder-1"
-	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@49.12.33.127:/opt/catramms
+	echo "hetzner-engine-db-3"
+	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@167.235.14.105:/opt/catramms
 	date
 
 	echo "hetzner-transcoder-2"
@@ -57,18 +63,33 @@ if [ "$deploy" == "y" ]; then
 	echo "hetzner-transcoder-3"
 	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@78.46.93.238:/opt/catramms
 	date
-fi
 
-echo -n "deploy su cibortv-aws? " 
-read deploy
-if [ "$deploy" == "y" ]; then
+	echo "cibortv-transcoder-4"
+	scp -P 9255 -i ~/ssh-keys/cibortv-transcoder-4.pem /opt/catrasoftware/deploy/$tarFileName mms@79.10.202.50:/opt/catramms
+	date
+
+	echo "hetzner-transcoder-5"
+	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@46.4.98.135:/opt/catramms
+	date
+
+	echo "aws-mms-transcoder-mil-1"
+	scp -i ~/ssh-keys/aws-cibortv1-key-milan.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-15-161-78-89.eu-south-1.compute.amazonaws.com:/opt/catramms
+	date
+
+	echo "aws-mms-transcoder-mil-2"
+	scp -i ~/ssh-keys/aws-cibortv1-key-milan.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-35-152-80-3.eu-south-1.compute.amazonaws.com:/opt/catramms
+	date
+
 	echo "aws-mms-api-gui-1"
-	#scp -i ~/ssh-keys/aws-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@aws-mms-api-gui-1:/opt/catramms
 	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-63-35-35-24.eu-west-1.compute.amazonaws.com:/opt/catramms
 	date
 
 	echo "aws-mms-api-gui-2"
 	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-52-50-243-155.eu-west-1.compute.amazonaws.com:/opt/catramms
+	date
+
+	echo "aws-mms-api-gui-3"
+	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-52-48-75-149.eu-west-1.compute.amazonaws.com:/opt/catramms
 	date
 
 	echo "aws-mms-engine-db-1"
@@ -77,6 +98,14 @@ if [ "$deploy" == "y" ]; then
 
 	echo "aws-mms-engine-db-2"
 	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-52-49-243-7.eu-west-1.compute.amazonaws.com:/opt/catramms
+	date
+
+	echo "aws-mms-engine-db-3"
+	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-63-34-105-227.eu-west-1.compute.amazonaws.com:/opt/catramms
+	date
+
+	echo "aws-mms-engine-db-4"
+	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-52-208-73-64.eu-west-1.compute.amazonaws.com:/opt/catramms
 	date
 
 	echo "aws-mms-transcoder-irl-1"
@@ -95,14 +124,12 @@ if [ "$deploy" == "y" ]; then
 	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-52-215-51-62.eu-west-1.compute.amazonaws.com:/opt/catramms
 	date
 
-	echo "aws-mms-transcoder-mil-1"
-	scp -i ~/ssh-keys/aws-cibortv1-key-milan.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-15-161-78-89.eu-south-1.compute.amazonaws.com:/opt/catramms
-	date
+fi
 
-	echo "aws-mms-transcoder-mil-2"
-	scp -i ~/ssh-keys/aws-cibortv1-key-milan.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-35-152-80-3.eu-south-1.compute.amazonaws.com:/opt/catramms
-	date
-
+echo ""
+echo -n "deploy su cibortv (rel 20)? " 
+read deploy
+if [ "$deploy" == "y" ]; then
 	echo "aruba-mms-transcoder-1"
 	scp -P 9255 -i ~/ssh-keys/cibortv-aruba.pem /opt/catrasoftware/deploy/$tarFileName mms@ru001940.arubabiz.net:/opt/catramms
 	date
@@ -114,13 +141,13 @@ if [ "$deploy" == "y" ]; then
 fi
 
 #make it downloadable from public
-echo -n "Load package to MMSRepository-free (ubuntu-20.04)? " 
+echo -n "Load package to MMSRepository-free (ubuntu 20.04)? " 
 read deploy
 if [ "$deploy" == "y" ]; then
 	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-34-248-199-119.eu-west-1.compute.amazonaws.com:/var/catramms/storage/MMSRepository-free/packages/ubuntu-20.04
 fi
 
-echo -n "Load package to MMSRepository-free (ubuntu-22.04)? " 
+echo -n "Load package to MMSRepository-free (ubuntu 22.04)? " 
 read deploy
 if [ "$deploy" == "y" ]; then
 	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@168.119.250.162:/var/catramms/storage/MMSRepository-free/packages/ubuntu-22.04

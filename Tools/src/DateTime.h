@@ -180,6 +180,8 @@
 
 			static time_t sDateSecondsToUtc(string sDate);
 			static int64_t sDateMilliSecondsToUtc(string sDate);
+			static string utcToUtcString(time_t utc);
+			static string utcToLocalString(time_t utc);
 
 	} DateTime_t, *DateTime_p;
 
