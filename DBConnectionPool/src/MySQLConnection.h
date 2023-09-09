@@ -142,7 +142,8 @@ public:
 			connection_properties["userName"] = _dbUsername;
 			connection_properties["password"] = _dbPassword;
 			connection_properties["schema"] = _dbName;
-			connection_properties["OPT_RECONNECT"] = _reconnect;
+			// 2023-09-09: commented because deprecated
+			// connection_properties["OPT_RECONNECT"] = _reconnect;
 			connection_properties["OPT_CHARSET_NAME"] = _defaultCharacterSet;
 
 			DB_DEBUG_LOGGER(__FILEREF__ + "sql connection creating..."

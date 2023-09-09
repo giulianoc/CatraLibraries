@@ -22,16 +22,16 @@ if [ "$deploy" == "y" ]; then
 	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@138.201.245.228:/opt/catramms
 	date
 
-	echo "hetzner-test-engine-db-1"
-	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@5.75.228.47:/opt/catramms
-	date
-
 	echo "hetzner-test-engine-db-2"
 	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@49.12.74.56:/opt/catramms
 	date
 
-	echo "hetzner-test-transcoder-1"
-	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@49.12.33.127:/opt/catramms
+	echo "hetzner-test-engine-db-3"
+	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@142.132.232.196:/opt/catramms
+	date
+
+	echo "hetzner-test-transcoder-2"
+	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@88.198.47.118:/opt/catramms
 	date
 
 fi
@@ -40,12 +40,20 @@ echo ""
 echo -n "deploy su cloud production (rel 22)? " 
 read deploy
 if [ "$deploy" == "y" ]; then
-	echo "hetzner-api-gui-1"
+	echo "hetzner-api-1"
 	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@159.69.251.50:/opt/catramms
 	date
 
-	echo "hetzner-api-gui-2"
+	echo "hetzner-api-2"
 	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@168.119.250.162:/opt/catramms
+	date
+
+	echo "hetzner-delivery-binary-gui-3"
+	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@142.132.238.211:/opt/catramms
+	date
+
+	echo "hetzner-delivery-binary-gui-4"
+	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@49.13.18.245:/opt/catramms
 	date
 
 	echo "hetzner-engine-db-1"
@@ -56,27 +64,19 @@ if [ "$deploy" == "y" ]; then
 	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@167.235.14.105:/opt/catramms
 	date
 
-	echo "hetzner-transcoder-2"
-	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@78.46.72.77:/opt/catramms
-	date
-
-	echo "hetzner-transcoder-3"
-	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@78.46.93.238:/opt/catramms
-	date
-
 	echo "cibortv-transcoder-4"
-	scp -P 9255 -i ~/ssh-keys/cibortv-transcoder-4.pem /opt/catrasoftware/deploy/$tarFileName mms@79.10.202.50:/opt/catramms
+	scp -P 9255 -i ~/ssh-keys/cibortv-transcoder-4.pem /opt/catrasoftware/deploy/$tarFileName mms@151.21.249.188:/opt/catramms
 	date
 
 	echo "hetzner-transcoder-5"
 	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@46.4.98.135:/opt/catramms
 	date
 
-	echo "aws-mms-transcoder-mil-1"
+	echo "aws-cibortv-transcoder-mil-1"
 	scp -i ~/ssh-keys/aws-cibortv1-key-milan.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-15-161-78-89.eu-south-1.compute.amazonaws.com:/opt/catramms
 	date
 
-	echo "aws-mms-transcoder-mil-2"
+	echo "aws-cibortv-transcoder-mil-2"
 	scp -i ~/ssh-keys/aws-cibortv1-key-milan.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-35-152-80-3.eu-south-1.compute.amazonaws.com:/opt/catramms
 	date
 
@@ -90,6 +90,10 @@ if [ "$deploy" == "y" ]; then
 
 	echo "aws-mms-api-gui-3"
 	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-52-48-75-149.eu-west-1.compute.amazonaws.com:/opt/catramms
+	date
+
+	echo "aws-mms-api-gui-4"
+	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-176-34-143-242.eu-west-1.compute.amazonaws.com:/opt/catramms
 	date
 
 	echo "aws-mms-engine-db-1"
@@ -124,6 +128,13 @@ if [ "$deploy" == "y" ]; then
 	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-52-215-51-62.eu-west-1.compute.amazonaws.com:/opt/catramms
 	date
 
+	echo "aruba-mms-transcoder-2"
+	scp -P 9255 -i ~/ssh-keys/cibortv-aruba.pem /opt/catrasoftware/deploy/$tarFileName mms@ru001941.arubabiz.net:/opt/catramms
+	date
+
+	echo "aruba-mms-transcoder-3"
+	scp -P 9255 -i ~/ssh-keys/cibortv-aruba.pem /opt/catrasoftware/deploy/$tarFileName mms@ru002148.arubabiz.net:/opt/catramms
+	date
 fi
 
 echo ""
@@ -133,11 +144,6 @@ if [ "$deploy" == "y" ]; then
 	echo "aruba-mms-transcoder-1"
 	scp -P 9255 -i ~/ssh-keys/cibortv-aruba.pem /opt/catrasoftware/deploy/$tarFileName mms@ru001940.arubabiz.net:/opt/catramms
 	date
-
-	echo "aruba-mms-transcoder-2"
-	scp -P 9255 -i ~/ssh-keys/cibortv-aruba.pem /opt/catrasoftware/deploy/$tarFileName mms@ru001941.arubabiz.net:/opt/catramms
-	date
-
 fi
 
 #make it downloadable from public

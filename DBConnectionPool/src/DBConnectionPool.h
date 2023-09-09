@@ -112,7 +112,7 @@ class DBConnectionPool {
 
 protected:
     shared_ptr<DBConnectionFactory>       _factory;
-    size_t                              _poolSize;
+	size_t									_poolSize;
     deque<shared_ptr<DBConnection> >      _connectionPool;
     set<shared_ptr<DBConnection> >        _connectionBorrowed;
     mutex _connectionPoolMutex;
