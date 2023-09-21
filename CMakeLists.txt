@@ -88,6 +88,7 @@ add_subdirectory(Scheduler/src)
 add_subdirectory(LoadBalancer/src)
 
 add_subdirectory(examples/DBConnectionPool/dbConnectionPool)
+add_subdirectory(examples/DBConnectionPool/dbConnectionPool_postgres)
 add_subdirectory(examples/DBConnectionPool/connectorCppAPI)
 
 add_subdirectory(examples/Configuration/configuration)

@@ -20,11 +20,30 @@
 # License is allowed only after express negotiation of conditions
 # with the authors.
 
-SET (HEADERS
-	DBConnectionPool.h
-	MySQLConnection.h
-	PostgresConnection.h
+SET (SOURCES
+	dbConnectionPool_postgres.cpp
 )
 
-install (FILES ${HEADERS} DESTINATION ${INSTALL_INCLUDE_DIRECTORY})
+SET (HEADERS
+)
+
+find_program(LSB_RELEASE_EXEC lsb_release)
+execute_process(COMMAND ${LSB_RELEASE_EXEC} -is
+    OUTPUT_VARIABLE LSB_RELEASE_ID_SHORT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+message("-- LSB_RELEASE_ID_SHORT: ${LSB_RELEASE_ID_SHORT}")
+
+include_directories ("${PROJECT_SOURCE_DIR}/DBConnectionPool/src")
+if(LSB_RELEASE_ID_SHORT STREQUAL "CentOS")
+	include_directories ("/usr/include/mysql-cppconn-8/jdbc")
+endif()
+
+
+add_executable(dbConnectionPool_postgres ${SOURCES} ${HEADERS})
+
+target_link_libraries (dbConnectionPool_postgres pqxx)
+target_link_libraries (dbConnectionPool_postgres pq)
+
+install (TARGETS dbConnectionPool_postgres DESTINATION bin)
 
