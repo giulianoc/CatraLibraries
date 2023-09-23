@@ -107,7 +107,7 @@ int main (int iArgc, char *pArgv [])
 					conn = nullptr;
 				}
 			}
-			catch(runtime_error e)
+			catch(runtime_error& e)
 			{
 				string exceptionMessage(e.what());
  
@@ -121,7 +121,7 @@ int main (int iArgc, char *pArgv [])
 					conn = nullptr;
 				}
 			}
-			catch(exception e)
+			catch(exception& e)
 			{
 				string exceptionMessage(e.what());
  
@@ -152,7 +152,7 @@ int main (int iArgc, char *pArgv [])
             conn = nullptr;
         }
 	}
-	catch(runtime_error e)
+	catch(runtime_error& e)
 	{
 		string exceptionMessage(e.what());
 
@@ -167,7 +167,7 @@ int main (int iArgc, char *pArgv [])
             conn = nullptr;
         }
 	}
-	catch(exception e)
+	catch(exception& e)
 	{
 		string exceptionMessage(e.what());
 

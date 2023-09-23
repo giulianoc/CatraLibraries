@@ -73,7 +73,7 @@ public:
 
 					connectionValid = false;
 				}
-				catch(exception e)
+				catch(exception& e)
 				{
 					DB_ERROR_LOGGER(__FILEREF__ + "sql connection exception"
 						+ ", _connectionId: " + to_string(_connectionId)
@@ -166,7 +166,7 @@ public:
 
 			return static_pointer_cast<DBConnection>(postgresConnection);
 		}
-		catch(runtime_error e)
+		catch(runtime_error& e)
 		{        
 			DB_ERROR_LOGGER(__FILEREF__ + "sql connection creation failed"
 				+ ", e.what(): " + e.what()
@@ -174,7 +174,7 @@ public:
 
 			throw e;
 		}
-		catch(exception e)
+		catch(exception& e)
 		{        
 			DB_ERROR_LOGGER(__FILEREF__ + "sql connection creation failed"
 				+ ", e.what(): " + e.what()

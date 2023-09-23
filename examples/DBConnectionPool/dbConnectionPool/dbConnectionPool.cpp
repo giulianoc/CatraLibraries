@@ -93,7 +93,7 @@ int main (int iArgc, char *pArgv [])
 				connectionPool->unborrow(conn);
 				conn = nullptr;
 			}
-			catch(sql::SQLException se)
+			catch(sql::SQLException& se)
 			{
 				string exceptionMessage(se.what());
  
@@ -107,7 +107,7 @@ int main (int iArgc, char *pArgv [])
 					conn = nullptr;
 				}
 			}
-			catch(runtime_error e)
+			catch(runtime_error& e)
 			{
 				string exceptionMessage(e.what());
  
@@ -121,7 +121,7 @@ int main (int iArgc, char *pArgv [])
 					conn = nullptr;
 				}
 			}
-			catch(exception e)
+			catch(exception& e)
 			{
 				string exceptionMessage(e.what());
  
@@ -137,7 +137,7 @@ int main (int iArgc, char *pArgv [])
 			}
 		}
 	}
-	catch(sql::SQLException se)
+	catch(sql::SQLException& se)
 	{
 		string exceptionMessage(se.what());
 
@@ -152,7 +152,7 @@ int main (int iArgc, char *pArgv [])
             conn = nullptr;
         }
 	}
-	catch(runtime_error e)
+	catch(runtime_error& e)
 	{
 		string exceptionMessage(e.what());
 
@@ -167,7 +167,7 @@ int main (int iArgc, char *pArgv [])
             conn = nullptr;
         }
 	}
-	catch(exception e)
+	catch(exception& e)
 	{
 		string exceptionMessage(e.what());
 

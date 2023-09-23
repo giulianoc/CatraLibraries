@@ -4876,7 +4876,7 @@ void FileIO:: concatFile (string destPathName,
             FileIO::remove(srcPathName, exceptionInCaseOfError);
         }
     }
-    catch(runtime_error e)
+    catch(runtime_error& e)
     {
         if (buffer != nullptr)
             delete [] buffer;
@@ -4889,7 +4889,7 @@ void FileIO:: concatFile (string destPathName,
                 + ", e.what(): " + e.what()
         );
     }
-    catch(exception e)
+    catch(exception& e)
     {
         if (buffer != nullptr)
             delete [] buffer;

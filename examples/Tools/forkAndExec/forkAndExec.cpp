@@ -54,7 +54,7 @@ int main (int iArgc, char *pArgv [])
 
 		cout << "Returned status: " << iReturnedStatus << endl;
 	}
-	catch(runtime_error e)
+	catch(runtime_error& e)
 	{
 		cerr << "Runtime_error: " << e.what() << endl;
 	}
