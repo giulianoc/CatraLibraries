@@ -25,11 +25,6 @@
 
 using namespace std;
 
-#define DB_BORROW_DEBUG_LOGGER(x) cout << x << endl
-#define DB_BORROW_ERROR_LOGGER(x) cerr << x << endl
-#define DB_DEBUG_LOGGER(x) cout << x << endl
-#define DB_ERROR_LOGGER(x) cerr << x << endl
-
 #include "PostgresConnection.h"
 
 
@@ -97,7 +92,7 @@ int main (int iArgc, char *pArgv [])
 			{
 				string exceptionMessage(se.what() + string(", query: ") + se.query());
  
-				cerr <<__FILEREF__ + "SQL borrow/unborrow exception"
+				cerr << string("SQL borrow/unborrow exception")
 					+ ", exceptionMessage: " + exceptionMessage
 					<< endl;
 
@@ -111,7 +106,7 @@ int main (int iArgc, char *pArgv [])
 			{
 				string exceptionMessage(e.what());
  
-				cerr <<__FILEREF__ + "SQL borrow/unborrow exception"
+				cerr << string("SQL borrow/unborrow exception")
 					+ ", exceptionMessage: " + exceptionMessage
 					<< endl;
 
@@ -125,7 +120,7 @@ int main (int iArgc, char *pArgv [])
 			{
 				string exceptionMessage(e.what());
  
-				cerr <<__FILEREF__ + "SQL borrow/unborrow exception"
+				cerr << string("SQL borrow/unborrow exception")
 					+ ", exceptionMessage: " + exceptionMessage
 					<< endl;
 
@@ -141,7 +136,7 @@ int main (int iArgc, char *pArgv [])
 	{
 		string exceptionMessage(se.what() + string(", query: ") + se.query());
 
-		cerr <<__FILEREF__ + "SQL exception"
+		cerr << string("SQL exception")
 			+ ", exceptionMessage: " + exceptionMessage
 			+ ", conn: " + (conn != nullptr ? to_string(conn->getConnectionId()) : "-1")
 			<< endl;
@@ -156,7 +151,7 @@ int main (int iArgc, char *pArgv [])
 	{
 		string exceptionMessage(e.what());
 
-		cerr <<__FILEREF__ + "SQL exception"
+		cerr << string("SQL exception")
 			+ ", exceptionMessage: " + exceptionMessage
 			+ ", conn: " + (conn != nullptr ? to_string(conn->getConnectionId()) : "-1")
 			<< endl;
@@ -171,7 +166,7 @@ int main (int iArgc, char *pArgv [])
 	{
 		string exceptionMessage(e.what());
 
-		cerr <<__FILEREF__ + "SQL exception"
+		cerr << string("SQL exception")
 			+ ", exceptionMessage: " + exceptionMessage
 			+ ", conn: " + (conn != nullptr ? to_string(conn->getConnectionId()) : "-1")
 		<< endl;

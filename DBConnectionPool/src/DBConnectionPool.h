@@ -1,28 +1,3 @@
-/* Copyright 2013 Active911 Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http: *www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-
-/* ConnectionPool manages a connection pool of some kind.  Worker threads can ask for a connection, and must return it when done.
- * Each connection is guaranteed to be healthy, happy, and free of disease.
- *
- * Connection and ConnectionFactory are virtual classes that should be overridden to their actual type.
- *
- * NOTE: To avoid using templates AND inheritance at the same time in the ConnectionFactory, ConnectionFactory::create must create a derved type 
- * but return the base class. 	
- */
-
 
 #include <deque>
 #include <set>
@@ -32,28 +7,7 @@
 #include <string>
 #include <libgen.h>
 
-// Define your custom logging function by overriding this #define
-#ifndef DB_BORROW_DEBUG_LOGGER
-	#define DB_BORROW_DEBUG_LOGGER(x)
-#endif
-#ifndef DB_BORROW_ERROR_LOGGER
-	#define DB_BORROW_ERROR_LOGGER(x)
-#endif
-#ifndef DB_DEBUG_LOGGER
-	#define DB_DEBUG_LOGGER(x)
-#endif
-#ifndef DB_ERROR_LOGGER
-	#define DB_ERROR_LOGGER(x)
-#endif
-
-
-#ifndef __FILEREF__
-    #ifdef __APPLE__
-        #define __FILEREF__ string("[") + string(__FILE__).substr(string(__FILE__).find_last_of("/") + 1) + ":" + to_string(__LINE__) + "] "
-    #else
-        #define __FILEREF__ string("[") + basename((char *) __FILE__) + ":" + to_string(__LINE__) + "] "
-    #endif
-#endif
+// #define DBCONNECTIONPOOL_LOG
 
 using namespace std;
 
@@ -72,11 +26,13 @@ protected:
 	int _connectionId;
 
 public:
+/*
     DBConnection()
 	{
 		_selectTestingConnection	= "";
 		_connectionId				= -1;
 	};
+*/
     DBConnection(string selectTestingConnection, int connectionId)
 	{
 		_selectTestingConnection	= selectTestingConnection;
@@ -111,20 +67,22 @@ template<class T>
 class DBConnectionPool {
 
 protected:
-    shared_ptr<DBConnectionFactory>       _factory;
-	size_t									_poolSize;
-    deque<shared_ptr<DBConnection> >      _connectionPool;
-    set<shared_ptr<DBConnection> >        _connectionBorrowed;
-    mutex _connectionPoolMutex;
+    shared_ptr<DBConnectionFactory>		_factory;
+	size_t								_poolSize;
+    deque<shared_ptr<DBConnection>>		_connectionPool;
+    set<shared_ptr<DBConnection>>		_connectionBorrowed;
+    mutex								_connectionPoolMutex;
 
 public:
 
     DBConnectionPool(size_t poolSize, shared_ptr<DBConnectionFactory> factory)
     {
-        DB_DEBUG_LOGGER(__FILEREF__ + "building DBConnectionPool");
-
         _poolSize=poolSize;
         _factory=factory;
+
+		#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+		SPDLOG_DEBUG("building DBConnectionPool");
+		#endif
 
 		int lastConnectionId = 0;
 
@@ -134,7 +92,9 @@ public:
 			// shared_ptr<DBConnection> sqlConnection = _factory->create(lastConnectionId++);
 			// if (sqlConnection != nullptr)
 			// 	_connectionPool.push_back(sqlConnection);
-			DB_DEBUG_LOGGER(__FILEREF__ + "Creating connection " + to_string(lastConnectionId));
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+			SPDLOG_DEBUG("Creating connection {}", lastConnectionId);
+			#endif
 			_connectionPool.push_back(_factory->create(lastConnectionId++));
         }
     };
@@ -153,14 +113,18 @@ public:
      */
     shared_ptr<T> borrow()
     {
-        DB_BORROW_DEBUG_LOGGER(__FILEREF__ + "Received borrow");
+		#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+        SPDLOG_DEBUG("Received borrow");
+		#endif
 
         lock_guard<mutex> locker(_connectionPoolMutex);
 
-	// Check for a free connection
+		// Check for a free connection
         if(_connectionPool.size()==0)
         {
-            DB_BORROW_DEBUG_LOGGER(__FILEREF__ + "_connectionPool.size is 0, look to recover a borrowed one");
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+            SPDLOG_DEBUG("_connectionPool.size is 0, look to recover a borrowed one");
+			#endif
 
             // Are there any crashed connections listed as "borrowed"?
             for(set<shared_ptr<DBConnection> >::iterator it = _connectionBorrowed.begin();
@@ -175,8 +139,9 @@ public:
                     try 
                     {
                         // If we are able to create a new connection, return it
-                        DB_BORROW_DEBUG_LOGGER(__FILEREF__
-							+ "Creating new connection to replace discarded connection");
+						#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+                        SPDLOG_DEBUG("Creating new connection to replace discarded connection");
+						#endif
 
                         int connectionId = (*it)->getConnectionId();
 
@@ -184,9 +149,11 @@ public:
 							_factory->create(connectionId);
                         if (sqlConnection == nullptr)
                         {
-                            string errorMessage = __FILEREF__ + "sqlConnection is null"
+                            string errorMessage = "sqlConnection is null"
                             ;
-                            DB_BORROW_ERROR_LOGGER(errorMessage);
+							#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+                            SPDLOG_ERROR(errorMessage);
+							#endif
 
                             throw runtime_error(errorMessage);                    
                         }
@@ -198,9 +165,11 @@ public:
                     } 
                     catch(std::exception& e) 
                     {
-                        string errorMessage = __FILEREF__ + "exception"
+                        string errorMessage = "exception"
                         ;
-                        DB_BORROW_ERROR_LOGGER(errorMessage);
+						#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+                        SPDLOG_ERROR(errorMessage);
+						#endif
 
                         // Error creating a replacement connection
                         throw runtime_error(errorMessage);                    
@@ -208,9 +177,11 @@ public:
                 }
             }
 
-            string errorMessage = __FILEREF__ + "No connection available"
+            string errorMessage = "No connection available"
             ;
-            DB_BORROW_ERROR_LOGGER(errorMessage);
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+            SPDLOG_ERROR(errorMessage);
+			#endif
 
             // Nothing available
             throw runtime_error(errorMessage);                    
@@ -231,9 +202,11 @@ public:
 
         if (sqlConnection == nullptr)
         {
-            string errorMessage = __FILEREF__ + "sqlConnection is null"
+            string errorMessage = "sqlConnection is null"
             ;
-            DB_BORROW_ERROR_LOGGER(errorMessage);
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+            SPDLOG_ERROR(errorMessage);
+			#endif
 
             throw runtime_error(errorMessage);                    
         }
@@ -242,9 +215,11 @@ public:
         bool connectionValid = sqlConnection->connectionValid();
         if (!connectionValid)
         {
-            DB_BORROW_ERROR_LOGGER(__FILEREF__ + "sqlConnection is null or is not valid"
-                            ", connectionValid: " + to_string(connectionValid)
-                            );
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+			SPDLOG_ERROR("sqlConnection is null or is not valid"
+				", connectionValid: {}", connectionValid
+			);
+			#endif
 
             int connectionId = sqlConnection->getConnectionId();
 
@@ -261,17 +236,21 @@ public:
 					// We will accept that since we were not be able
 					// to create a new connection
 
-					string errorMessage = __FILEREF__ + "sqlConnection is null";
-					DB_BORROW_ERROR_LOGGER(errorMessage);
+					string errorMessage = "sqlConnection is null";
+					#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+					SPDLOG_ERROR(errorMessage);
+					#endif
 
 					throw runtime_error(errorMessage);                    
 				}
 			}
 			catch(runtime_error& e)
 			{        
-				DB_ERROR_LOGGER(__FILEREF__ + "sql connection creation failed"
-					+ ", e.what(): " + e.what()
-					);
+				#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+				SPDLOG_ERROR("sql connection creation failed"
+					", e.what(): {}", string(e.what())
+				);
+				#endif
 
 				// 2022-07-31: in case the create fails, we have to put
 				//	the connection again into the pool
@@ -290,9 +269,11 @@ public:
 			}
 			catch(exception& e)
 			{        
-				DB_ERROR_LOGGER(__FILEREF__ + "sql connection creation failed"
-					+ ", e.what(): " + e.what()
-					);
+				#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+				SPDLOG_ERROR("sql connection creation failed"
+					", e.what(): {}", e.what()
+				);
+				#endif
 
 				// 2022-07-31: in case the create fails, we have to put
 				//	the connection again into the pool
@@ -313,9 +294,11 @@ public:
 
         _connectionBorrowed.insert(sqlConnection);
 
-        DB_BORROW_DEBUG_LOGGER(__FILEREF__ + "borrow"
-                        + ", connectionId: " + to_string(sqlConnection->getConnectionId())
-                        );
+		#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+		SPDLOG_DEBUG("borrow"
+			", connectionId: {}", sqlConnection->getConnectionId()
+		);
+		#endif
 
         return static_pointer_cast<T>(sqlConnection);
     };
@@ -330,9 +313,11 @@ public:
     {
         if (sqlConnection == nullptr)
         {
-            string errorMessage = __FILEREF__ + "sqlConnection is null"
+            string errorMessage = "sqlConnection is null"
             ;
-            DB_ERROR_LOGGER(errorMessage);
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+			SPDLOG_ERROR(errorMessage);
+			#endif
 
             throw runtime_error(errorMessage);                    
         }
@@ -345,9 +330,11 @@ public:
         // Unborrow
         _connectionBorrowed.erase(sqlConnection);
 
-        DB_DEBUG_LOGGER(__FILEREF__ + "unborrow"
-                        + ", connectionId: " + to_string(sqlConnection->getConnectionId())
-                        );
+		#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+		SPDLOG_DEBUG("unborrow"
+			", connectionId: {}", sqlConnection->getConnectionId()
+		);
+		#endif
     };
 
     DBConnectionPoolStats get_stats() 

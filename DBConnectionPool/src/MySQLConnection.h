@@ -1,17 +1,3 @@
-/* Copyright 2013 Active911 Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http: *www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 #include "DBConnectionPool.h"
 #include <string>
 #include "mysql_connection.h"
@@ -21,15 +7,18 @@
 #include <cppconn/prepared_statement.h>
 #include <cppconn/statement.h>
 
+// #define DBCONNECTIONPOOL_LOG
 
 class MySQLConnection : public DBConnection {
 
 public:
     shared_ptr<sql::Connection> _sqlConnection;
 
+/*
     MySQLConnection(): DBConnection() 
     {
     }
+*/
 
     MySQLConnection(string selectTestingConnection, int connectionId):
 		DBConnection(selectTestingConnection, connectionId) 
@@ -40,9 +29,11 @@ public:
     {
         if(_sqlConnection) 
         {
-			DB_DEBUG_LOGGER(__FILEREF__ + "sql connection destruct"
-				", _connectionId: " + to_string(_connectionId)
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+			SPDLOG_DEBUG("sql connection destruct"
+				", _connectionId: {}", _connectionId
 			);
+			#endif
 
             _sqlConnection->close();
             _sqlConnection.reset(); 	// Release and destruct
@@ -55,9 +46,11 @@ public:
 
 		if (_sqlConnection == nullptr)
 		{
-			DB_ERROR_LOGGER(__FILEREF__ + "sql connection is null"
-				+ ", _connectionId: " + to_string(_connectionId)
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+			SPDLOG_ERROR("sql connection is null"
+				", _connectionId: {}", _connectionId
 			);
+			#endif
 			connectionValid = false;
 		}
 		else
@@ -80,19 +73,24 @@ public:
 				}
 				catch(sql::SQLException& se)
 				{
-					DB_ERROR_LOGGER(__FILEREF__ + "sql connection exception"
-						+ ", _connectionId: " + to_string(_connectionId)
-						+ ", se.what(): " + se.what()
+					#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+					SPDLOG_ERROR("sql connection exception"
+						", _connectionId: {}"
+						", se.what(): {}",
+						_connectionId, se.what()
 					);
+					#endif
 
 					connectionValid = false;
 				}
 				catch(exception& e)
 				{
-					DB_ERROR_LOGGER(__FILEREF__ + "sql connection exception"
-						+ ", _connectionId: " + to_string(_connectionId)
-						+ ", e.what(): " + e.what()
+					#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+					SPDLOG_ERROR("sql connection exception"
+						", _connectionId: {}"
+						", e.what(): {}", _connectionId, e.what()
 					);
+					#endif
 
 					connectionValid = false;
 				}
@@ -145,14 +143,17 @@ public:
 			connection_properties["OPT_RECONNECT"] = _reconnect;
 			connection_properties["OPT_CHARSET_NAME"] = _defaultCharacterSet;
 
-			DB_DEBUG_LOGGER(__FILEREF__ + "sql connection creating..."
-				+ ", _dbServer: " + _dbServer
-				+ ", _dbUsername: " + _dbUsername
-				+ ", _dbPassword: " + _dbPassword
-				+ ", _dbName: " + _dbName
-				+ ", _reconnect: " + to_string(_reconnect)
-				+ ", _defaultCharacterSet: " + _defaultCharacterSet
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+			SPDLOG_DEBUG("sql connection creating..."
+				", _dbServer: {}"
+				", _dbUsername: {}"
+				", _dbPassword: {}"
+				", _dbName: {}"
+				", _reconnect: {}"
+				", _defaultCharacterSet: {}",
+				_dbServer, _dbUsername, _dbPassword, _dbName, _reconnect, _defaultCharacterSet
 			);
+			#endif
 
 			// server like "tcp://127.0.0.1:3306"
 			shared_ptr<sql::Connection> connectionFromDriver (driver->connect(connection_properties));
@@ -169,49 +170,61 @@ public:
 			bool connectionValid = mySqlConnection->connectionValid();
 			if (!connectionValid)
 			{
-				string errorMessage = string("just created sql connection is not valid")
-					+ ", _connectionId: " + to_string(mySqlConnection->getConnectionId())
-					+ ", _dbServer: " + _dbServer
-					+ ", _dbUsername: " + _dbUsername
-					+ ", _dbName: " + _dbName
-					;
-				DB_ERROR_LOGGER(__FILEREF__ + errorMessage);
+				#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+				string errorMessage = fmt::format("just created sql connection is not valid"
+					", _connectionId: {}"
+					", _dbServer: {}"
+					", _dbUsername: {}"
+					", _dbName: {}",
+					mySqlConnection->getConnectionId(), _dbServer, _dbUsername, _dbName
+					);
+				SPDLOG_ERROR(errorMessage);
+				#endif
 
 				return nullptr;
 			}
 			else
 			{
-				DB_DEBUG_LOGGER(__FILEREF__ + "just created sql connection"
-					+ ", _connectionId: " + to_string(mySqlConnection->getConnectionId())
-					+ ", _dbServer: " + _dbServer
-					+ ", _dbUsername: " + _dbUsername
-					+ ", _dbName: " + _dbName
+				#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+				SPDLOG_DEBUG("just created sql connection"
+					", _connectionId: {}"
+					", _dbServer: {}"
+					", _dbUsername: {}"
+					", _dbName: {}",
+					mySqlConnection->getConnectionId(), _dbServer, _dbUsername, _dbName
 				);
+				#endif
 			}
 
 			return static_pointer_cast<DBConnection>(mySqlConnection);
 		}
 		catch(sql::SQLException& se)
 		{
-			DB_ERROR_LOGGER(__FILEREF__ + "sql connection creation failed"
-				+ ", se.what(): " + se.what()
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+			SPDLOG_ERROR("sql connection creation failed"
+				", se.what(): {}", se.what()
 					);
+			#endif
 
 			throw runtime_error(se.what());
 		}
 		catch(runtime_error& e)
 		{        
-			DB_ERROR_LOGGER(__FILEREF__ + "sql connection creation failed"
-				+ ", e.what(): " + e.what()
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+			SPDLOG_ERROR("sql connection creation failed"
+				", e.what(): {}", e.what()
 					);
+			#endif
 
 			throw e;
 		}
 		catch(exception& e)
 		{        
-			DB_ERROR_LOGGER(__FILEREF__ + "sql connection creation failed"
-				+ ", e.what(): " + e.what()
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+			SPDLOG_ERROR("sql connection creation failed"
+				", e.what(): {}", e.what()
 					);
+			#endif
 
 			throw e;
 		}

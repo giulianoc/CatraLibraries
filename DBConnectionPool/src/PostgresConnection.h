@@ -1,30 +1,23 @@
-/* Copyright 2013 Active911 Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http: *www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+
 #include "DBConnectionPool.h"
 #include <string>
 #include <pqxx/pqxx>
+#include <pqxx/nontransaction>
 
+// #define DBCONNECTIONPOOL_LOG
+
+using namespace pqxx;
 
 class PostgresConnection : public DBConnection {
 
 public:
-	shared_ptr<pqxx::connection> _sqlConnection;
+	shared_ptr<connection> _sqlConnection;
 
+/*
 	PostgresConnection(): DBConnection() 
 	{
 	}
+*/
 
 	PostgresConnection(string selectTestingConnection, int connectionId):
 		DBConnection(selectTestingConnection, connectionId) 
@@ -33,9 +26,11 @@ public:
 
 	~PostgresConnection() 
 	{
-		DB_DEBUG_LOGGER(__FILEREF__ + "sql connection destruct"
-			", _connectionId: " + to_string(_connectionId)
+		#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+		SPDLOG_DEBUG("sql connection destruct"
+			", _connectionId: {}", _connectionId
 		);
+		#endif
 	};
 
 	virtual bool connectionValid()
@@ -45,9 +40,11 @@ public:
 
 		if (_sqlConnection == nullptr)
 		{
-			DB_ERROR_LOGGER(__FILEREF__ + "sql connection is null"
-				+ ", _connectionId: " + to_string(_connectionId)
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+			SPDLOG_ERROR("sql connection is null"
+				", _connectionId: {}", _connectionId
 			);
+			#endif
 			connectionValid = false;
 		}
 		else
@@ -56,29 +53,39 @@ public:
 			{
 				try
 				{
-					pqxx::work transation{*_sqlConnection};
-
-					// int count = txn.query_value<int>(txn.quote(_selectTestingConnection));
-					pqxx::row r = transation.exec1(transation.quote(_selectTestingConnection));
-
-					transation.commit();
-				}
-				catch(pqxx::sql_error const &e)
-				{
-					DB_ERROR_LOGGER(__FILEREF__ + "sql connection exception"
-						+ ", _connectionId: " + to_string(_connectionId)
-						+ ", e.query(): " + e.query()
-						+ ", e.what(): " + e.what()
+					#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+					SPDLOG_DEBUG("sql connection test"
+						", _connectionId: {}"
+						", _selectTestingConnection: {}", _connectionId, _selectTestingConnection
 					);
+					#endif
+					nontransaction trans{*_sqlConnection};
+
+					trans.exec(_selectTestingConnection);
+
+					// This doesn't really do anything
+					trans.commit();
+				}
+				catch(sql_error const &e)
+				{
+					#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+					SPDLOG_ERROR("sql connection exception"
+						", _connectionId: {}"
+						", e.query(): {}"
+						", e.what(): {}", _connectionId, e.query(), e.what()
+					);
+					#endif
 
 					connectionValid = false;
 				}
 				catch(exception& e)
 				{
-					DB_ERROR_LOGGER(__FILEREF__ + "sql connection exception"
-						+ ", _connectionId: " + to_string(_connectionId)
-						+ ", e.what(): " + e.what()
+					#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+					SPDLOG_ERROR("sql connection exception"
+						", _connectionId: {}"
+						", e.what(): {}", _connectionId, e.what()
 					);
+					#endif
 
 					connectionValid = false;
 				}
@@ -120,68 +127,84 @@ public:
 		try
 		{
 			// reconnect? character set?
-			string connectionDetails = "dbname=" + _dbName
-				+ " user=" + _dbUsername 
-				+ " password=" + _dbPassword
-				+ " hostaddr=" + _dbServer
-				+ " port=5432"
-			;
-			shared_ptr<pqxx::connection> connection = make_shared<pqxx::connection> (connectionDetails);
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+			string connectionDetails = fmt::format("dbname={} user={} password={} hostaddr={}"
+				" port=5432",
+				_dbName, _dbUsername, _dbPassword, _dbServer
+			);
+			#else
+			string connectionDetails = "dbname=" + _dbName + " user=" + _dbUsername
+				+ " password=" + _dbPassword + " hostaddr=" + _dbServer + " port=5432";
+			#endif
+			shared_ptr<connection> conn = make_shared<connection> (connectionDetails);
 
-			DB_DEBUG_LOGGER(__FILEREF__ + "sql connection creating..."
-				+ ", _dbServer: " + _dbServer
-				+ ", _dbUsername: " + _dbUsername
-				+ ", _dbPassword: " + _dbPassword
-				+ ", _dbName: " + _dbName
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+			SPDLOG_DEBUG("sql connection creating..."
+				", _dbServer: {}"
+				", _dbUsername: {}"
+				", _dbPassword: {}"
+				", _dbName: {}", _dbServer, _dbUsername, _dbPassword, _dbName
 				// + ", _reconnect: " + to_string(_reconnect)
 				// + ", _defaultCharacterSet: " + _defaultCharacterSet
 			);
+			#endif
 
 			shared_ptr<PostgresConnection>     postgresConnection = make_shared<PostgresConnection>(
 				_selectTestingConnection, connectionId);
-			postgresConnection->_sqlConnection = connection;
+			postgresConnection->_sqlConnection = conn;
 
 			bool connectionValid = postgresConnection->connectionValid();
 			if (!connectionValid)
 			{
-				string errorMessage = string("just created sql connection is not valid")
-					+ ", _connectionId: " + to_string(postgresConnection->getConnectionId())
-					+ ", _dbServer: " + _dbServer
-					+ ", _dbUsername: " + _dbUsername
-					+ ", _dbName: " + _dbName
-					;
-				DB_ERROR_LOGGER(__FILEREF__ + errorMessage);
+				#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+				string errorMessage = fmt::format("just created sql connection is not valid"
+					", _connectionId: {}"
+					", _dbServer: {}"
+					", _dbUsername: {}"
+					", _dbName: {}",
+					postgresConnection->getConnectionId(), _dbServer, _dbUsername, _dbName
+					);
+				SPDLOG_ERROR(errorMessage);
+				#endif
 
 				return nullptr;
 			}
 			else
 			{
-				DB_DEBUG_LOGGER(__FILEREF__ + "just created sql connection"
-					+ ", _connectionId: " + to_string(postgresConnection->getConnectionId())
-					+ ", _dbServer: " + _dbServer
-					+ ", _dbUsername: " + _dbUsername
-					+ ", _dbName: " + _dbName
+				#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+				SPDLOG_DEBUG("just created sql connection"
+					", _connectionId: {}"
+					", _dbServer: {}"
+					", _dbUsername: {}"
+					", _dbName: {}",
+					postgresConnection->getConnectionId(), _dbServer, _dbUsername, _dbName
 				);
+				#endif
 			}
 
 			return static_pointer_cast<DBConnection>(postgresConnection);
 		}
 		catch(runtime_error& e)
 		{        
-			DB_ERROR_LOGGER(__FILEREF__ + "sql connection creation failed"
-				+ ", e.what(): " + e.what()
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+			SPDLOG_ERROR("sql connection creation failed"
+				", e.what(): {}", e.what()
 					);
+			#endif
 
 			throw e;
 		}
 		catch(exception& e)
 		{        
-			DB_ERROR_LOGGER(__FILEREF__ + "sql connection creation failed"
-				+ ", e.what(): " + e.what()
+			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+			SPDLOG_ERROR("sql connection creation failed"
+				", e.what(): {}", e.what()
 					);
+			#endif
 
 			throw e;
 		}
     };
 
 };
+
