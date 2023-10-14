@@ -11,6 +11,8 @@
 
 using namespace std;
 
+#ifndef DB_ConnectionUnavailable                                                                                  
+#define DB_ConnectionUnavailable
 struct ConnectionUnavailable : exception 
 { 
     char const* what() const throw() 
@@ -18,6 +20,7 @@ struct ConnectionUnavailable : exception
         return "Unable to allocate connection";
     }; 
 };
+#endif
 
 class DBConnection {
 
