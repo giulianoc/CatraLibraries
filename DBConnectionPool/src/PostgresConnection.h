@@ -128,13 +128,18 @@ public:
 		{
 			// reconnect? character set?
 			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-			string connectionDetails = fmt::format("dbname={} user={} password={} hostaddr={}"
-				" port=5432",
-				_dbName, _dbUsername, _dbPassword, _dbServer
+			// string connectionDetails = fmt::format("dbname={} user={} password={} hostaddr={}"
+			// 	" port=5432",
+			// 	_dbName, _dbUsername, _dbPassword, _dbServer
+			// );
+			string connectionDetails = fmt::format("postgresql://{}:{}@{}:5432/{}",
+				_dbUsername, _dbPassword, _dbServer, _dbName
 			);
 			#else
-			string connectionDetails = "dbname=" + _dbName + " user=" + _dbUsername
-				+ " password=" + _dbPassword + " hostaddr=" + _dbServer + " port=5432";
+			// string connectionDetails = "dbname=" + _dbName + " user=" + _dbUsername
+			// 	+ " password=" + _dbPassword + " hostaddr=" + _dbServer + " port=5432";
+			string connectionDetails = "postgresql://" + _dbUsername + ":" + _dbPassword + "@"
+				+ _dbServer + ":5432/" + _dbName;
 			#endif
 			shared_ptr<connection> conn = make_shared<connection> (connectionDetails);
 
