@@ -141,18 +141,17 @@ public:
 			string connectionDetails = "postgresql://" + _dbUsername + ":" + _dbPassword + "@"
 				+ _dbServer + ":5432/" + _dbName;
 			#endif
-			shared_ptr<connection> conn = make_shared<connection> (connectionDetails);
-
 			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
 			SPDLOG_DEBUG("sql connection creating..."
 				", _dbServer: {}"
 				", _dbUsername: {}"
 				", _dbPassword: {}"
-				", _dbName: {}", _dbServer, _dbUsername, _dbPassword, _dbName
-				// + ", _reconnect: " + to_string(_reconnect)
-				// + ", _defaultCharacterSet: " + _defaultCharacterSet
+				", _dbName: {}"
+				", connectionDetails: {}",
+				_dbServer, _dbUsername, _dbPassword, _dbName, connectionDetails
 			);
 			#endif
+			shared_ptr<connection> conn = make_shared<connection> (connectionDetails);
 
 			shared_ptr<PostgresConnection>     postgresConnection = make_shared<PostgresConnection>(
 				_selectTestingConnection, connectionId);
