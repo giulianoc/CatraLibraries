@@ -83,7 +83,8 @@ public:
 					#ifdef DBCONNECTIONPOOL_LOG                                                                                  
 					SPDLOG_ERROR("sql connection exception"
 						", _connectionId: {}"
-						", e.what(): {}", _connectionId, e.what()
+						", _selectTestingConnection: {}"
+						", e.what(): {}", _connectionId, _selectTestingConnection, e.what()
 					);
 					#endif
 
