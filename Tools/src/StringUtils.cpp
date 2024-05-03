@@ -99,14 +99,14 @@ string StringUtils::trimNewLineAndTabToo(string s) {
   return ltrimNewLineAndTabToo(rtrimNewLineToo(s));
 }
 
-bool StringUtils::endWith(string source, string suffix) {
+bool StringUtils::endWith(const string &source, const string &suffix) {
 
   return (source.size() >= suffix.size() &&
           0 == source.compare(source.size() - suffix.size(), suffix.size(),
                               suffix));
 }
 
-bool StringUtils::startWith(string source, string prefix) {
+bool StringUtils::startWith(const string &source, const string &prefix) {
   return (source.size() >= prefix.size() &&
           0 == source.compare(0, prefix.size(), prefix));
 }

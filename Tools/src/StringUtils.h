@@ -37,8 +37,8 @@ public:
   static string rtrimNewLineAndTabToo(string s);
   static string trimNewLineAndTabToo(string s);
 
-  static bool endWith(string source, string suffix);
-  static bool startWith(string source, string prefix);
+  static bool endWith(const string &source, const string &suffix);
+  static bool startWith(const string &source, const string &prefix);
 };
 
 #endif
