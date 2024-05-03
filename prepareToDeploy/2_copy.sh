@@ -128,6 +128,10 @@ if [ "$deploy" == "y" ]; then
 	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-52-215-51-62.eu-west-1.compute.amazonaws.com:/opt/catramms
 	date
 
+	echo "aruba-mms-transcoder-1"
+	scp -P 9255 -i ~/ssh-keys/cibortv-aruba.pem /opt/catrasoftware/deploy/$tarFileName mms@ru001940.arubabiz.net:/opt/catramms
+	date
+
 	echo "aruba-mms-transcoder-2"
 	scp -P 9255 -i ~/ssh-keys/cibortv-aruba.pem /opt/catrasoftware/deploy/$tarFileName mms@ru001941.arubabiz.net:/opt/catramms
 	date
@@ -137,21 +141,12 @@ if [ "$deploy" == "y" ]; then
 	date
 fi
 
-echo ""
-echo -n "deploy su cibortv (rel 20)? " 
-read deploy
-if [ "$deploy" == "y" ]; then
-	echo "aruba-mms-transcoder-1"
-	scp -P 9255 -i ~/ssh-keys/cibortv-aruba.pem /opt/catrasoftware/deploy/$tarFileName mms@ru001940.arubabiz.net:/opt/catramms
-	date
-fi
-
 #make it downloadable from public
-echo -n "Load package to MMSRepository-free (ubuntu 20.04)? " 
-read deploy
-if [ "$deploy" == "y" ]; then
-	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-34-248-199-119.eu-west-1.compute.amazonaws.com:/var/catramms/storage/MMSRepository-free/packages/ubuntu-20.04
-fi
+#echo -n "Load package to MMSRepository-free (ubuntu 20.04)? " 
+#read deploy
+#if [ "$deploy" == "y" ]; then
+#	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-34-248-199-119.eu-west-1.compute.amazonaws.com:/var/catramms/storage/MMSRepository-free/packages/ubuntu-20.04
+#fi
 
 echo -n "Load package to MMSRepository-free (ubuntu 22.04)? " 
 read deploy
