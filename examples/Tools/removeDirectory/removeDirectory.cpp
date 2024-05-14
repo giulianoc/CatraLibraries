@@ -1,10 +1,10 @@
 /*
  Copyright (C) Giuliano Catrambone (giuliano.catrambone@catrasoftware.it)
 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either 
- version 2 of the License, or (at your option) any later 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later
  version.
 
  This program is distributed in the hope that it will be useful,
@@ -22,62 +22,63 @@
 */
 
 #include "FileIO.h"
+#include "StringUtils.h"
 #ifdef WIN32
-	#include <windows.h>
+#include <windows.h>
 #else
-	#include <unistd.h>
+#include <unistd.h>
 #endif
 
-
-int main (int iArgc, char *pArgv [])
+int main(int iArgc, char *pArgv[])
 
 {
 
-	const char					*pPathName;
-	Boolean_t					bIsDirectoryExisting;
+  string suffix = ".tar.gz";
+  string source = "/var/catramms/storage/MMSWorkingAreaRepository/Staging/"
+                  "1_7441941_virtualVOD_2024_05_08_00_45_03_0042/"
+                  "7441941_liveRecorderVirtualVOD.tar.gz";
+  cout << "aaa: " << StringUtils::endWith(source, suffix) << endl;
+  const char *pPathName;
+  Boolean_t bIsDirectoryExisting;
 
+  if (iArgc != 2) {
+    std::cerr << "Usage: " << pArgv[0] << " <directory>" << std::endl;
 
-	if (iArgc != 2)
-	{
-		std:: cerr << "Usage: " << pArgv [0] << " <directory>"
-			<< std:: endl;
+    return 1;
+  }
 
-		return 1;
-	}
+  pPathName = pArgv[1];
 
-	pPathName				= pArgv [1];
+  cout << "isDirectoryExisting " << pPathName << std::endl;
+  if (FileIO::isDirectoryExisting(pPathName, &bIsDirectoryExisting) !=
+      errNoError) {
+    Error err = ToolsErrors(__FILE__, __LINE__,
+                            TOOLS_FILEIO_ISDIRECTORYEXISTING_FAILED);
+    std::cerr << (const char *)err << std::endl;
 
-	cout << "isDirectoryExisting " << pPathName << std::endl;
-	if (FileIO:: isDirectoryExisting (pPathName, &bIsDirectoryExisting) != errNoError)
-	{
-		Error err = ToolsErrors (__FILE__, __LINE__,
-			TOOLS_FILEIO_ISDIRECTORYEXISTING_FAILED);
-		std:: cerr << (const char *) err << std:: endl;
+    return 1;
+  }
 
-		return 1;
-	}
+  cout << "isDirectoryExisting " << bIsDirectoryExisting << std::endl;
+  // if (!bIsDirectoryExisting)
+  // {
+  // 	std:: cerr << "The " << pPathName << " file does not exist." << std::
+  // endl;
 
-	cout << "isDirectoryExisting " << bIsDirectoryExisting << std::endl;
-	// if (!bIsDirectoryExisting)
-	// {
-	// 	std:: cerr << "The " << pPathName << " file does not exist." << std:: endl;
+  // 	return 1;
+  // }
 
-	// 	return 1;
-	// }
+  cout << "removeDirectory " << pPathName << std::endl;
+  Boolean_t bRemoveRecursively = true;
+  if (FileIO::removeDirectory(pPathName, bRemoveRecursively) != errNoError) {
+    Error err =
+        ToolsErrors(__FILE__, __LINE__, TOOLS_FILEIO_REMOVEDIRECTORY_FAILED);
+    std::cerr << (const char *)err << std::endl;
 
-	cout << "removeDirectory " << pPathName << std::endl;
-	Boolean_t bRemoveRecursively = true;
-	if (FileIO:: removeDirectory (pPathName, bRemoveRecursively) != errNoError)
-	{
-		Error err = ToolsErrors (__FILE__, __LINE__,
-			TOOLS_FILEIO_REMOVEDIRECTORY_FAILED);
-		std:: cerr << (const char *) err << std:: endl;
+    return 1;
+  }
 
-		return 1;
-	}
+  cout << "removeDirectory finished" << std::endl;
 
-	cout << "removeDirectory finished" << std::endl;
-
-	return 0;
+  return 0;
 }
-
