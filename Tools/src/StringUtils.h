@@ -39,6 +39,8 @@ public:
 
   static bool endWith(const string &source, const string &suffix);
   static bool startWith(const string &source, const string &prefix);
+
+  string lowerCase(const string &str);
 };
 
 #endif

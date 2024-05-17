@@ -110,3 +110,12 @@ bool StringUtils::startWith(const string &source, const string &prefix) {
   return (source.size() >= prefix.size() &&
           0 == source.compare(0, prefix.size(), prefix));
 }
+
+string StringUtils::lowerCase(const string &str) {
+  string lowerCase;
+  lowerCase.resize(str.size());
+  transform(str.begin(), str.end(), lowerCase.begin(),
+            [](unsigned char c) { return tolower(c); });
+
+  return lowerCase;
+}
