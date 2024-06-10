@@ -41,6 +41,8 @@ public:
   static bool startWith(const string &source, const string &prefix);
 
   static string lowerCase(const string &str);
+
+  static bool isNumber(string text);
 };
 
 #endif

@@ -119,3 +119,10 @@ string StringUtils::lowerCase(const string &str) {
 
   return lowerCase;
 }
+
+bool StringUtils::isNumber(string text) {
+  return !text.empty() &&
+         ranges::find_if(text.begin(), text.end(), [](unsigned char c) {
+           return !isdigit(c);
+         }) == text.end();
+}
