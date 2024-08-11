@@ -48,11 +48,11 @@ public:
   // Time Complexity: O(M + N)
   // Auxiliary Space: O(M) As an array of size M is used to store the longest
   // prefix suffix values for the pattern.
-  int kmpSearch(string pat, string txt);
+  static int kmpSearch(string pat, string txt);
 
 private:
   // usato da kmpSearch
-  void computeLPSArray(string pat, int M, int lps[]);
+  static void computeLPSArray(string pat, int M, int lps[]);
 };
 
 #endif
