@@ -127,6 +127,13 @@ bool StringUtils::isNumber(string text) {
          }) == text.end();
 }
 
+bool StringUtils::equalCaseInsensitive(const string s1, const string s2) {
+  return s1.length() != s2.length()
+             ? false
+             : equal(s1.begin(), s1.end(), s2.begin(),
+                     [](int c1, int c2) { return toupper(c1) == toupper(c2); });
+}
+
 int StringUtils::kmpSearch(string pat, string txt) {
   int M = pat.length();
   int N = txt.length();

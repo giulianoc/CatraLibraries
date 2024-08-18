@@ -44,6 +44,8 @@ public:
 
   static bool isNumber(string text);
 
+  static bool equalCaseInsensitive(const string s1, const string s2);
+
   // conta quante volte abbiamo pat in txt usando l'algoritmo KMP
   // Time Complexity: O(M + N)
   // Auxiliary Space: O(M) As an array of size M is used to store the longest
