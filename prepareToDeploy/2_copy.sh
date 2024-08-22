@@ -14,6 +14,7 @@ moduleName=$(basename $currentDir)
 #tarFileName=$moduleName-$version-$linuxName.tar.gz
 tarFileName=$moduleName-$version.tar.gz
 
+source /opt/catrasoftware/CatraMMS/scripts/servers.sh
 
 echo -n "deploy su mms cloud/test? " 
 read deploy
