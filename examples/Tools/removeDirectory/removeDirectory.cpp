@@ -37,7 +37,7 @@ int main(int iArgc, char *pArgv[])
   string source = "/var/catramms/storage/MMSWorkingAreaRepository/Staging/"
                   "1_7441941_virtualVOD_2024_05_08_00_45_03_0042/"
                   "7441941_liveRecorderVirtualVOD.tar.gz";
-  cout << "aaa: " << StringUtils::endWith(source, suffix) << endl;
+  cout << "aaa: " << source.ends_with(suffix) << endl;
   const char *pPathName;
   Boolean_t bIsDirectoryExisting;
 

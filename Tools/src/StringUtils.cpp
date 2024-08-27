@@ -99,18 +99,6 @@ string StringUtils::trimNewLineAndTabToo(string s) {
   return ltrimNewLineAndTabToo(rtrimNewLineToo(s));
 }
 
-bool StringUtils::endWith(const string &source, const string &suffix) {
-
-  return (source.size() >= suffix.size() &&
-          0 == source.compare(source.size() - suffix.size(), suffix.size(),
-                              suffix));
-}
-
-bool StringUtils::startWith(const string &source, const string &prefix) {
-  return (source.size() >= prefix.size() &&
-          0 == source.compare(0, prefix.size(), prefix));
-}
-
 string StringUtils::lowerCase(const string &str) {
   string lowerCase;
   lowerCase.resize(str.size());

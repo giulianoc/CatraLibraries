@@ -37,9 +37,6 @@ public:
   static string rtrimNewLineAndTabToo(string s);
   static string trimNewLineAndTabToo(string s);
 
-  static bool endWith(const string &source, const string &suffix);
-  static bool startWith(const string &source, const string &prefix);
-
   static string lowerCase(const string &str);
 
   static bool isNumber(string text);
