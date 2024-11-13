@@ -34,11 +34,14 @@ execute_process(COMMAND ${LSB_RELEASE_EXEC} -is
 )
 message("-- LSB_RELEASE_ID_SHORT: ${LSB_RELEASE_ID_SHORT}")
 
+include_directories("${PROJECT_SOURCE_DIR}/../deploy/libpqxx/include")
 include_directories ("${PROJECT_SOURCE_DIR}/DBConnectionPool/src")
 if(LSB_RELEASE_ID_SHORT STREQUAL "CentOS")
 	include_directories ("/usr/include/mysql-cppconn-8/jdbc")
 endif()
 
+
+link_directories("${PROJECT_SOURCE_DIR}/../deploy/libpqxx/lib")
 
 add_executable(dbConnectionPool_postgres ${SOURCES} ${HEADERS})
 
