@@ -90,6 +90,7 @@ class PostgresConnectionFactory : public DBConnectionFactory {
 private:
   string _dbServer;
   string _dbUsername;
+  int _dbPort;
   string _dbPassword;
   string _dbName;
   // bool _reconnect;
@@ -97,12 +98,13 @@ private:
   string _selectTestingConnection;
 
 public:
-  PostgresConnectionFactory(string dbServer, string dbUsername,
+  PostgresConnectionFactory(string dbServer, string dbUsername, int dbPort,
                             string dbPassword, string dbName,
                             /* bool reconnect, string defaultCharacterSet, */
                             string selectTestingConnection) {
     _dbServer = dbServer;
     _dbUsername = dbUsername;
+    _dbPort = dbPort;
     _dbPassword = dbPassword;
     _dbName = dbName;
     // _reconnect = reconnect;
@@ -127,8 +129,8 @@ public:
       // 	+ " password=" + _dbPassword + " hostaddr=" + _dbServer + "
       // port=5432";
       string connectionDetails = "postgresql://" + _dbUsername + ":" +
-                                 _dbPassword + "@" + _dbServer + ":5432/" +
-                                 _dbName;
+                                 _dbPassword + "@" + _dbServer + ":" +
+                                 to_string(_dbPort) + "/" + _dbName;
 #endif
 #ifdef DBCONNECTIONPOOL_LOG
       SPDLOG_DEBUG("sql connection creating..."

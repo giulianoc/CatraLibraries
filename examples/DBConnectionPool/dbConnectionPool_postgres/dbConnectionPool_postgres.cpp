@@ -70,7 +70,7 @@ int main (int iArgc, char *pArgv [])
 
 		cout << "postgresConnectionFactory..." << endl;
 		postgrSQLConnectionFactory = 
-			make_shared<PostgresConnectionFactory>(dbServer, dbUsername, dbPassword, dbName,
+			make_shared<PostgresConnectionFactory>(dbServer, dbUsername, 5432, dbPassword, dbName,
 			/* reconnect, defaultCharacterSet,*/ selectTestingConnection);
 
 		cout << "connectionPool..." << endl;
