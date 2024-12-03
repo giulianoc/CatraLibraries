@@ -9,10 +9,29 @@ fi
 
 version=$1
 
+removePreviousVersions()
+{
+	currentPathNameVersion=$(readlink -f /opt/catramms/CatraLibraries)
+	if [ "${currentPathNameVersion}" != "" ];
+	then
+		tenDaysInMinutes=14400
+
+		echo "Remove previous versions (retention $tenDaysInMinutes)"
+		echo "find /opt/catramms -maxdepth 1 -mmin +$tenDaysInMinutes -name \"CatraLibraries-*\" -not -path \"${currentPathNameVersion}*\" -exec rm -rf {} \;"
+		find /opt/catramms -maxdepth 1 -mmin +$tenDaysInMinutes -name "CatraLibraries-*" -not -path "${currentPathNameVersion}*" -exec rm -rf {} \;
+	fi
+}
+
+if [ ! -f "/opt/catramms/CatraLibraries-$version.tar.gz" ]; then
+    echo "/opt/catramms/CatraLibraries-$version.tar.gz does not exist."
+
+	exit
+fi
+
+#sleepIfNeeded
+removePreviousVersions
 
 mmsStopALL.sh
-sleep 2
-
 
 echo "cd /opt/catramms"
 cd /opt/catramms
@@ -32,11 +51,11 @@ tar xvfz CatraLibraries-$version.tar.gz
 echo "ln -s CatraLibraries-$version CatraLibraries"
 ln -s CatraLibraries-$version CatraLibraries
 
-sleep 1
-
 cd
 
 mmsStatusALL.sh
+
+echo ""
 
 mmsStatusALL.sh
 
