@@ -22,10 +22,10 @@ if [ "$deploy" == "y" ]; then
 	index=0
 	while [ $index -lt $testServersNumber ]
 	do
-		serverName=${testServers[$((index*4+0))]}
-		serverAddress=${testServers[$((index*4+1))]}
-		serverKey=${testServers[$((index*4+2))]}
-		serverPort=${testServers[$((index*4+3))]}
+		serverName=${testServers[$((index*5+0))]}
+		serverAddress=${testServers[$((index*5+1))]}
+		serverKey=${testServers[$((index*5+2))]}
+		serverPort=${testServers[$((index*5+3))]}
 
 		echo $serverName
 		scp -P $serverPort -i ~/ssh-keys/$serverKey.pem /opt/catrasoftware/deploy/$tarFileName mms@$serverAddress:/opt/catramms
@@ -36,16 +36,17 @@ if [ "$deploy" == "y" ]; then
 fi
 
 echo ""
-echo -n "deploy su cloud production (rel 22)? " 
+echo -n "deploy su cloud production? " 
 read deploy
 if [ "$deploy" == "y" ]; then
 	index=0
 	while [ $index -lt $prodServersNumber ]
 	do
-		serverName=${prodServers[$((index*4+0))]}
-		serverAddress=${prodServers[$((index*4+1))]}
-		serverKey=${prodServers[$((index*4+2))]}
-		serverPort=${prodServers[$((index*4+3))]}
+		serverName=${prodServers[$((index*5+0))]}
+		serverAddress=${prodServers[$((index*5+1))]}
+		serverKey=${prodServers[$((index*5+2))]}
+		serverPort=${prodServers[$((index*5+3))]}
+		serverType=${prodServers[$((index*5+4))]}
 
 		echo $serverName
 		scp -P $serverPort -i ~/ssh-keys/$serverKey.pem /opt/catrasoftware/deploy/$tarFileName mms@$serverAddress:/opt/catramms
@@ -55,18 +56,11 @@ if [ "$deploy" == "y" ]; then
 	done
 fi
 
-#make it downloadable from public
-#echo -n "Load package to MMSRepository-free (ubuntu 20.04)? " 
+#echo -n "Load package to MMSRepository-free (ubuntu 22.04)? " 
 #read deploy
 #if [ "$deploy" == "y" ]; then
-#	scp -i ~/ssh-keys/aws-mms-key-ireland.pem /opt/catrasoftware/deploy/$tarFileName mms@ec2-34-248-199-119.eu-west-1.compute.amazonaws.com:/var/catramms/storage/MMSRepository-free/packages/ubuntu-20.04
+#	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@168.119.250.162:/var/catramms/storage/MMSRepository-free/packages/ubuntu-22.04
 #fi
-
-echo -n "Load package to MMSRepository-free (ubuntu 22.04)? " 
-read deploy
-if [ "$deploy" == "y" ]; then
-	scp -P 9255 -i ~/ssh-keys/hetzner-mms-key.pem /opt/catrasoftware/deploy/$tarFileName mms@168.119.250.162:/var/catramms/storage/MMSRepository-free/packages/ubuntu-22.04
-fi
 
 echo -n "Load package to MMSRepository-free (ubuntu 24.04)? " 
 read deploy
