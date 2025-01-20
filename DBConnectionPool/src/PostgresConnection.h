@@ -69,11 +69,11 @@ public:
           connectionValid = false;
         } catch (exception &e) {
 #ifdef DBCONNECTIONPOOL_LOG
-          SPDLOG_ERROR("sql connection exception"
-                       ", _connectionId: {}"
-                       ", _selectTestingConnection: {}"
-                       ", e.what(): {}",
-                       _connectionId, _selectTestingConnection, e.what());
+          SPDLOG_WARN("sql connection exception"
+                      ", _connectionId: {}"
+                      ", _selectTestingConnection: {}"
+                      ", e.what(): {}",
+                      _connectionId, _selectTestingConnection, e.what());
 #endif
 
           connectionValid = false;

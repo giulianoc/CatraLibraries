@@ -1,354 +1,321 @@
-#ifndef DBConnection_H                                                                                           
+#ifndef DBConnection_H
 #define DBConnection_H
 
 #include <deque>
-#include <set>
+#include <exception>
+#include <libgen.h>
 #include <memory>
 #include <mutex>
-#include <exception>
+#include <set>
 #include <string>
-#include <libgen.h>
 
 // #define DBCONNECTIONPOOL_LOG
 
 using namespace std;
 
-struct ConnectionUnavailable : exception 
-{ 
-    char const* what() const throw() 
-    {
-        return "Unable to allocate connection";
-    }; 
+struct ConnectionUnavailable : exception {
+  char const *what() const throw() { return "Unable to allocate connection"; };
 };
 
 class DBConnection {
 
 protected:
-	string _selectTestingConnection;
-	int _connectionId;
+  string _selectTestingConnection;
+  int _connectionId;
 
 public:
-/*
-    DBConnection()
-	{
-		_selectTestingConnection	= "";
-		_connectionId				= -1;
-	};
-*/
-    DBConnection(string selectTestingConnection, int connectionId)
-	{
-		_selectTestingConnection	= selectTestingConnection;
-		_connectionId				= connectionId;
-	};
-    virtual ~DBConnection(){};
+  /*
+      DBConnection()
+          {
+                  _selectTestingConnection	= "";
+                  _connectionId				= -1;
+          };
+  */
+  DBConnection(string selectTestingConnection, int connectionId) {
+    _selectTestingConnection = selectTestingConnection;
+    _connectionId = connectionId;
+  };
+  virtual ~DBConnection() {};
 
-	int getConnectionId()
-	{
-		return _connectionId;
-	}
+  int getConnectionId() { return _connectionId; }
 
-    virtual bool connectionValid()
-    {
-		return true;
-    };
+  virtual bool connectionValid() { return true; };
 };
 
 class DBConnectionFactory {
 
 public:
-    virtual shared_ptr<DBConnection> create(int connectionId)=0;
+  virtual shared_ptr<DBConnection> create(int connectionId) = 0;
 };
 
-struct DBConnectionPoolStats 
-{
-    size_t _poolSize;
-    size_t _borrowedSize;
+struct DBConnectionPoolStats {
+  size_t _poolSize;
+  size_t _borrowedSize;
 };
 
-template<class T>
-class DBConnectionPool {
+template <class T> class DBConnectionPool {
 
 protected:
-    shared_ptr<DBConnectionFactory>		_factory;
-	size_t								_poolSize;
-    deque<shared_ptr<DBConnection>>		_connectionPool;
-    set<shared_ptr<DBConnection>>		_connectionBorrowed;
-    mutex								_connectionPoolMutex;
+  shared_ptr<DBConnectionFactory> _factory;
+  size_t _poolSize;
+  deque<shared_ptr<DBConnection>> _connectionPool;
+  set<shared_ptr<DBConnection>> _connectionBorrowed;
+  mutex _connectionPoolMutex;
 
 public:
+  DBConnectionPool(size_t poolSize, shared_ptr<DBConnectionFactory> factory) {
+    _poolSize = poolSize;
+    _factory = factory;
 
-    DBConnectionPool(size_t poolSize, shared_ptr<DBConnectionFactory> factory)
-    {
-        _poolSize=poolSize;
-        _factory=factory;
+#ifdef DBCONNECTIONPOOL_LOG
+    SPDLOG_DEBUG("building DBConnectionPool");
+#endif
 
-		#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-		SPDLOG_DEBUG("building DBConnectionPool");
-		#endif
+    int lastConnectionId = 0;
 
-		int lastConnectionId = 0;
+    // Fill the pool
+    while (_connectionPool.size() < _poolSize) {
+// shared_ptr<DBConnection> sqlConnection =
+// _factory->create(lastConnectionId++); if (sqlConnection != nullptr)
+// 	_connectionPool.push_back(sqlConnection);
+#ifdef DBCONNECTIONPOOL_LOG
+      SPDLOG_DEBUG("Creating connection {}", lastConnectionId);
+#endif
+      _connectionPool.push_back(_factory->create(lastConnectionId++));
+    }
+  };
 
-        // Fill the pool
-        while(_connectionPool.size() < _poolSize)
-        {
-			// shared_ptr<DBConnection> sqlConnection = _factory->create(lastConnectionId++);
-			// if (sqlConnection != nullptr)
-			// 	_connectionPool.push_back(sqlConnection);
-			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-			SPDLOG_DEBUG("Creating connection {}", lastConnectionId);
-			#endif
-			_connectionPool.push_back(_factory->create(lastConnectionId++));
-        }
-    };
+  ~DBConnectionPool() {};
 
-    ~DBConnectionPool() 
-    {
-    };
+  /**
+   * Borrow
+   *
+   * Borrow a connection for temporary use
+   *
+   * When done, either (a) call unborrow() to return it, or (b) (if it's bad)
+   * just let it go out of scope.  This will cause it to automatically be
+   * replaced.
+   * @retval a shared_ptr to the connection object
+   */
+  shared_ptr<T> borrow() {
+#ifdef DBCONNECTIONPOOL_LOG
+    SPDLOG_DEBUG("Received borrow");
+#endif
 
-    /**
-     * Borrow
-     *
-     * Borrow a connection for temporary use
-     *
-     * When done, either (a) call unborrow() to return it, or (b) (if it's bad) just let it go out of scope.  This will cause it to automatically be replaced.
-     * @retval a shared_ptr to the connection object
-     */
-    shared_ptr<T> borrow()
-    {
-		#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-        SPDLOG_DEBUG("Received borrow");
-		#endif
+    lock_guard<mutex> locker(_connectionPoolMutex);
 
-        lock_guard<mutex> locker(_connectionPoolMutex);
+    // Check for a free connection
+    if (_connectionPool.size() == 0) {
+#ifdef DBCONNECTIONPOOL_LOG
+      SPDLOG_DEBUG("_connectionPool.size is 0, look to recover a borrowed one");
+#endif
 
-		// Check for a free connection
-        if(_connectionPool.size()==0)
-        {
-			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-            SPDLOG_DEBUG("_connectionPool.size is 0, look to recover a borrowed one");
-			#endif
+      // Are there any crashed connections listed as "borrowed"?
+      for (set<shared_ptr<DBConnection>>::iterator it =
+               _connectionBorrowed.begin();
+           it != _connectionBorrowed.end(); ++it) {
+        // generally use_count is 2, one because of borrowed
+        // set and one because it is used for sql statements.
+        // If it is 1, it means this connection has been abandoned
+        if ((*it).use_count() == 1) {
+          // Destroy it and create a new connection
+          try {
+            // If we are able to create a new connection, return it
+#ifdef DBCONNECTIONPOOL_LOG
+            SPDLOG_DEBUG(
+                "Creating new connection to replace discarded connection");
+#endif
 
-            // Are there any crashed connections listed as "borrowed"?
-            for(set<shared_ptr<DBConnection> >::iterator it = _connectionBorrowed.begin();
-				it != _connectionBorrowed.end(); ++it)
-            {
-                // generally use_count is 2, one because of borrowed
-				// set and one because it is used for sql statements.
-                // If it is 1, it means this connection has been abandoned
-                if((*it).use_count() == 1)   
-                {
-                    // Destroy it and create a new connection
-                    try 
-                    {
-                        // If we are able to create a new connection, return it
-						#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-                        SPDLOG_DEBUG("Creating new connection to replace discarded connection");
-						#endif
+            int connectionId = (*it)->getConnectionId();
 
-                        int connectionId = (*it)->getConnectionId();
+            shared_ptr<DBConnection> sqlConnection =
+                _factory->create(connectionId);
+            if (sqlConnection == nullptr) {
+              string errorMessage = "sqlConnection is null";
+#ifdef DBCONNECTIONPOOL_LOG
+              SPDLOG_ERROR(errorMessage);
+#endif
 
-                        shared_ptr<DBConnection> sqlConnection =
-							_factory->create(connectionId);
-                        if (sqlConnection == nullptr)
-                        {
-                            string errorMessage = "sqlConnection is null"
-                            ;
-							#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-                            SPDLOG_ERROR(errorMessage);
-							#endif
-
-                            throw runtime_error(errorMessage);                    
-                        }
-
-                        _connectionBorrowed.erase(it);
-                        _connectionBorrowed.insert(sqlConnection);
-
-                        return static_pointer_cast<T>(sqlConnection);
-                    } 
-                    catch(std::exception& e) 
-                    {
-                        string errorMessage = "exception"
-                        ;
-						#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-                        SPDLOG_ERROR(errorMessage);
-						#endif
-
-                        // Error creating a replacement connection
-                        throw runtime_error(errorMessage);                    
-                    }
-                }
+              throw runtime_error(errorMessage);
             }
 
-            string errorMessage = "No connection available"
-            ;
-			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
+            _connectionBorrowed.erase(it);
+            _connectionBorrowed.insert(sqlConnection);
+
+            return static_pointer_cast<T>(sqlConnection);
+          } catch (std::exception &e) {
+            string errorMessage = "exception";
+#ifdef DBCONNECTIONPOOL_LOG
             SPDLOG_ERROR(errorMessage);
-			#endif
+#endif
 
-            // Nothing available
-            throw runtime_error(errorMessage);                    
+            // Error creating a replacement connection
+            throw runtime_error(errorMessage);
+          }
         }
+      }
 
-        // Take one off the front
-        shared_ptr<DBConnection> sqlConnection = _connectionPool.front();
-        _connectionPool.pop_front();
-        /*
-        if (sqlConnection->getConnectionId() == 0)
-        {
-                _connectionPool.pop_front();
-                _connectionPool.push_back(sqlConnection);
+      string errorMessage = "No connection available";
+#ifdef DBCONNECTIONPOOL_LOG
+      SPDLOG_ERROR(errorMessage);
+#endif
 
-                sqlConnection = _connectionPool.front();
-        }
-        */
+      // Nothing available
+      throw runtime_error(errorMessage);
+    }
 
-        if (sqlConnection == nullptr)
-        {
-            string errorMessage = "sqlConnection is null"
-            ;
-			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-            SPDLOG_ERROR(errorMessage);
-			#endif
-
-            throw runtime_error(errorMessage);                    
-        }
-
-        // shared_ptr<T> customSqlConnection = static_pointer_cast<T>(sqlConnection);
-        bool connectionValid = sqlConnection->connectionValid();
-        if (!connectionValid)
-        {
-			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-			SPDLOG_ERROR("sqlConnection is null or is not valid"
-				", connectionValid: {}", connectionValid
-			);
-			#endif
-
-            int connectionId = sqlConnection->getConnectionId();
-
-			try
-			{
-				// we will create a new connection. The previous connection
-				// will be deleted by the shared_ptr
-				sqlConnection=_factory->create(connectionId);
-				if (sqlConnection == nullptr)
-				{
-					// in this scenario we will lose one connection
-					// because we removed it from _connectionPool
-					// and we will not add it to _connectionBorrowed
-					// We will accept that since we were not be able
-					// to create a new connection
-
-					string errorMessage = "sqlConnection is null";
-					#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-					SPDLOG_ERROR(errorMessage);
-					#endif
-
-					throw runtime_error(errorMessage);                    
-				}
-			}
-			catch(runtime_error& e)
-			{        
-				#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-				SPDLOG_ERROR("sql connection creation failed"
-					", e.what(): {}", string(e.what())
-				);
-				#endif
-
-				// 2022-07-31: in case the create fails, we have to put
-				//	the connection again into the pool
-				//	Scenario: mysql server is restarted.
-				//		In this scenario, if we have a pool of 100 connections,
-				//		all the 'create' fail and the pool remain without connections.
-				//		The result is that the the pool of the application (i.e. MMS)
-				//		remain with a pool without connection. To recover, the application
-				//		has to be restarted once the mysql server is running again.
-				// So, to avoid that, we will insert the 'non valid' connection again
-				// into the pool in order next time the 'create' can be tried again
-
-				_connectionPool.push_back(sqlConnection);
-
-				throw e;
-			}
-			catch(exception& e)
-			{        
-				#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-				SPDLOG_ERROR("sql connection creation failed"
-					", e.what(): {}", e.what()
-				);
-				#endif
-
-				// 2022-07-31: in case the create fails, we have to put
-				//	the connection again into the pool
-				//	Scenario: mysql server is restarted.
-				//		In this scenario, if we have a pool of 100 connections,
-				//		all the 'create' fail and the pool remain without connections.
-				//		The result is that the the pool of the application (i.e. MMS)
-				//		remain with a pool without connection. To recover, the application
-				//		has to be restarted once the mysql server is running again.
-				// So, to avoid that, we will insert the 'non valid' connection again
-				// into the pool in order next time the 'create' can be tried again
-
-				_connectionPool.push_back(sqlConnection);
-
-				throw e;
-			}
-        }
-
-        _connectionBorrowed.insert(sqlConnection);
-
-		#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-		SPDLOG_DEBUG("borrow"
-			", connectionId: {}", sqlConnection->getConnectionId()
-		);
-		#endif
-
-        return static_pointer_cast<T>(sqlConnection);
-    };
-
-    /**
-     * Unborrow a connection
-     *
-     * Only call this if you are returning a working connection.  If the connection was bad, just let it go out of scope (so the connection manager can replace it).
-     * @param the connection
-     */
-    void unborrow(shared_ptr<T> sqlConnection) 
+    // Take one off the front
+    shared_ptr<DBConnection> sqlConnection = _connectionPool.front();
+    _connectionPool.pop_front();
+    /*
+    if (sqlConnection->getConnectionId() == 0)
     {
-        if (sqlConnection == nullptr)
-        {
-            string errorMessage = "sqlConnection is null"
-            ;
-			#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-			SPDLOG_ERROR(errorMessage);
-			#endif
+            _connectionPool.pop_front();
+            _connectionPool.push_back(sqlConnection);
 
-            throw runtime_error(errorMessage);                    
+            sqlConnection = _connectionPool.front();
+    }
+    */
+
+    if (sqlConnection == nullptr) {
+      string errorMessage = "sqlConnection is null";
+#ifdef DBCONNECTIONPOOL_LOG
+      SPDLOG_ERROR(errorMessage);
+#endif
+
+      throw runtime_error(errorMessage);
+    }
+
+    // shared_ptr<T> customSqlConnection =
+    // static_pointer_cast<T>(sqlConnection);
+    bool connectionValid = sqlConnection->connectionValid();
+    if (!connectionValid) {
+#ifdef DBCONNECTIONPOOL_LOG
+      SPDLOG_WARN("sqlConnection is null or is not valid"
+                  ", connectionValid: {}",
+                  connectionValid);
+#endif
+
+      int connectionId = sqlConnection->getConnectionId();
+
+      try {
+        // we will create a new connection. The previous connection
+        // will be deleted by the shared_ptr
+        sqlConnection = _factory->create(connectionId);
+        if (sqlConnection == nullptr) {
+          // in this scenario we will lose one connection
+          // because we removed it from _connectionPool
+          // and we will not add it to _connectionBorrowed
+          // We will accept that since we were not be able
+          // to create a new connection
+
+          string errorMessage = "sqlConnection is null";
+#ifdef DBCONNECTIONPOOL_LOG
+          SPDLOG_ERROR(errorMessage);
+#endif
+
+          throw runtime_error(errorMessage);
         }
+      } catch (runtime_error &e) {
+#ifdef DBCONNECTIONPOOL_LOG
+        SPDLOG_ERROR("sql connection creation failed"
+                     ", e.what(): {}",
+                     string(e.what()));
+#endif
 
-        lock_guard<mutex> locker(_connectionPoolMutex);
+        // 2022-07-31: in case the create fails, we have to put
+        //	the connection again into the pool
+        //	Scenario: mysql server is restarted.
+        //		In this scenario, if we have a pool of 100 connections,
+        //		all the 'create' fail and the pool remain without
+        //connections. 		The result is that the the pool of the application (i.e.
+        //MMS) 		remain with a pool without connection. To recover, the
+        //application 		has to be restarted once the mysql server is running
+        //again.
+        // So, to avoid that, we will insert the 'non valid' connection again
+        // into the pool in order next time the 'create' can be tried again
 
-        // Push onto the pool
-        _connectionPool.push_back(static_pointer_cast<DBConnection>(sqlConnection));
+        _connectionPool.push_back(sqlConnection);
 
-        // Unborrow
-        _connectionBorrowed.erase(sqlConnection);
+        throw e;
+      } catch (exception &e) {
+#ifdef DBCONNECTIONPOOL_LOG
+        SPDLOG_ERROR("sql connection creation failed"
+                     ", e.what(): {}",
+                     e.what());
+#endif
 
-		#ifdef DBCONNECTIONPOOL_LOG                                                                                  
-		SPDLOG_DEBUG("unborrow"
-			", connectionId: {}", sqlConnection->getConnectionId()
-		);
-		#endif
-    };
+        // 2022-07-31: in case the create fails, we have to put
+        //	the connection again into the pool
+        //	Scenario: mysql server is restarted.
+        //		In this scenario, if we have a pool of 100 connections,
+        //		all the 'create' fail and the pool remain without
+        //connections. 		The result is that the the pool of the application (i.e.
+        //MMS) 		remain with a pool without connection. To recover, the
+        //application 		has to be restarted once the mysql server is running
+        //again.
+        // So, to avoid that, we will insert the 'non valid' connection again
+        // into the pool in order next time the 'create' can be tried again
 
-    DBConnectionPoolStats get_stats() 
-    {
-        lock_guard<mutex> locker(_connectionPoolMutex);
+        _connectionPool.push_back(sqlConnection);
 
-        // Get stats
-        DBConnectionPoolStats stats;
-        stats._poolSize=_connectionPool.size();
-        stats._borrowedSize=_connectionBorrowed.size();			
+        throw e;
+      }
+    }
 
-        return stats;
-    };
+    _connectionBorrowed.insert(sqlConnection);
+
+#ifdef DBCONNECTIONPOOL_LOG
+    SPDLOG_DEBUG("borrow"
+                 ", connectionId: {}",
+                 sqlConnection->getConnectionId());
+#endif
+
+    return static_pointer_cast<T>(sqlConnection);
+  };
+
+  /**
+   * Unborrow a connection
+   *
+   * Only call this if you are returning a working connection.  If the
+   * connection was bad, just let it go out of scope (so the connection manager
+   * can replace it).
+   * @param the connection
+   */
+  void unborrow(shared_ptr<T> sqlConnection) {
+    if (sqlConnection == nullptr) {
+      string errorMessage = "sqlConnection is null";
+#ifdef DBCONNECTIONPOOL_LOG
+      SPDLOG_ERROR(errorMessage);
+#endif
+
+      throw runtime_error(errorMessage);
+    }
+
+    lock_guard<mutex> locker(_connectionPoolMutex);
+
+    // Push onto the pool
+    _connectionPool.push_back(static_pointer_cast<DBConnection>(sqlConnection));
+
+    // Unborrow
+    _connectionBorrowed.erase(sqlConnection);
+
+#ifdef DBCONNECTIONPOOL_LOG
+    SPDLOG_DEBUG("unborrow"
+                 ", connectionId: {}",
+                 sqlConnection->getConnectionId());
+#endif
+  };
+
+  DBConnectionPoolStats get_stats() {
+    lock_guard<mutex> locker(_connectionPoolMutex);
+
+    // Get stats
+    DBConnectionPoolStats stats;
+    stats._poolSize = _connectionPool.size();
+    stats._borrowedSize = _connectionBorrowed.size();
+
+    return stats;
+  };
 };
 #endif
