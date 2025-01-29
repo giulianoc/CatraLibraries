@@ -75,11 +75,16 @@ public:
 #ifdef DBCONNECTIONPOOL_LOG
           SPDLOG_ERROR("sql connection exception"
                        ", _connectionId: {}"
+                       ", elapsed since creation: {}"
                        ", hostname: {}"
                        ", _selectTestingConnection: {}"
                        ", e.what(): {}",
-                       _connectionId, _sqlConnection->hostname(),
-                       _selectTestingConnection, e.what());
+                       _connectionId,
+                       chrono::duration_cast<chrono::seconds>(
+                           chrono::system_clock::now() - _startCreation)
+                           .count(),
+                       _sqlConnection->hostname(), _selectTestingConnection,
+                       e.what());
 #endif
 
           connectionValid = false;
@@ -133,23 +138,13 @@ public:
   // Any exceptions thrown here should be caught elsewhere
   shared_ptr<DBConnection> create(int connectionId) {
     try {
-// reconnect? character set?
-#ifdef DBCONNECTIONPOOL_LOG
-      // string connectionDetails = std::format("dbname={} user={} password={}
-      // hostaddr={}" 	" port=5432", 	_dbName, _dbUsername, _dbPassword,
-      // _dbServer
-      // );
-      string connectionDetails =
-          std::format("postgresql://{}:{}@{}:5432/{}", _dbUsername, _dbPassword,
-                      _dbServer, _dbName);
-#else
+      // reconnect? character set?
       // string connectionDetails = "dbname=" + _dbName + " user=" + _dbUsername
       // 	+ " password=" + _dbPassword + " hostaddr=" + _dbServer + "
       // port=5432";
       string connectionDetails =
           std::format("postgresql://{}:{}@{}:{}/{}", _dbUsername, _dbPassword,
                       _dbServer, _dbPort, _dbName);
-#endif
 #ifdef DBCONNECTIONPOOL_LOG
       SPDLOG_DEBUG("sql connection creating..."
                    ", _dbServer: {}"
@@ -182,17 +177,17 @@ public:
 #endif
 
         return nullptr;
-      } else {
-#ifdef DBCONNECTIONPOOL_LOG
-        SPDLOG_DEBUG("just created sql connection"
-                     ", _connectionId: {}"
-                     ", _dbServer: {}"
-                     ", _dbUsername: {}"
-                     ", _dbName: {}",
-                     postgresConnection->getConnectionId(), _dbServer,
-                     _dbUsername, _dbName);
-#endif
       }
+#ifdef DBCONNECTIONPOOL_LOG
+      SPDLOG_DEBUG("just created sql connection"
+                   ", _connectionId: {}"
+                   ", _dbServer: {}"
+                   ", _dbUsername: {}"
+                   ", _dbName: {}",
+                   postgresConnection->getConnectionId(), _dbServer,
+                   _dbUsername, _dbName);
+#endif
+      postgresConnection->_startCreation = chrono::system_clock::now();
 
       return static_pointer_cast<DBConnection>(postgresConnection);
     } catch (sql_error const &e) {

@@ -24,6 +24,9 @@ protected:
   int _connectionId;
 
 public:
+  chrono::system_clock::time_point _startCreation;
+
+public:
   /*
       DBConnection()
           {
@@ -228,10 +231,10 @@ public:
         //	Scenario: mysql server is restarted.
         //		In this scenario, if we have a pool of 100 connections,
         //		all the 'create' fail and the pool remain without
-        //connections. 		The result is that the the pool of the application (i.e.
-        //MMS) 		remain with a pool without connection. To recover, the
-        //application 		has to be restarted once the mysql server is running
-        //again.
+        // connections. 		The result is that the the pool of the
+        // application (i.e. MMS) 		remain with a pool without
+        // connection. To recover, the application 		has to be
+        // restarted once the mysql server is running again.
         // So, to avoid that, we will insert the 'non valid' connection again
         // into the pool in order next time the 'create' can be tried again
 
@@ -250,10 +253,10 @@ public:
         //	Scenario: mysql server is restarted.
         //		In this scenario, if we have a pool of 100 connections,
         //		all the 'create' fail and the pool remain without
-        //connections. 		The result is that the the pool of the application (i.e.
-        //MMS) 		remain with a pool without connection. To recover, the
-        //application 		has to be restarted once the mysql server is running
-        //again.
+        // connections. 		The result is that the the pool of the
+        // application (i.e. MMS) 		remain with a pool without
+        // connection. To recover, the application 		has to be
+        // restarted once the mysql server is running again.
         // So, to avoid that, we will insert the 'non valid' connection again
         // into the pool in order next time the 'create' can be tried again
 
