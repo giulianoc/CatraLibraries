@@ -24,7 +24,7 @@ protected:
   int _connectionId;
 
 public:
-  chrono::system_clock::time_point _startCreation;
+  chrono::system_clock::time_point _lastActivity;
 
 public:
   /*
@@ -144,6 +144,8 @@ public:
 
             _connectionBorrowed.erase(it);
             _connectionBorrowed.insert(sqlConnection);
+
+            sqlConnection->_lastActivity = chrono::system_clock::now();
 
             return static_pointer_cast<T>(sqlConnection);
           } catch (std::exception &e) {
@@ -273,6 +275,8 @@ public:
                  ", connectionId: {}",
                  sqlConnection->getConnectionId());
 #endif
+
+    sqlConnection->_lastActivity = chrono::system_clock::now();
 
     return static_pointer_cast<T>(sqlConnection);
   };

@@ -75,13 +75,13 @@ public:
 #ifdef DBCONNECTIONPOOL_LOG
           SPDLOG_ERROR("sql connection exception"
                        ", _connectionId: {}"
-                       ", elapsed since creation: {}"
+                       ", elapsed since last activity: {} secs"
                        ", hostname: {}"
                        ", _selectTestingConnection: {}"
                        ", e.what(): {}",
                        _connectionId,
                        chrono::duration_cast<chrono::seconds>(
-                           chrono::system_clock::now() - _startCreation)
+                           chrono::system_clock::now() - _lastActivity)
                            .count(),
                        _sqlConnection->hostname(), _selectTestingConnection,
                        e.what());
@@ -187,7 +187,7 @@ public:
                    postgresConnection->getConnectionId(), _dbServer,
                    _dbUsername, _dbName);
 #endif
-      postgresConnection->_startCreation = chrono::system_clock::now();
+      postgresConnection->_lastActivity = chrono::system_clock::now();
 
       return static_pointer_cast<DBConnection>(postgresConnection);
     } catch (sql_error const &e) {
