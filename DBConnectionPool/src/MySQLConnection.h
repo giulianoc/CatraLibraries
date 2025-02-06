@@ -29,7 +29,7 @@ public:
   ~MySQLConnection() {
     if (_sqlConnection) {
 #ifdef DBCONNECTIONPOOL_LOG
-      SPDLOG_DEBUG("sql connection destruct"
+      SPDLOG_TRACE("sql connection destruct"
                    ", _connectionId: {}",
                    _connectionId);
 #endif
@@ -128,7 +128,7 @@ public:
       connection_properties["OPT_CHARSET_NAME"] = _defaultCharacterSet;
 
 #ifdef DBCONNECTIONPOOL_LOG
-      SPDLOG_DEBUG("sql connection creating..."
+      SPDLOG_TRACE("sql connection creating..."
                    ", _dbServer: {}"
                    ", _dbUsername: {}"
                    ", _dbPassword: {}"
@@ -170,7 +170,7 @@ public:
         return nullptr;
       } else {
 #ifdef DBCONNECTIONPOOL_LOG
-        SPDLOG_DEBUG("just created sql connection"
+        SPDLOG_TRACE("just created sql connection"
                      ", _connectionId: {}"
                      ", _dbServer: {}"
                      ", _dbUsername: {}"

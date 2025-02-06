@@ -71,7 +71,7 @@ public:
     _factory = factory;
 
 #ifdef DBCONNECTIONPOOL_LOG
-    SPDLOG_DEBUG("building DBConnectionPool");
+    SPDLOG_TRACE("building DBConnectionPool");
 #endif
 
     int lastConnectionId = 0;
@@ -82,7 +82,7 @@ public:
 // _factory->create(lastConnectionId++); if (sqlConnection != nullptr)
 // 	_connectionPool.push_back(sqlConnection);
 #ifdef DBCONNECTIONPOOL_LOG
-      SPDLOG_DEBUG("Creating connection {}", lastConnectionId);
+      SPDLOG_TRACE("Creating connection {}", lastConnectionId);
 #endif
       _connectionPool.push_back(_factory->create(lastConnectionId++));
     }
@@ -102,7 +102,7 @@ public:
    */
   shared_ptr<T> borrow() {
 #ifdef DBCONNECTIONPOOL_LOG
-    SPDLOG_DEBUG("Received borrow");
+    SPDLOG_TRACE("Received borrow");
 #endif
 
     lock_guard<mutex> locker(_connectionPoolMutex);
@@ -110,7 +110,7 @@ public:
     // Check for a free connection
     if (_connectionPool.size() == 0) {
 #ifdef DBCONNECTIONPOOL_LOG
-      SPDLOG_DEBUG("_connectionPool.size is 0, look to recover a borrowed one");
+      SPDLOG_TRACE("_connectionPool.size is 0, look to recover a borrowed one");
 #endif
 
       // Are there any crashed connections listed as "borrowed"?
@@ -125,7 +125,7 @@ public:
           try {
             // If we are able to create a new connection, return it
 #ifdef DBCONNECTIONPOOL_LOG
-            SPDLOG_DEBUG(
+            SPDLOG_TRACE(
                 "Creating new connection to replace discarded connection");
 #endif
 
@@ -271,7 +271,7 @@ public:
     _connectionBorrowed.insert(sqlConnection);
 
 #ifdef DBCONNECTIONPOOL_LOG
-    SPDLOG_DEBUG("borrow"
+    SPDLOG_TRACE("borrow"
                  ", connectionId: {}",
                  sqlConnection->getConnectionId());
 #endif
@@ -308,7 +308,7 @@ public:
     _connectionBorrowed.erase(sqlConnection);
 
 #ifdef DBCONNECTIONPOOL_LOG
-    SPDLOG_DEBUG("unborrow"
+    SPDLOG_TRACE("unborrow"
                  ", connectionId: {}",
                  sqlConnection->getConnectionId());
 #endif

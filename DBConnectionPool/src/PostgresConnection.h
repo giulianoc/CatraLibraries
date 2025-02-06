@@ -28,7 +28,7 @@ public:
 
   ~PostgresConnection() {
 #ifdef DBCONNECTIONPOOL_LOG
-    SPDLOG_DEBUG("sql connection destruct"
+    SPDLOG_TRACE("sql connection destruct"
                  ", _connectionId: {}",
                  _connectionId);
 #endif
@@ -48,7 +48,7 @@ public:
       if (_selectTestingConnection != "") {
         try {
 #ifdef DBCONNECTIONPOOL_LOG
-          SPDLOG_DEBUG("sql connection test"
+          SPDLOG_TRACE("sql connection test"
                        ", _connectionId: {}"
                        ", _selectTestingConnection: {}",
                        _connectionId, _selectTestingConnection);
@@ -146,7 +146,7 @@ public:
           std::format("postgresql://{}:{}@{}:{}/{}", _dbUsername, _dbPassword,
                       _dbServer, _dbPort, _dbName);
 #ifdef DBCONNECTIONPOOL_LOG
-      SPDLOG_DEBUG("sql connection creating..."
+      SPDLOG_TRACE("sql connection creating..."
                    ", _dbServer: {}"
                    ", _dbUsername: {}"
                    // ", _dbPassword: {}"
@@ -179,7 +179,7 @@ public:
         return nullptr;
       }
 #ifdef DBCONNECTIONPOOL_LOG
-      SPDLOG_DEBUG("just created sql connection"
+      SPDLOG_TRACE("just created sql connection"
                    ", _connectionId: {}"
                    ", _dbServer: {}"
                    ", _dbUsername: {}"
