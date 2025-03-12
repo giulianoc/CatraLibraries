@@ -1,10 +1,10 @@
 /*
  Copyright (C) Giuliano Catrambone (giuliano.catrambone@catrasoftware.it)
 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either 
- version 2 of the License, or (at your option) any later 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later
  version.
 
  This program is distributed in the hope that it will be useful,
@@ -21,35 +21,32 @@
  with the authors.
 */
 
+#include "Compressor.h"
 #include <iostream>
 #include <string.h>
-#include "Compressor.h"
 
-
-int main (int iArgc, char **pArgv)
+int main(int iArgc, char **pArgv)
 
 {
 
-	if (iArgc != 2)
-	{
-		std:: cerr << "Usage: " << pArgv [0] << " <string to compress>"
-			<< std:: endl;
+  if (iArgc != 2) {
+    std::cerr << "Usage: " << pArgv[0] << " <string to compress>" << std::endl;
 
-		return 1;
-	}
+    return 1;
+  }
 
-	string toBeCompressed = pArgv [1];
+  string toBeCompressed = pArgv[1];
 
-	// for (long lIndex = 0; lIndex < 10000; lIndex++)
-	{
-		string compressed = Compressor::compress_string(toBeCompressed);
-		std:: cout << "compressed: " << compressed << std:: endl;
+  // for (long lIndex = 0; lIndex < 10000; lIndex++)
+  {
+    string compressed = Compressor::compress_string(toBeCompressed);
+    std::cout << "compressed: " << compressed << std::endl;
 
-		string unCompressed = Compressor::decompress_string(compressed);
-		std:: cout << "unCompressed: " << unCompressed << std:: endl;
-	}
+    std::vector<uint8_t> vec(compressed.begin(), compressed.end());
 
+    string unCompressed = Compressor::decompress_string(vec);
+    std::cout << "unCompressed: " << unCompressed << std::endl;
+  }
 
-	return 0;
+  return 0;
 }
-

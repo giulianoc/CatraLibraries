@@ -18,9 +18,9 @@ public:
   shared_ptr<connection> _sqlConnection;
 
   /*
-          PostgresConnection(): DBConnection()
-          {
-          }
+                  PostgresConnection(): DBConnection()
+                  {
+                  }
   */
 
   PostgresConnection(string selectTestingConnection, int connectionId)
@@ -190,22 +190,6 @@ public:
       postgresConnection->_lastActivity = chrono::system_clock::now();
 
       return static_pointer_cast<DBConnection>(postgresConnection);
-    } catch (sql_error const &e) {
-#ifdef DBCONNECTIONPOOL_LOG
-      SPDLOG_ERROR("sql connection creation failed"
-                   ", e.what(): {}",
-                   e.what());
-#endif
-
-      throw runtime_error(e.what());
-    } catch (runtime_error &e) {
-#ifdef DBCONNECTIONPOOL_LOG
-      SPDLOG_ERROR("sql connection creation failed"
-                   ", e.what(): {}",
-                   e.what());
-#endif
-
-      throw e;
     } catch (exception &e) {
 #ifdef DBCONNECTIONPOOL_LOG
       SPDLOG_ERROR("sql connection creation failed"
@@ -213,9 +197,118 @@ public:
                    e.what());
 #endif
 
-      throw e;
+      throw;
     }
   };
 };
 
+class PostgresConnTrans {
+private:
+  shared_ptr<DBConnectionPool<PostgresConnection>> _connectionsPool;
+  bool _abort;
+
+public:
+  unique_ptr<pqxx::transaction_base> transaction;
+  shared_ptr<PostgresConnection> connection;
+
+  PostgresConnTrans(
+      shared_ptr<DBConnectionPool<PostgresConnection>> connectionsPool,
+      bool work) {
+#ifdef DBCONNECTIONPOOL_LOG
+    SPDLOG_DEBUG("Transaction constructor"
+                 ", work: {}",
+                 work);
+#endif
+    _abort = false;
+    _connectionsPool = connectionsPool;
+    connection = _connectionsPool->borrow();
+    try {
+      if (work)
+        transaction = make_unique<pqxx::work>(*(connection->_sqlConnection));
+      else
+        transaction =
+            make_unique<pqxx::nontransaction>(*(connection->_sqlConnection));
+    } catch (exception &e) {
+#ifdef DBCONNECTIONPOOL_LOG
+      SPDLOG_ERROR(
+          "Transaction failed"
+          ", connection: {}",
+          (connection != nullptr ? connection->getConnectionId() : -1));
+#endif
+      connectionsPool->unborrow(connection);
+      throw;
+    }
+  }
+
+  void setAbort() { _abort = true; }
+
+  ~PostgresConnTrans() {
+#ifdef DBCONNECTIONPOOL_LOG
+    SPDLOG_DEBUG("Transaction destructor"
+                 ", abort: {}",
+                 _abort);
+#endif
+    try {
+      if (_abort)
+        transaction->abort();
+      else
+        transaction->commit();
+    } catch (exception &e) {
+#ifdef DBCONNECTIONPOOL_LOG
+      SPDLOG_ERROR(
+          "Transaction abort/commit failed"
+          ", abort: {}"
+          ", connection: {}",
+          _abort, (connection != nullptr ? connection->getConnectionId() : -1));
+#endif
+    }
+    if (connection != nullptr)
+      _connectionsPool->unborrow(connection);
+  }
+};
+
+class PostgresTransaction {
+private:
+  bool _abort;
+
+public:
+  unique_ptr<pqxx::transaction_base> transaction;
+
+  PostgresTransaction(shared_ptr<PostgresConnection> connection, bool work) {
+#ifdef DBCONNECTIONPOOL_LOG
+    SPDLOG_DEBUG("Transaction constructor"
+                 ", work: {}",
+                 work);
+#endif
+    _abort = false;
+
+    if (work)
+      transaction = make_unique<pqxx::work>(*(connection->_sqlConnection));
+    else
+      transaction =
+          make_unique<pqxx::nontransaction>(*(connection->_sqlConnection));
+  }
+
+  void setAbort() { _abort = true; }
+
+  ~PostgresTransaction() {
+#ifdef DBCONNECTIONPOOL_LOG
+    SPDLOG_DEBUG("Transaction destructor"
+                 ", abort: {}",
+                 _abort);
+#endif
+    try {
+      if (_abort)
+        transaction->abort();
+      else
+        transaction->commit();
+    } catch (exception &e) {
+#ifdef DBCONNECTIONPOOL_LOG
+      SPDLOG_ERROR("Transaction abort/commit failed"
+                   ", abort: {}",
+                   _abort);
+#endif
+    }
+  }
+};
 #endif

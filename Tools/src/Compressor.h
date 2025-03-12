@@ -2,10 +2,10 @@
 /*
  Copyright (C) Giuliano Catrambone (giuliano.catrambone@catrasoftware.it)
 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either 
- version 2 of the License, or (at your option) any later 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later
  version.
 
  This program is distributed in the hope that it will be useful,
@@ -22,38 +22,26 @@
  with the authors.
 */
 
-
 #ifndef Compressor_h
 #define Compressor_h
 
+#include <cstdint>
 #include <string>
+#include <vector>
 #include <zlib.h>
 
 using namespace std;
 
-typedef class Compressor {
-
-private:
-    Compressor (const Compressor &);
-
-    Compressor &operator = (const Compressor &);
+class Compressor {
 
 public:
-    Compressor ();
+  /** Compress a STL string using zlib with given compression level and return
+   * the binary data. */
+  static string compress_string(const string &str,
+                                int compressionlevel = Z_DEFAULT_COMPRESSION);
+  // int compressionlevel = Z_BEST_COMPRESSION);
 
-    ~Compressor ();
-
-    static string compress(const string &in);
-
-	/** Compress a STL string using zlib with given compression level and return
-	  * the binary data. */
-	static string compress_string(const string& str,
-		int compressionlevel = Z_DEFAULT_COMPRESSION);
-		// int compressionlevel = Z_BEST_COMPRESSION);
-
-	static string decompress_string(const string& str);
-
-} Compressor_t, *Compressor_p;
+  static string decompress_string(const vector<uint8_t> &str);
+};
 
 #endif
-
