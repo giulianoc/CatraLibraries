@@ -31,7 +31,7 @@ fi
 #sleepIfNeeded
 removePreviousVersions
 
-mmsStopALL.sh
+/home/mms/mmsStopALL.sh
 
 echo "cd /opt/catramms"
 cd /opt/catramms
@@ -53,11 +53,11 @@ ln -s CatraLibraries-$version CatraLibraries
 
 cd
 
-mmsStatusALL.sh
+/home/mms/mmsStatusALL.sh
 
 echo ""
 
-mmsStatusALL.sh
+/home/mms/mmsStatusALL.sh
 
-mmsStartALL.sh
+/home/mms/mmsStartALL.sh
 
