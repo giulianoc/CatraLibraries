@@ -45,8 +45,8 @@ sleep 1
 
 #echo "tar xvfz CatraLibraries-$version-$linuxName.tar.gz"
 #tar xvfz CatraLibraries-$version-$linuxName.tar.gz
-echo "tar xvfz CatraLibraries-$version.tar.gz"
-tar xvfz CatraLibraries-$version.tar.gz
+echo "tar xfz CatraLibraries-$version.tar.gz"
+tar xfz CatraLibraries-$version.tar.gz
 
 echo "ln -s CatraLibraries-$version CatraLibraries"
 ln -s CatraLibraries-$version CatraLibraries

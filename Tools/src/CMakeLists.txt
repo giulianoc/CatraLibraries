@@ -30,12 +30,10 @@ SET (SOURCES
 	FileReader.cpp
 	GetCpuUsage.cpp
 	Network.cpp
-	Service.cpp
+	#Service.cpp
 	StringTokenizer.cpp
 	System.cpp
-	ProcessUtility.cpp
 	ToolsErrors.cpp
-	StringUtils.cpp
 )
 if (LDAP_FOUND)
 	SET (SOURCES
@@ -55,12 +53,10 @@ SET (HEADERS
 	GetCpuUsage.h
 	MergeSort.h
 	Network.h
-	Service.h
+	#Service.h
 	StringTokenizer.h
 	System.h
-	ProcessUtility.h
 	ToolsErrors.h
-	StringUtils.h
 )
 if (LDAP_FOUND)
 	SET (HEADERS
